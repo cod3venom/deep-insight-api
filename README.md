@@ -8,19 +8,19 @@
 1. Create database:
 
 ```bash
-$ php bin/console doctrine:database:create
+php bin/console doctrine:database:create
 ```
 
 2. Schema update:
 
 ```bash
-$ php bin/console d:s:u --force
+php bin/console d:s:u --force
 ```
 
 3. Migrations & Fixtures:
 
 ```bash
-$ php bin/console doctrine:fixtures:load
+php bin/console doctrine:fixtures:load
 ```
 
 #### Database
@@ -34,10 +34,10 @@ $ php bin/console doctrine:fixtures:load
 Consuming Messages (Running the Worker)
 
 ```bash
-$ php bin/console messenger:consume async
+php bin/console messenger:consume async
 
 # use -vv to see details about what's happening
-$ php bin/console messenger:consume async -vv
+php bin/console messenger:consume async -vv
 ```
 
 
@@ -49,9 +49,9 @@ $ php bin/console messenger:consume async -vv
 Clear cache 4 prod mode:
 
 ```bash
-$ php bin/console cache:clear --env=prod --no-debug
-$ php bin/console cache:warmup --env=prod --no-debug
-$ php bin/console assets:install --env=prod --no-debug --symlink
+php bin/console cache:clear --env=prod --no-debug
+php bin/console cache:warmup --env=prod --no-debug
+php bin/console assets:install --env=prod --no-debug --symlink
 ```
 
 ## Test
