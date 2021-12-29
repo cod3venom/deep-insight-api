@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Controller\Admin\Users\TraitColorCrud;
+use App\Controller\Admin\HumanTraits\TraitCategoryCrud;
+use App\Controller\Admin\HumanTraits\TraitColorCrud;
+use App\Controller\Admin\HumanTraits\TraitItemCrud;
 use App\Controller\Admin\Users\UsersCrud;
 use App\Entity;
 use Doctrine\Common\Collections\Criteria;
@@ -70,11 +72,11 @@ class Dashboard extends AbstractDashboardController
             MenuItem::linkToCrud('Analyses', 'fas fa-chart-pie', Entity\HumanTraits\TraitColor::class)
                 ->setController(TraitColorCrud::class),
 
-            MenuItem::linkToCrud('Trait Categories', 'fas fa-sitemap', Entity\HumanTraits\TraitColor::class)
-                ->setController(TraitColorCrud::class),
+            MenuItem::linkToCrud('Trait Categories', 'fas fa-sitemap', Entity\HumanTraits\TraitCategory::class)
+                ->setController(TraitCategoryCrud::class),
 
-            MenuItem::linkToCrud('Trait Items', 'fas fa-list', Entity\HumanTraits\TraitColor::class)
-                ->setController(TraitColorCrud::class),
+            MenuItem::linkToCrud('Trait Items', 'fas fa-list', Entity\HumanTraits\TraitItem::class)
+                ->setController(TraitItemCrud::class),
 
             MenuItem::linkToCrud('Trait colors', 'fas fa-tint', Entity\HumanTraits\TraitColor::class)
                 ->setController(TraitColorCrud::class),

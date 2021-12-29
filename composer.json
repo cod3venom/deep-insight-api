@@ -21,6 +21,7 @@
         "gedmo/doctrine-extensions": "^3.1",
         "lexik/jwt-authentication-bundle": "^2.14",
         "nelmio/cors-bundle": "^2.1",
+        "oro/doctrine-extensions": "2.*",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid": "^4.2",
         "sensio/framework-extra-bundle": "^6.1",

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\TraitColor;
+use App\Entity\HumanTraits\TraitColor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

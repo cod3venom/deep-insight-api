@@ -6,7 +6,7 @@ api_login_check:
     path: /api/login_check
 
 api_sign_in:
-    path: /sign_in
+    path: /sign-in
     methods: ['POST']
 
 api_sign_out:

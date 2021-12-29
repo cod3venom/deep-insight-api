@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin\HumanTraits;
 
+use App\Entity\HumanTraits\TraitCategory;
 use App\Entity\HumanTraits\TraitColor;
+use App\Entity\HumanTraits\TraitItem;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -22,7 +24,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 
-class TraitColorCrud extends AbstractCrudController
+class TraitItemCrud extends AbstractCrudController
 {
     /**
      * @var ParameterBagInterface
@@ -43,7 +45,7 @@ class TraitColorCrud extends AbstractCrudController
      */
     public static function getEntityFqcn(): string
     {
-        return TraitColor::class;
+        return TraitItem::class;
     }
 
     /**
@@ -53,8 +55,8 @@ class TraitColorCrud extends AbstractCrudController
     {
         return $crud
             ->setEntityLabelInSingular('Trait')
-            ->setEntityLabelInPlural('Colors')
-            ->setSearchFields(['id', 'name'])
+            ->setEntityLabelInPlural('Items')
+            ->setSearchFields(['id', 'name', 'icon'])
             ;
     }
 
@@ -62,7 +64,7 @@ class TraitColorCrud extends AbstractCrudController
     {
         return $filters
             ->add('name')
-            ->add('color');
+            ->add('dataType');
     }
 
 
@@ -72,14 +74,15 @@ class TraitColorCrud extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
 
-        $id    = IntegerField::new('id');
-        $name     = TextField::new('name');
-        $color     = ArrayField::new('color');
+        $id         = IntegerField::new('id');
+        $name       = TextField::new('name');
+        $dataType   = TextField::new('dataType');
+        $category   = TextField::new('category');
+        $icon       = ImageField::new('icon');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $color];
+            return [$id, $name, $dataType, $icon];
         }
-
-        return [$name, $color];
+        return [$name, $dataType, $icon];
     }
 }

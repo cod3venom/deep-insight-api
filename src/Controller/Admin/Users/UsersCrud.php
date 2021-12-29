@@ -20,10 +20,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-/**
- * Class KnowledgeZoneCrud
- * @package App\Controller\Admin
- */
+
 class UsersCrud extends AbstractCrudController
 {
     /**
