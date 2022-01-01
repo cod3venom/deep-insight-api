@@ -7,6 +7,7 @@ use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -19,6 +20,8 @@ class User implements UserInterface
     public const ROLE_SUB_USER = 'ROLE_SUB_USER';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
 
+    private string $token = "";
+
     use IdTrait;
 
     /**
@@ -27,7 +30,7 @@ class User implements UserInterface
     private string $userId;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     private string $email;
 
@@ -107,7 +110,22 @@ class User implements UserInterface
 
     public function getUsername(): ?string
     {
-        return null;
+        return $this->email;
+    }
+
+    public function getJwt(): string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param string $jwt
+     * @return User
+     */
+    public function setJwt(string $jwt): self
+    {
+        $this->token = $jwt;
+        return $this;
     }
 
 
@@ -124,5 +142,14 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    #[ArrayShape(['id' => "mixed", 'userId' => "string", 'email' => "string"])] public function getPublicResponse(): array
+    {
+        return [
+            'id' => $this->id,
+            'userId' => $this->userId,
+            'email' => $this->email
+        ];
     }
 }

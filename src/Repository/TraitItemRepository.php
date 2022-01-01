@@ -29,13 +29,9 @@ class TraitItemRepository extends ServiceEntityRepository
      */
     public function all(): array
     {
-        return $this->_em->createQueryBuilder()
-            ->addSelect("items, categories")
-            ->from(TraitItem::class, 'items')
-            ->from(TraitCategory::class, 'categories')
-            ->andWhere("items.categoryId = categories.categoryId")
+        return $this->createQueryBuilder('q')
             ->getQuery()
-            ->getScalarResult();
+            ->getResult();
     }
 
 }

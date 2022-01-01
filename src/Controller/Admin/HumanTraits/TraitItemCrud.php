@@ -8,7 +8,10 @@ use App\Entity\HumanTraits\TraitCategory;
 use App\Entity\HumanTraits\TraitColor;
 use App\Entity\HumanTraits\TraitItem;
 use App\Entity\User\User;
+use App\Repository\TraitCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -22,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Uid\UuidV4;
 
 
 class TraitItemCrud extends AbstractCrudController
@@ -31,13 +35,15 @@ class TraitItemCrud extends AbstractCrudController
      */
     private ParameterBagInterface $parameterBag;
 
-    /**
-     * KnowledgeZoneCrud constructor.
-     * @param ParameterBagInterface $parameterBag
-     */
-    public function __construct(ParameterBagInterface $parameterBag)
+    private TraitCategoryRepository $traitCategoryRepository;
+
+    public function __construct(
+        ParameterBagInterface $parameterBag,
+        TraitCategoryRepository $traitCategoryRepository
+    )
     {
         $this->parameterBag = $parameterBag;
+        $this->traitCategoryRepository = $traitCategoryRepository;
     }
 
     /**
@@ -56,7 +62,7 @@ class TraitItemCrud extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Trait')
             ->setEntityLabelInPlural('Items')
-            ->setSearchFields(['id', 'name', 'icon'])
+            ->setSearchFields(['id', 'name', 'icon', 'categoryName'])
             ;
     }
 
@@ -77,8 +83,11 @@ class TraitItemCrud extends AbstractCrudController
         $id         = IntegerField::new('id');
         $name       = TextField::new('name');
         $dataType   = TextField::new('dataType');
-        $category   = TextField::new('category');
-        $icon       = ImageField::new('icon');
+
+
+        $icon       = ImageField::new('icon')
+            ->setUploadDir($this->parameterBag->get('trait_icons_dir'))
+            ->setBasePath($this->parameterBag->get('trait_icons_base'));
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $dataType, $icon];

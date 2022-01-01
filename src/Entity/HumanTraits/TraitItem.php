@@ -4,8 +4,10 @@ namespace App\Entity\HumanTraits;
 
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\UpdatedTrait;
+use App\Entity\HumanTraits\TraitCategory;
 use App\Repository\TraitItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=TraitItemRepository::class)
@@ -20,8 +22,8 @@ class TraitItem
     private int $id;
 
     /**
-     * @ORM\Column(type="uuid")
-     */
+     * @ORM\Column(type="integer")
+     **/
     private string $categoryId;
 
     /**
@@ -42,6 +44,10 @@ class TraitItem
     use UpdatedTrait;
     use CreatedTrait;
 
+    public function __construct()
+    {
+        $this->categoryId = Uuid::uuid4();
+    }
     public function getId(): ?int
     {
         return $this->id;
@@ -52,7 +58,7 @@ class TraitItem
         return $this->categoryId;
     }
 
-    public function setCategoryId($categoryId): self
+    public function setCategoryId(int $categoryId): self
     {
         $this->categoryId = $categoryId;
 

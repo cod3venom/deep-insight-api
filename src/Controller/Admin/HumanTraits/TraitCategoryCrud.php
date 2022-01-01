@@ -30,11 +30,7 @@ class TraitCategoryCrud extends AbstractCrudController
      */
     private ParameterBagInterface $parameterBag;
 
-    /**
-     * KnowledgeZoneCrud constructor.
-     * @param ParameterBagInterface $parameterBag
-     */
-    public function __construct(ParameterBagInterface $parameterBag)
+        public function __construct(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
     }
@@ -55,7 +51,7 @@ class TraitCategoryCrud extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Trait')
             ->setEntityLabelInPlural('Categories')
-            ->setSearchFields(['id', 'categoryName'])
+            ->setSearchFields(['categoryId', 'categoryName'])
             ;
     }
 
@@ -71,7 +67,7 @@ class TraitCategoryCrud extends AbstractCrudController
      */
     public function configureFields(string $pageName): iterable
     {
-        $id    = IntegerField::new('id');
+        $id    = IntegerField::new('categoryId');
         $name     = TextField::new('categoryName');
 
         if (Crud::PAGE_INDEX === $pageName) {

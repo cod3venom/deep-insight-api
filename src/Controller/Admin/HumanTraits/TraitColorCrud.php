@@ -29,11 +29,7 @@ class TraitColorCrud extends AbstractCrudController
      */
     private ParameterBagInterface $parameterBag;
 
-    /**
-     * KnowledgeZoneCrud constructor.
-     * @param ParameterBagInterface $parameterBag
-     */
-    public function __construct(ParameterBagInterface $parameterBag)
+        public function __construct(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
     }

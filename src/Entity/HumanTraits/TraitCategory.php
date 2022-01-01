@@ -6,6 +6,7 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\TraitCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=TraitCategoryRepository::class)
@@ -13,16 +14,11 @@ use Doctrine\ORM\Mapping as ORM;
 class TraitCategory
 {
     /**
-     * @ORM\Id
      * @ORM\GeneratedValue
+     * @ORM\Id
      * @ORM\Column(type="integer")
      */
-    private int $id;
-
-    /**
-     * @ORM\Column(type="uuid")
-     */
-    private string $categoryId;
+    private string $id;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -37,21 +33,12 @@ class TraitCategory
     use UpdatedTrait;
     use CreatedTrait;
 
-    public function getId(): ?int
+
+
+
+    public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getCategoryId()
-    {
-        return $this->categoryId;
-    }
-
-    public function setCategoryId($categoryId): self
-    {
-        $this->categoryId = $categoryId;
-
-        return $this;
     }
 
     public function getCategoryName(): ?string
@@ -76,5 +63,10 @@ class TraitCategory
         $this->position = $position;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->categoryName;
     }
 }

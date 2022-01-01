@@ -11,8 +11,11 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 
-class UserFixtures extends Fixture
+class SubUserFixtures extends Fixture
 {
+    private const emails = [
+        'sub.john.'
+    ];
     public function load(ObjectManager $manager): void
     {
         $userid = Uuid::uuid4()->toString();

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\User;
 
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\UserProfileRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -35,14 +36,25 @@ class UserProfile
     private string $lastName;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private string $email;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private string $phone;
+
+    /**
      * @ORM\Column(type="date")
      */
-    private string $birthDay;
+    private DateTime $birthDay;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $avatar;
+
 
     use UpdatedTrait;
     use CreatedTrait;
@@ -52,7 +64,7 @@ class UserProfile
         return $this->id;
     }
 
-    public function getUserId()
+    public function getUserId(): string
     {
         return $this->userId;
     }
@@ -88,12 +100,37 @@ class UserProfile
         return $this;
     }
 
-    public function getBirthDay(): ?\DateTimeInterface
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getBirthDay(): DateTime
     {
         return $this->birthDay;
     }
 
-    public function setBirthDay(\DateTimeInterface $birthDay): self
+    public function setBirthDay(DateTime $birthDay): self
     {
         $this->birthDay = $birthDay;
 

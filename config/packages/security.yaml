@@ -62,7 +62,8 @@ security:
         - { path: ^/api/is-logged,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/api/sign-in,            roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/is-logged,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/forgot-password,    roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/reset-password,     roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/reps,               roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api,                    roles: IS_AUTHENTICATED_FULLY }
+
+        - { path: ^/api,                    roles: IS_AUTHENTICATED_ANONYMOUSLY }
