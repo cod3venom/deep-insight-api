@@ -30,6 +30,11 @@ class User implements UserInterface
     private string $userId;
 
     /**
+     * @ORM\Column(type="uuid", nullable=true)
+     */
+    private ?string $userAuthorId;
+
+    /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private string $email;
@@ -56,6 +61,18 @@ class User implements UserInterface
     public function setUserId($userId): self
     {
         $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function getUserAuthorId(): ?string
+    {
+        return $this->userAuthorId;
+    }
+
+    public function setUserAuthorId(?string $userAuthorId): self
+    {
+        $this->userAuthorId = $userAuthorId;
 
         return $this;
     }

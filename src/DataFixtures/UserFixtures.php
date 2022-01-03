@@ -15,7 +15,7 @@ class UserFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $userid = Uuid::uuid4()->toString();
+        $userid = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
         $user = new User();
         $profile = new UserProfile();
         $companyInfo = new UserCompanyInfo();
@@ -37,8 +37,7 @@ class UserFixtures extends Fixture
             ->setCreatedAt();;
 
         $companyInfo
-            ->setUserId(Uuid::uuid4()->toString())
-            ->setUserAuthorId($userid)
+            ->setUserId($userid)
             ->setCompanyName('Roots-Connector')
             ->setCompanyWww('www.rootsconnector.com')
             ->setCompanyIndustry('IT')

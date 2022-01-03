@@ -25,11 +25,6 @@ class UserCompanyInfo
     private string $userId;
 
     /**
-     * @ORM\Column(type="uuid")
-     */
-    private string $userAuthorId;
-
-    /**
      * @ORM\Column(type="string", length=255)
      */
     private ?string $companyName;
@@ -125,17 +120,6 @@ class UserCompanyInfo
         return $this;
     }
 
-    public function getUserAuthorId(): string
-    {
-        return $this->userAuthorId;
-    }
-
-    public function setUserAuthorId(string $userAuthorId): self
-    {
-        $this->userAuthorId = $userAuthorId;
-
-        return $this;
-    }
     public function getRegon(): ?int
     {
         return $this->regon;
