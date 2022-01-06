@@ -13,18 +13,21 @@ namespace App\Controller\API\User;
 
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;
+use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use DateTime;
+use Doctrine\ORM\NoResultException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
- * @Route (path="/me")
+ * @Route (path="/me/sub-users")
  */
 class SubUserCrudController extends VirtualController
 {
@@ -48,22 +51,23 @@ class SubUserCrudController extends VirtualController
 
     private function rulesValidation($email, $firstName, $lastName, $birthDay)
     {
-        if (is_null($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (empty($email) ||  !filter_var($email, FILTER_VALIDATE_EMAIL)) {
            throw new \InvalidArgumentException('Email is not valid');
         }
-        if (is_null($firstName)) {
+        if (empty($firstName)) {
             throw new \InvalidArgumentException('First Name is not valid');
         }
-        if (is_null($lastName)) {
+        if (empty($lastName)) {
             throw new \InvalidArgumentException('Last Name is not valid');
         }
 
-        if (is_null($birthDay)) {
+        if (empty($birthDay)) {
             throw new \InvalidArgumentException('Birth Day is not valid');
         }
     }
+
     /**
-     * @Route (path="/sub-users/add", methods={"PUT"})
+     * @Route (path="/add", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -81,15 +85,24 @@ class SubUserCrudController extends VirtualController
 
         try {
 
+            # Validate input or throw @InvalidArgumentException
             $this->rulesValidation($email, $firstName, $lastName, $birthDay);
 
             $userAuthorId = $this->user()->getUserId(); # generate auth user id
             $userId = Uuid::uuid4()->toString(); # generate user id for the creating user
-            $birthDay = new DateTime($birthDay); # port birth day string to the date time object
+            $birthDay = DateHelper::slashToDash($birthDay); # port birth day string to the date time object
+
+
+            # Check if user already exists
+            if ($this->userRepository->exists($email)) {
+                return $this->responseBuilder->addMessage('User already exists')
+                    ->setStatus(Response::HTTP_ALREADY_REPORTED)
+                    ->jsonResponse();
+            }
+
 
             $subUserAcc = new User();
             $subUserProfile = new UserProfile();
-
 
             $subUserAcc
                 ->setUserId($userId)
@@ -116,7 +129,120 @@ class SubUserCrudController extends VirtualController
             $this->responseBuilder->addPayload([$subUserProfile]);
             return $this->responseBuilder->jsonResponse();
         }
+        catch (\InvalidArgumentException $ex){
+            return $this->responseBuilder
+                ->addMessage($ex->getMessage())
+                ->setStatus(Response::HTTP_BAD_REQUEST)
+                ->jsonResponse();
+        }
         catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/update/{subUserId}", methods={"PUT"})
+     * @param Request $request
+     * @param $subUserId
+     * @return JsonResponse
+     */
+    public function update(Request $request, $subUserId): JsonResponse
+    {
+        $email = $request->get('email');
+        $password = password_hash(microtime(), PASSWORD_DEFAULT);
+
+        $firstName = $request->get('firstName');
+        $lastName = $request->get('lastName');
+        $phone = $request->get('phone');
+
+        $birthDay = $request->get('birthDay');
+        $avatar = $request->get('avatar');
+
+        try {
+
+
+            # Validate input or throw @InvalidArgumentException
+            $this->rulesValidation($email, $firstName, $lastName, $birthDay);
+
+            $userAuthorId = $this->user()->getUserId(); # generate auth user id
+            $birthDay = DateHelper::slashToDash($birthDay); # port birth day string to the date time object
+
+            # Check if user already exists
+            if (!$this->userRepository->existByUserId($subUserId)) {
+                return $this->responseBuilder->addMessage('User does not  exists')
+                    ->setStatus(Response::HTTP_NOT_FOUND)
+                    ->jsonResponse();
+            }
+
+            $subUserAcc = $this->userRepository->findByUserId($subUserId);
+            $subUserProfile = $this->userProfileRepository->findSubUserById($subUserId);
+
+            $subUserAcc
+                ->setUserAuthorId($userAuthorId)
+                ->setEmail($email)
+                ->setPassword($password)
+                ->setRoles([User::ROLE_SUB_USER])
+                ->setLastLoginAt()
+                ->setCreatedAt();
+
+            $subUserProfile
+                ->setFirstName($firstName)
+                ->setLastName($lastName)
+                ->setEmail($email)
+                ->setPhone($phone)
+                ->setBirthDay($birthDay)
+                ->setAvatar($avatar)
+                ->setCreatedAt();
+
+            $this->userRepository->save($subUserAcc);
+            $this->userProfileRepository->save($subUserProfile);
+
+            $this->responseBuilder->addPayload([$subUserProfile]);
+            return $this->responseBuilder->jsonResponse();
+        }
+        catch (\InvalidArgumentException $ex){
+            return $this->responseBuilder
+                ->addMessage($ex->getMessage())
+                ->setStatus(Response::HTTP_BAD_REQUEST)
+                ->jsonResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/delete/{subUserId}", methods={"DELETE"})
+     * @param string $subUserId
+     * @return JsonResponse
+     */
+    public function delete(string $subUserId): JsonResponse
+    {
+        try {
+            $accExists = $this->userRepository->existByUserId($subUserId);
+            $profExists = $this->userProfileRepository->findSubUserById($subUserId);
+            if (!$accExists || !$profExists) {
+                return $this->responseBuilder->addMessage('User does not  exists')
+                    ->setStatus(Response::HTTP_NOT_FOUND)
+                    ->jsonResponse();
+            }
+
+            $user = $this->userRepository->findByUserId($subUserId);
+            $profile = $this->userProfileRepository->findSubUserById($subUserId);
+
+            $this->userRepository->delete($user);
+            $this->userProfileRepository->delete($profile);
+
+            return $this->responseBuilder->addPayload([])
+                ->setStatus(Response::HTTP_OK)
+                ->jsonResponse();
+        }
+        catch (NoResultException){
+            return $this->responseBuilder->addMessage('User does not exists')
+                ->setStatus(Response::HTTP_NOT_FOUND)
+                ->jsonResponse();
+        }
+        catch (\Exception $ex){
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

@@ -148,4 +148,11 @@ class UserProfile
 
         return $this;
     }
+
+    public function arrayToProfile(array $input): self {
+        foreach ($input as $k=>$v){
+            $this->{$k} = $v;
+        }
+        return $this;
+    }
 }

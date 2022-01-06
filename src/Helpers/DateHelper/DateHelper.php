@@ -26,17 +26,17 @@ class DateHelper
            return new DateTime($date);
        }
        catch (Exception $ex){
-           return new DateTime('1-1-2000');
+           throw new \InvalidArgumentException('Wrong date was provided');
        }
     }
 
     public static function dashToSlash(string $dateStr): DateTime
     {
-        $date = str_replace('-', '/', $dateStr);
         try {
+            $date = str_replace('-', '/', $dateStr);
             return new DateTime($date);
         } catch (Exception $e) {
-            return new DateTime('1/1/2000');
+            throw new \InvalidArgumentException('Wrong date was provided');
         }
     }
 

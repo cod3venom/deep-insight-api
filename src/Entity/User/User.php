@@ -29,7 +29,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="uuid", unique=true)
      */
-    private string $userId;
+    private ?string $userId = null;
 
     /**
      * @ORM\Column(type="uuid", nullable=true)
@@ -65,7 +65,7 @@ class User implements UserInterface
     use UpdatedTrait;
     use CreatedTrait;
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
         return $this->userId;
     }
