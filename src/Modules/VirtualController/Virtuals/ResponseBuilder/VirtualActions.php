@@ -48,8 +48,15 @@ class VirtualActions
      */
     public function somethingWentWrong(): ResponseBuilder
     {
-        return $this->responseBuilder->addMessage('Incoming request was provided wrongly')
+        return $this->responseBuilder->addMessage('Something went wrong')
             ->setStatus(Response::HTTP_BAD_REQUEST);
     }
+
+    public function ruleViolation(string $fieldName): ResponseBuilder {
+        $message = $fieldName . ' cant be null';
+        return $this->responseBuilder->addMessage($message)
+            ->setStatus(Response::HTTP_BAD_REQUEST);
+    }
+
 
 }

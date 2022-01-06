@@ -6,6 +6,8 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\UserRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -54,9 +56,19 @@ class User implements UserInterface
      */
     private array $roles = [];
 
+    /**
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
+     * @var DateTimeInterface
+     */
+    private DateTimeInterface $lastLoginAt;
+
     use UpdatedTrait;
     use CreatedTrait;
 
+    public function getUserId(): string
+    {
+        return $this->userId;
+    }
 
     public function setUserId($userId): self
     {
@@ -121,6 +133,18 @@ class User implements UserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function getLastLoginAt(): DateTimeInterface
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(): self
+    {
+        $this->lastLoginAt  = new DateTime();
 
         return $this;
     }

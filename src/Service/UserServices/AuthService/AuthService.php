@@ -74,6 +74,7 @@ final class AuthService
         }
 
         $user->setJwt($this->tokenManager->create($user));
+        $user->setLastLoginAt();
         $this->userRepository->save($user);
         return $user;
     }

@@ -39,7 +39,7 @@ class AccessController extends VirtualController
     {
         $status = false;
         try {
-            $token = $this->virtualUser->getBearer();
+            $token = $this->getBearer();
             $status = !!$encoder->decode($token);
             $this->responseBuilder->setStatus(Response::HTTP_OK);
         } catch (JWTDecodeFailureException $ex) {

@@ -12,6 +12,7 @@
 namespace App\Modules\VirtualController\Virtuals\ResponseBuilder;
 
 use phpDocumentor\Reflection\PseudoTypes\NumericString;
+use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -29,6 +30,7 @@ class ResponseBuilder extends VirtualActions
      */
     protected array $responseData = [];
 
+    protected object $responseObjectData;
     /**
      * @var int
      */
@@ -62,6 +64,7 @@ class ResponseBuilder extends VirtualActions
         $this->responseData = $payload;
         return $this;
     }
+
 
     /**
      * @param string $key

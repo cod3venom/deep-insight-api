@@ -19,32 +19,14 @@ class TraitAnalysisRepository extends ServiceEntityRepository
         parent::__construct($registry, TraitAnalysis::class);
     }
 
-    // /**
-    //  * @return TraitAnalysis[] Returns an array of TraitAnalysis objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findTraitsByBirthDay($value)
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('t.birthDay = :birthDay')
+            ->setParameter('birthDay', $value)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?TraitAnalysis
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
