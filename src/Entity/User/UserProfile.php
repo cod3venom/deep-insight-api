@@ -18,8 +18,9 @@ use Doctrine\ORM\Mapping as ORM;
 class UserProfile
 {
 
+    use IdTrait;
+
     /**
-     * @ORM\Id
      * @ORM\Column(type="uuid", length=255)
      */
     private string $userId;
@@ -53,14 +54,6 @@ class UserProfile
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $avatar;
-
-
-    /**
-     * @ORM\OneToOne(targetEntity=UserCompanyInfo::class, cascade={"persist"})cascade={"persist", "remove", "merge", "refresh"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
-     */
-    private ?UserCompanyInfo $companyInfo;
-
 
     use UpdatedTrait;
     use CreatedTrait;

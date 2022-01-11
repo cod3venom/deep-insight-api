@@ -80,17 +80,22 @@ class UserProfileRepository extends ServiceEntityRepository
 
 
     /**
+     * @param string $subUserId
+     * @return UserProfile
      * @throws NonUniqueResultException
-     * @throws NoResultException
      */
     public function findSubUserById(string $subUserId): UserProfile{
-        $result =  $this->createQueryBuilder('p')
-            ->andWhere('p.id = :subUserId')
-            ->setParameter('subUserId', $subUserId)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getResult();
-        return (new UserProfile())->arrayToProfile($result);
+        try{
+            return $this->createQueryBuilder('p')
+                ->andWhere('p.userId = :subUserId')
+                ->setParameter('subUserId', $subUserId)
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult();
+        }
+        catch (NoResultException) {
+            return new UserProfile();
+        }
     }
 
 

@@ -30,8 +30,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="uuid")
      */
-    private string $userId;
-
+    private string $userId = "";
 
     /**
      * @ORM\Column(type="uuid", nullable=true)
@@ -63,12 +62,6 @@ class User implements UserInterface
      * @var DateTimeInterface
      */
     private DateTimeInterface $lastLoginAt;
-
-    /**
-     * @ORM\OneToOne(targetEntity=UserProfile::class, cascade={"persist", "remove", "merge", "refresh"})
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
-     */
-    public ?UserProfile $profile;
 
     use UpdatedTrait;
     use CreatedTrait;
@@ -155,14 +148,6 @@ class User implements UserInterface
         $this->lastLoginAt  = new DateTime();
 
         return $this;
-    }
-
-    #[Pure] public function getProfile(): UserProfile
-    {
-        if (is_null($this->profile)){
-            return (new UserProfile());
-        }
-        return  $this->profile;
     }
 
     public function getUsername(): ?string

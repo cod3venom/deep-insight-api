@@ -39,9 +39,27 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param string $userId
+     * @return bool
+     */
     public function existByUserId(string $userId): bool {
         try {
             return !!$this->findUserById($userId)->getUserId();
+        }
+        catch (Exception $ex){
+            return false;
+        }
+    }
+
+    /**
+     * @param string $userId
+     * @return bool
+     */
+    public function existsAsSubUser(string $userId): bool
+    {
+        try {
+            return !!$this->findSubUserById($userId)->getUserId();
         }
         catch (Exception $ex){
             return false;
@@ -74,7 +92,7 @@ class UserRepository extends ServiceEntityRepository
     {
         try{
             return $this->createQueryBuilder('u')
-                ->andWhere('u.id = :userId')
+                ->andWhere('u.userId = :userId')
                 ->setParameter('userId', $id)
                 ->setMaxResults(1)
                 ->getQuery()
@@ -93,7 +111,7 @@ class UserRepository extends ServiceEntityRepository
         try{
             return $this->createQueryBuilder('u')
                     ->where('u.roles LIKE :roles')
-                    ->andWhere('u.id = :subUserId')
+                    ->andWhere('u.userId = :subUserId')
                     ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
                     ->setParameter('subUserId', $subUserId)
                     ->setMaxResults(1)

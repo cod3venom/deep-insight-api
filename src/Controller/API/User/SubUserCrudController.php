@@ -183,16 +183,16 @@ class SubUserCrudController extends VirtualController
             $this->rulesValidation($email, $firstName, $lastName, $birthDay);
 
             $userAuthorId = $this->user()->getUserId(); # generate auth user id
-            $birthDay = DateHelper::slashToDash($birthDay); # port birth day string to the date time object
+            $birthDay = DateHelper::birthDay($birthDay); # port birth day string to the date time object
 
             # Check if user already exists
-            if (!$this->userRepository->existByUserId($subUserId)) {
+            if (!$this->userRepository->existsAsSubUser($subUserId)) {
                 return $this->responseBuilder->addMessage('User does not  exists')
                     ->setStatus(Response::HTTP_NOT_FOUND)
                     ->jsonResponse();
             }
 
-            $subUserAcc = $this->userRepository->findUserById($subUserId);
+            $subUserAcc = $this->userRepository->findSubUserById($subUserId);
             $subUserProfile = $this->userProfileRepository->findSubUserById($subUserId);
 
             $subUserAcc
@@ -244,10 +244,11 @@ class SubUserCrudController extends VirtualController
                     ->jsonResponse();
             }
 
-            $user = $this->userRepository->findUserById($subUserId);
+            $user = $this->userRepository->findSubUserById($subUserId);
+            $profile = $this->userProfileRepository->findSubUserById($subUserId);
 
             $this->userRepository->delete($user);
-            $this->userProfileRepository->delete($user->getProfile());
+            $this->userProfileRepository->delete($profile);
 
             return $this->responseBuilder->addPayload([])
                 ->setStatus(Response::HTTP_OK)

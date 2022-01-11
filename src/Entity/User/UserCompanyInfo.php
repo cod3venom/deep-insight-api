@@ -14,8 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserCompanyInfo
 {
+    use IdTrait;
+
     /**
-     * @ORM\Id
      * @ORM\Column(type="uuid", length=255)
      */
     private string $userId;

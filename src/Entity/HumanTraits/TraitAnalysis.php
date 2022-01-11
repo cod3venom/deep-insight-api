@@ -536,14 +536,14 @@ class TraitAnalysis
         return $this;
     }
 
-    public function getDoerControll(): ?string
+    public function getDoerControl(): ?string
     {
-        return $this->doerControll;
+        return $this->doerControl;
     }
 
-    public function setDoerControll(?string $doerControll): self
+    public function setDoerControl(?string $doerControl): self
     {
-        $this->doerControll = $doerControll;
+        $this->doerControl = $doerControl;
 
         return $this;
     }
@@ -560,14 +560,14 @@ class TraitAnalysis
         return $this;
     }
 
-    public function getWatherPeace(): ?string
+    public function getWaterPeace(): ?string
     {
-        return $this->watherPeace;
+        return $this->waterPeace;
     }
 
-    public function setWatherPeace(?string $watherPeace): self
+    public function setWaterPeace(?string $waterPeace): self
     {
-        $this->watherPeace = $watherPeace;
+        $this->waterPeace = $waterPeace;
 
         return $this;
     }
@@ -836,12 +836,12 @@ class TraitAnalysis
 
     public function getP3My(): ?string
     {
-        return $this->P3My;
+        return $this->P3MY;
     }
 
-    public function setP3My(?string $P3My): self
+    public function setP3My(?string $P3MY): self
     {
-        $this->P3My = $P3My;
+        $this->P3MY = $P3MY;
 
         return $this;
     }

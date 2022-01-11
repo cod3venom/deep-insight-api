@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\HumanTraits\TraitAnalysis;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,14 +21,24 @@ class TraitAnalysisRepository extends ServiceEntityRepository
         parent::__construct($registry, TraitAnalysis::class);
     }
 
-    public function findTraitsByBirthDay($value)
+    /**
+     * @param $value
+     * @return TraitAnalysis
+     */
+    public function findTraitsByBirthDay($value): TraitAnalysis
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.birthDay = :birthDay')
-            ->setParameter('birthDay', $value)
-            ->getQuery()
-            ->getResult()
-        ;
+        try{
+            return $this->createQueryBuilder('t')
+                ->andWhere('t.birthDay = :birthDay')
+                ->setParameter('birthDay', $value)
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult()
+                ;
+        }
+        catch (\Exception $ex){
+            return new TraitAnalysis();
+        }
     }
 
 }
