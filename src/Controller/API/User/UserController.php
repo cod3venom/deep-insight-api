@@ -57,37 +57,4 @@ class UserController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
-
-    /**
-     * @Route (path="/sub-users", methods={"GET"})
-     * @return JsonResponse
-     */
-    public function subUsers(): JsonResponse
-    {
-        try {
-            $user = $this->userProfileRepository->allSubUsers();
-            $this->responseBuilder->addPayload($user);
-            return $this->responseBuilder->jsonResponse();
-        }
-        catch (\Exception $ex) {
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
-
-    /**
-     * @Route (path="/sub-users/{subUserId}", methods={"GET"})
-     * @param string $subUserId
-     * @return JsonResponse
-     */
-    public function subUserById(string $subUserId): JsonResponse
-    {
-        try {
-            $user = $this->userProfileRepository->findSubUserById($subUserId);
-            $this->responseBuilder->addPayload($user);
-            return $this->responseBuilder->jsonResponse();
-        }
-        catch (\Exception $ex) {
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
 }

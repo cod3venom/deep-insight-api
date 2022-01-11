@@ -37,6 +37,7 @@ class SubUserFixtures extends Fixture
         'Amazon'
     ];
 
+
     /**
      * @throws \Exception
      */
@@ -61,11 +62,12 @@ class SubUserFixtures extends Fixture
                 ->setEmail($email)
                 ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
                 ->setRoles([User::ROLE_SUB_USER])
+                ->setLastLoginAt()
                 ->setCreatedAt();
 
 
             $profile
-                ->setUserId($userid)
+                ->setUserId($user->getUserId())
                 ->setFirstName($name)
                 ->setLastName($lastname)
                 ->setBirthDay(new DateTime('1998-11-'.$i))
@@ -74,7 +76,7 @@ class SubUserFixtures extends Fixture
                 ->setCreatedAt();;
 
             $companyInfo
-                ->setUserId($userid)
+                ->setUserId($profile->getUserId())
                 ->setCompanyName($company)
                 ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
                 ->setCompanyIndustry('IT')

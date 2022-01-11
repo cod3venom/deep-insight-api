@@ -30,7 +30,9 @@ class UserRepository extends ServiceEntityRepository
      */
     public function exists(string $email): bool {
         try {
-            return !!$this->findByEmail($email)->getUserId();
+            $user  = $this->findByEmail($email);
+            $flag = !empty($user->getUserId());
+            return $flag;
         }
         catch (Exception $ex){
             return false;
@@ -39,7 +41,7 @@ class UserRepository extends ServiceEntityRepository
 
     public function existByUserId(string $userId): bool {
         try {
-            return !!$this->findByUserId($userId)->getUserId();
+            return !!$this->findUserById($userId)->getUserId();
         }
         catch (Exception $ex){
             return false;
@@ -68,12 +70,12 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @throws NonUniqueResultException
      */
-    public function findByUserId(string $userId): User
+    public function findUserById(string $id): User
     {
         try{
             return $this->createQueryBuilder('u')
-                ->andWhere('u.userId = :userId')
-                ->setParameter('userId', $userId)
+                ->andWhere('u.id = :userId')
+                ->setParameter('userId', $id)
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getSingleResult();
@@ -81,6 +83,65 @@ class UserRepository extends ServiceEntityRepository
         catch (NoResultException) {
             return new User();
         }
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findSubUserById(string $subUserId): User
+    {
+        try{
+            return $this->createQueryBuilder('u')
+                    ->where('u.roles LIKE :roles')
+                    ->andWhere('u.id = :subUserId')
+                    ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+                    ->setParameter('subUserId', $subUserId)
+                    ->setMaxResults(1)
+                    ->getQuery()
+                    ->getSingleResult();
+        }
+        catch (NoResultException) {
+            return new User();
+        }
+    }
+
+    /**
+     * Returns list of sub-users
+     * @return array
+     */
+    public function allSubUsers(): array
+    {
+        $users = $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :roles')
+            ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+            ->getQuery()
+            ->getResult();
+        $result = array_map(function ($user){
+            if ($user instanceof User){
+                return $user->getProfile();
+            }
+        }, $users);
+
+        return $result;
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    public function save(User $user)
+    {
+        $this->_em->persist($user);
+        $this->_em->flush();
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    public function update(User $user)
+    {
+        $this->_em->flush();
     }
 
     /**
@@ -92,16 +153,6 @@ class UserRepository extends ServiceEntityRepository
     public function delete(User $profile)
     {
         $this->_em->remove($profile);
-        $this->_em->flush();
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
-    public function save(User $user)
-    {
-        $this->_em->persist($user);
         $this->_em->flush();
     }
 }

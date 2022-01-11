@@ -3,7 +3,9 @@
 namespace App\Entity\User;
 
 use App\Entity\Traits\CreatedTrait;
+use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
+use App\Entity\Traits\UuidTrait;
 use App\Repository\UserCompanyInfoRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,15 +16,10 @@ class UserCompanyInfo
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
-    /**
-     * @ORM\Column(type="uuid")
+     * @ORM\Column(type="uuid", length=255)
      */
     private string $userId;
+
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -103,12 +100,8 @@ class UserCompanyInfo
     use UpdatedTrait;
     use CreatedTrait;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
-    public function getUserId()
+    public function getUserId(): ?string
     {
         return $this->userId;
     }

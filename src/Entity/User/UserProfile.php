@@ -2,8 +2,12 @@
 
 namespace App\Entity\User;
 
+use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\Traits\CreatedTrait;
+use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
+use App\Entity\Traits\UserIdTrait;
+use App\Entity\Traits\UuidTrait;
 use App\Repository\UserProfileRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,15 +17,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserProfile
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
 
     /**
-     * @ORM\Column(type="uuid")
+     * @ORM\Id
+     * @ORM\Column(type="uuid", length=255)
      */
     private string $userId;
 
@@ -56,13 +55,16 @@ class UserProfile
     private ?string $avatar;
 
 
+    /**
+     * @ORM\OneToOne(targetEntity=UserCompanyInfo::class, cascade={"persist"})cascade={"persist", "remove", "merge", "refresh"})
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
+     */
+    private ?UserCompanyInfo $companyInfo;
+
+
     use UpdatedTrait;
     use CreatedTrait;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getUserId(): string
     {

@@ -28,10 +28,9 @@ class ResponseBuilder extends VirtualActions
     /**
      * @var array
      */
-    protected array $responseData = [];
+    protected $responseData = [];
 
-    protected object $responseObjectData;
-    /**
+     /**
      * @var int
      */
     protected int $status = Response::HTTP_OK;
@@ -65,7 +64,14 @@ class ResponseBuilder extends VirtualActions
         return $this;
     }
 
-
+    /**
+     * @param $obj
+     * @return ResponseBuilder
+     */
+    public function addObject($obj): self {
+        $this->responseData = $this->serializer->serialize($obj, JsonEncoder::FORMAT);
+        return $this;
+    }
     /**
      * @param string $key
      * @param $value
@@ -109,6 +115,15 @@ class ResponseBuilder extends VirtualActions
     public function getData(): array
     {
         return $this->responseData;
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function objectResponse(): JsonResponse {
+        return new JsonResponse($this->responseData,
+            $this->status, [], true
+        );
     }
 
     /**

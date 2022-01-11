@@ -23,7 +23,8 @@ class UserFixtures extends Fixture
             ->setUserId($userid)
             ->setEmail('levan.ostrowski@gmail.com')
             ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
-            ->setRoles([User::ROLE_USER, User::ROLE_ADMIN, User::ROLE_SUB_USER])
+            ->setRoles([User::ROLE_USER, User::ROLE_ADMIN])
+            ->setLastLoginAt()
             ->setCreatedAt();
 
 

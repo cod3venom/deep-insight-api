@@ -67,6 +67,22 @@ class SubUserCrudController extends VirtualController
     }
 
     /**
+     * @Route (path="/", methods={"GET"})
+     * @return JsonResponse
+     */
+    public function all(): JsonResponse
+    {
+        try {
+            $user = $this->userRepository->allSubUsers();
+            $this->responseBuilder->addPayload($user);
+            return $this->responseBuilder->jsonResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
      * @Route (path="/add", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
@@ -126,8 +142,10 @@ class SubUserCrudController extends VirtualController
             $this->userRepository->save($subUserAcc);
             $this->userProfileRepository->save($subUserProfile);
 
-            $this->responseBuilder->addPayload([$subUserProfile]);
-            return $this->responseBuilder->jsonResponse();
+            return $this->responseBuilder
+                ->addObject($subUserProfile)
+                ->objectResponse();
+
         }
         catch (\InvalidArgumentException $ex){
             return $this->responseBuilder
@@ -174,7 +192,7 @@ class SubUserCrudController extends VirtualController
                     ->jsonResponse();
             }
 
-            $subUserAcc = $this->userRepository->findByUserId($subUserId);
+            $subUserAcc = $this->userRepository->findUserById($subUserId);
             $subUserProfile = $this->userProfileRepository->findSubUserById($subUserId);
 
             $subUserAcc
@@ -194,11 +212,11 @@ class SubUserCrudController extends VirtualController
                 ->setAvatar($avatar)
                 ->setCreatedAt();
 
-            $this->userRepository->save($subUserAcc);
-            $this->userProfileRepository->save($subUserProfile);
+            $this->userRepository->update($subUserAcc);
+            $this->userProfileRepository->update($subUserProfile);
 
-            $this->responseBuilder->addPayload([$subUserProfile]);
-            return $this->responseBuilder->jsonResponse();
+            $this->responseBuilder->addObject($subUserProfile);
+            return $this->responseBuilder->objectResponse();
         }
         catch (\InvalidArgumentException $ex){
             return $this->responseBuilder
@@ -220,18 +238,16 @@ class SubUserCrudController extends VirtualController
     {
         try {
             $accExists = $this->userRepository->existByUserId($subUserId);
-            $profExists = $this->userProfileRepository->findSubUserById($subUserId);
-            if (!$accExists || !$profExists) {
+            if (!$accExists) {
                 return $this->responseBuilder->addMessage('User does not  exists')
                     ->setStatus(Response::HTTP_NOT_FOUND)
                     ->jsonResponse();
             }
 
-            $user = $this->userRepository->findByUserId($subUserId);
-            $profile = $this->userProfileRepository->findSubUserById($subUserId);
+            $user = $this->userRepository->findUserById($subUserId);
 
             $this->userRepository->delete($user);
-            $this->userProfileRepository->delete($profile);
+            $this->userProfileRepository->delete($user->getProfile());
 
             return $this->responseBuilder->addPayload([])
                 ->setStatus(Response::HTTP_OK)
@@ -241,6 +257,24 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->addMessage('User does not exists')
                 ->setStatus(Response::HTTP_NOT_FOUND)
                 ->jsonResponse();
+        }
+        catch (\Exception $ex){
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/{subUserId}", methods={"GET"})
+     * @param string $subUserId
+     * @return JsonResponse
+     */
+    public function getSubUser(string $subUserId): JsonResponse
+    {
+        try {
+            $profile = $this->userRepository->findSubUserById($subUserId);
+            return $this->responseBuilder->addObject($profile)
+                ->setStatus(Response::HTTP_OK)
+                ->objectResponse();
         }
         catch (\Exception $ex){
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();

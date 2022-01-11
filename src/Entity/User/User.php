@@ -5,11 +5,12 @@ namespace App\Entity\User;
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
+use App\Entity\Traits\UuidTrait;
 use App\Repository\UserRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -27,9 +28,10 @@ class User implements UserInterface
     use IdTrait;
 
     /**
-     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\Column(type="uuid")
      */
-    private ?string $userId = null;
+    private string $userId;
+
 
     /**
      * @ORM\Column(type="uuid", nullable=true)
@@ -61,6 +63,12 @@ class User implements UserInterface
      * @var DateTimeInterface
      */
     private DateTimeInterface $lastLoginAt;
+
+    /**
+     * @ORM\OneToOne(targetEntity=UserProfile::class, cascade={"persist", "remove", "merge", "refresh"})
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="user_id")
+     */
+    public ?UserProfile $profile;
 
     use UpdatedTrait;
     use CreatedTrait;
@@ -149,6 +157,14 @@ class User implements UserInterface
         return $this;
     }
 
+    #[Pure] public function getProfile(): UserProfile
+    {
+        if (is_null($this->profile)){
+            return (new UserProfile());
+        }
+        return  $this->profile;
+    }
+
     public function getUsername(): ?string
     {
         return $this->email;
@@ -183,14 +199,5 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
-    }
-
-    #[ArrayShape(['id' => "mixed", 'userId' => "string", 'email' => "string"])] public function getPublicResponse(): array
-    {
-        return [
-            'id' => $this->id,
-            'userId' => $this->userId,
-            'email' => $this->email
-        ];
     }
 }

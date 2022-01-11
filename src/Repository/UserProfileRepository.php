@@ -78,36 +78,21 @@ class UserProfileRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function allSubUsers()
-    {
-        return $this->createQueryBuilder('p')
-            ->select('p.userId, u.userAuthorId, p.firstName, p.lastName, p.email, p.phone, p.birthDay, p.avatar, u.roles, u.lastLoginAt, p.createdAt')
-            ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
-            ->where('u.roles LIKE :roles')
-            ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
-            ->getQuery()
-            ->getResult();
-    }
 
     /**
-     * @param string $subUserId
-     * @return UserProfile
-     * @throws NoResultException
      * @throws NonUniqueResultException
+     * @throws NoResultException
      */
-    public function findSubUserById(string $subUserId): UserProfile
-    {
+    public function findSubUserById(string $subUserId): UserProfile{
         $result =  $this->createQueryBuilder('p')
-            ->select('p.userId, u.userAuthorId, p.firstName, p.lastName, p.email, p.phone, p.birthDay, p.avatar, u.roles, u.lastLoginAt, p.createdAt')
-            ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
-            ->where('u.roles LIKE :roles')
-            ->andWhere('u.userId = :subUserId')
-            ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+            ->andWhere('p.id = :subUserId')
             ->setParameter('subUserId', $subUserId)
+            ->setMaxResults(1)
             ->getQuery()
-            ->getSingleResult();
+            ->getResult();
         return (new UserProfile())->arrayToProfile($result);
     }
+
 
     /**
      * @param string $email
@@ -134,9 +119,9 @@ class UserProfileRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function delete(UserProfile $profile)
+    public function save(UserProfile $profile)
     {
-        $this->_em->remove($profile);
+        $this->_em->persist($profile);
         $this->_em->flush();
     }
 
@@ -146,9 +131,19 @@ class UserProfileRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function save(UserProfile $profile)
+    public function update(UserProfile $profile)
     {
-        $this->_em->persist($profile);
+        $this->_em->flush();
+    }
+    /**
+     * @param UserProfile $profile
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(UserProfile $profile)
+    {
+        $this->_em->remove($profile);
         $this->_em->flush();
     }
 }

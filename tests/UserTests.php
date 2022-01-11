@@ -99,8 +99,20 @@ class UserTests extends KernelTestCase
             $this->assertEquals('1', '2');
         }
 
-        $user = $userRepo->findByEmail('levan.ostrowski@gmail.com');
+        $user = $userRepo->findUserById('1ec71241-781e-6486-8833-75000c6bd029');
+        $profile = $user->profile->getFirstName();
         $this->assertNotNull($user);
     }
 
+    public function testUpdateAccount()
+    {
+        $userRepo = $this->entityManager->getRepository(User::class);
+
+        if (!($userRepo instanceof UserRepository)){
+            $this->assertEquals('1', '2');
+        }
+
+        $user = $userRepo->findUserById('1ec71241-7a01-6bea-8e43-75000c6bd029');
+         $this->assertNotNull($user);
+    }
 }
