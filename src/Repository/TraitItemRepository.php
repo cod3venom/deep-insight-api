@@ -34,4 +34,14 @@ class TraitItemRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findIconByTraitName(string $traitName)
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.name := traitName')
+            ->setParameter('traitName', $traitName)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

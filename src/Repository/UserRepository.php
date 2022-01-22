@@ -129,18 +129,11 @@ class UserRepository extends ServiceEntityRepository
      */
     public function allSubUsers(): array
     {
-        $users = $this->createQueryBuilder('u')
+        return $this->createQueryBuilder('u')
             ->andWhere('u.roles LIKE :roles')
             ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
             ->getQuery()
             ->getResult();
-        $result = array_map(function ($user){
-            if ($user instanceof User){
-                return $user->getProfile();
-            }
-        }, $users);
-
-        return $result;
     }
 
     /**

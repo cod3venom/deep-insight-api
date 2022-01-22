@@ -16,6 +16,7 @@ use App\Modules\VirtualController\VirtualController;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
+use App\Service\HumanTraitServices\HumanTraitsService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,17 +39,21 @@ class HumanTraits extends VirtualController
 
     private TraitAnalysisRepository $traitAnalysisRepository;
 
+    private HumanTraitsService $humanTraitsService;
+
     public function __construct(
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
-        TraitAnalysisRepository $traitAnalysisRepository
+        TraitAnalysisRepository $traitAnalysisRepository,
+        HumanTraitsService $humanTraitsService
     )
     {
         parent::__construct($serializer);
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
+        $this->humanTraitsService = $humanTraitsService;
     }
 
     /**
@@ -60,9 +65,10 @@ class HumanTraits extends VirtualController
         try{
             $userId = $this->user()->getUserId();
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $birthday = $profile->getBirthDay();
+            $birthday = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthday);
-            return $this->responseBuilder->addObject($analysisReport)->setStatus(Response::HTTP_OK)->jsonResponse();
+            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport);
+            return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
@@ -80,7 +86,9 @@ class HumanTraits extends VirtualController
             $profile = $this->userProfileRepository->findSubUserById($userId);
             $birthDay = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
-            return $this->responseBuilder->addObject($analysisReport)->setStatus(Response::HTTP_OK)->objectResponse();
+
+            $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport);
+            return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();

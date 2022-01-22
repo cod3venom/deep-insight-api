@@ -63,6 +63,12 @@ class User implements UserInterface
      */
     private DateTimeInterface $lastLoginAt;
 
+    /**
+     * @ORM\OneToOne (targetEntity=UserProfile::class, inversedBy="user",  cascade={"persist", "remove", "detach", "refresh"})
+     * @var UserProfile|null
+     */
+    public ?UserProfile $profile;
+
     use UpdatedTrait;
     use CreatedTrait;
 

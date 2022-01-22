@@ -6,7 +6,6 @@ use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
-use App\Entity\Traits\UserIdTrait;
 use App\Entity\Traits\UuidTrait;
 use App\Repository\UserProfileRepository;
 use DateTime;
@@ -54,6 +53,13 @@ class UserProfile
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $avatar;
+
+
+    /**
+     * @ORM\OneToOne (targetEntity=User::class, mappedBy="profile",  cascade={"persist", "remove", "detach", "refresh"})
+     * @var User|null
+     */
+    private ?User $user;
 
     use UpdatedTrait;
     use CreatedTrait;

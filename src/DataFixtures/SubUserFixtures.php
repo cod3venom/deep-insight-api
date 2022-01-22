@@ -52,12 +52,13 @@ class SubUserFixtures extends Fixture
             $lastname = explode(' ', self::names[$i])[1];
             $company = self::companies[$i];
 
-            $userid = Uuid::uuid4()->toString();
+            $userId = Uuid::uuid4()->toString();
             $user = new User();
+
             $profile = new UserProfile();
             $companyInfo = new UserCompanyInfo();
             $user
-                ->setUserId($userid)
+                ->setUserId($userId)
                 ->setUserAuthorId($authorId)
                 ->setEmail($email)
                 ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
@@ -65,9 +66,8 @@ class SubUserFixtures extends Fixture
                 ->setLastLoginAt()
                 ->setCreatedAt();
 
-
-            $profile
-                ->setUserId($user->getUserId())
+            $user->profile = new UserProfile();
+                $user->profile->setUserId($user->getUserId())
                 ->setFirstName($name)
                 ->setLastName($lastname)
                 ->setBirthDay(new DateTime('1998-11-'.$i))
@@ -76,7 +76,7 @@ class SubUserFixtures extends Fixture
                 ->setCreatedAt();;
 
             $companyInfo
-                ->setUserId($profile->getUserId())
+                ->setUserId($user->getUserId())
                 ->setCompanyName($company)
                 ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
                 ->setCompanyIndustry('IT')
@@ -117,7 +117,7 @@ class SubUserFixtures extends Fixture
                 ->setCreatedAt();
 
             $manager->persist($user);
-            $manager->persist($profile);
+            $manager->persist($user->profile);
             $manager->persist($companyInfo);
             $manager->flush();
         }

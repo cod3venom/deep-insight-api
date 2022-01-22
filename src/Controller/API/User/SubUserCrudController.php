@@ -118,7 +118,7 @@ class SubUserCrudController extends VirtualController
 
 
             $subUserAcc = new User();
-            $subUserProfile = new UserProfile();
+            $subUserAcc->profile = new UserProfile();
 
             $subUserAcc
                 ->setUserId($userId)
@@ -129,7 +129,7 @@ class SubUserCrudController extends VirtualController
                 ->setLastLoginAt()
                 ->setCreatedAt();
 
-            $subUserProfile
+            $subUserAcc->profile
                 ->setUserId($userId)
                 ->setFirstName($firstName)
                 ->setLastName($lastName)
@@ -140,10 +140,10 @@ class SubUserCrudController extends VirtualController
                 ->setCreatedAt();
 
             $this->userRepository->save($subUserAcc);
-            $this->userProfileRepository->save($subUserProfile);
+            $this->userProfileRepository->save($subUserAcc->profile);
 
             return $this->responseBuilder
-                ->addObject($subUserProfile)
+                ->addObject($subUserAcc->profile)
                 ->objectResponse();
 
         }
@@ -193,7 +193,6 @@ class SubUserCrudController extends VirtualController
             }
 
             $subUserAcc = $this->userRepository->findSubUserById($subUserId);
-            $subUserProfile = $this->userProfileRepository->findSubUserById($subUserId);
 
             $subUserAcc
                 ->setUserAuthorId($userAuthorId)
@@ -203,7 +202,7 @@ class SubUserCrudController extends VirtualController
                 ->setLastLoginAt()
                 ->setCreatedAt();
 
-            $subUserProfile
+            $subUserAcc->profile
                 ->setFirstName($firstName)
                 ->setLastName($lastName)
                 ->setEmail($email)
@@ -213,9 +212,9 @@ class SubUserCrudController extends VirtualController
                 ->setCreatedAt();
 
             $this->userRepository->update($subUserAcc);
-            $this->userProfileRepository->update($subUserProfile);
+            $this->userProfileRepository->update($subUserAcc->profile);
 
-            $this->responseBuilder->addObject($subUserProfile);
+            $this->responseBuilder->addObject($subUserAcc->profile);
             return $this->responseBuilder->objectResponse();
         }
         catch (\InvalidArgumentException $ex){

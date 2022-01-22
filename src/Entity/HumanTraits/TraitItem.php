@@ -7,6 +7,7 @@ use App\Entity\Traits\UpdatedTrait;
 use App\Entity\HumanTraits\TraitCategory;
 use App\Repository\TraitItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -15,21 +16,16 @@ use Ramsey\Uuid\Uuid;
 class TraitItem
 {
     /**
+     * @ORM\Column(type="string", length=255)
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="NONE")
      */
-    private int $id;
+    private string $name;
 
     /**
      * @ORM\Column(type="integer")
      **/
     private string $categoryId;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $name;
 
     /**
      * @ORM\Column(type="string", length=10)
@@ -48,12 +44,8 @@ class TraitItem
     {
         $this->categoryId = Uuid::uuid4();
     }
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
-    public function getCategoryId()
+    public function getCategoryId(): UuidInterface|string
     {
         return $this->categoryId;
     }

@@ -63,7 +63,7 @@ class AccessController extends VirtualController
 
         try {
             $user = $authService->authenticate($email, $password);
-            return $this->responseBuilder->addPayload([$user])->jsonResponse();
+            return $this->responseBuilder->addObject($user)->objectResponse();
 
         } catch (UserNotFoundException
         |OptimisticLockException

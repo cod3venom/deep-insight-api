@@ -17,8 +17,8 @@ class UserFixtures extends Fixture
     {
         $userid = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
         $user = new User();
-        $profile = new UserProfile();
         $companyInfo = new UserCompanyInfo();
+        $user->profile = new UserProfile();
         $user
             ->setUserId($userid)
             ->setEmail('levan.ostrowski@gmail.com')
@@ -27,8 +27,7 @@ class UserFixtures extends Fixture
             ->setLastLoginAt()
             ->setCreatedAt();
 
-
-        $profile
+     $user->profile
             ->setUserId($userid)
             ->setFirstName('Levan')
             ->setLastName('Ostrowski')
@@ -81,7 +80,7 @@ class UserFixtures extends Fixture
             ->setCreatedAt();
 
         $manager->persist($user);
-        $manager->persist($profile);
+        $manager->persist($user->profile);
         $manager->persist($companyInfo);
         $manager->flush();
     }

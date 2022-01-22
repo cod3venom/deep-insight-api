@@ -49,9 +49,7 @@ class UserProfileRepository extends ServiceEntityRepository
 
     public function getProfile(string $userId){
         return $this->createQueryBuilder('p')
-            ->select('p')
-            ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
-            ->where('p.userId = :userId')
+            ->andWhere('p.userId = :userId')
             ->setParameter('userId', $userId)
             ->setMaxResults(1)
             ->getQuery()
