@@ -98,6 +98,12 @@ class UserCompanyInfo
      */
     private ?array $categories = [];
 
+    /**
+     * @ORM\OneToOne (targetEntity=User::class, mappedBy="company",  cascade={"persist", "remove", "detach", "refresh"})
+     * @var User|null
+     */
+    private ?User $user;
+
     use UpdatedTrait;
     use CreatedTrait;
 

@@ -69,6 +69,12 @@ class User implements UserInterface
      */
     public ?UserProfile $profile;
 
+    /**
+     * @ORM\OneToOne (targetEntity=UserCompanyInfo::class, inversedBy="user",  cascade={"persist", "remove", "detach", "refresh"})
+     * @var UserCompanyInfo|null
+     */
+    public ?UserCompanyInfo $company;
+
     use UpdatedTrait;
     use CreatedTrait;
 

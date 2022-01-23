@@ -60,7 +60,11 @@ class ResponseBuilder extends VirtualActions
      */
     public function addPayload(array $payload = []): self
     {
-        $this->responseData = $payload;
+        $schema = [
+            'status'=> $this->status,
+            'data' => $payload
+        ];
+        $this->responseData = $schema;
         return $this;
     }
 
@@ -69,7 +73,11 @@ class ResponseBuilder extends VirtualActions
      * @return ResponseBuilder
      */
     public function addObject($obj): self {
-        $this->responseData = $this->serializer->serialize($obj, JsonEncoder::FORMAT);
+        $schema = new stdClass();
+        $schema->{'status'} = $this->status;
+        $schema->{'data'} = $obj;
+
+        $this->responseData = $this->serializer->serialize($schema, JsonEncoder::FORMAT);
         return $this;
     }
     /**

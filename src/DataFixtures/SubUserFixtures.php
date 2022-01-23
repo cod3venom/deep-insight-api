@@ -55,8 +55,6 @@ class SubUserFixtures extends Fixture
             $userId = Uuid::uuid4()->toString();
             $user = new User();
 
-            $profile = new UserProfile();
-            $companyInfo = new UserCompanyInfo();
             $user
                 ->setUserId($userId)
                 ->setUserAuthorId($authorId)
@@ -75,7 +73,8 @@ class SubUserFixtures extends Fixture
                 ->setPhone('51438092'.$i)
                 ->setCreatedAt();;
 
-            $companyInfo
+            $user->company = new UserCompanyInfo();
+            $user->company
                 ->setUserId($user->getUserId())
                 ->setCompanyName($company)
                 ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
@@ -117,8 +116,6 @@ class SubUserFixtures extends Fixture
                 ->setCreatedAt();
 
             $manager->persist($user);
-            $manager->persist($user->profile);
-            $manager->persist($companyInfo);
             $manager->flush();
         }
     }

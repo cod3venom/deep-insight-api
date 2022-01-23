@@ -18,9 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @Route (path="/me")
- */
+
 class UserController extends VirtualController
 {
 
@@ -42,7 +40,7 @@ class UserController extends VirtualController
     }
 
     /**
-     * @Route (path="/", methods={"GET"})
+     * @Route (path="/me", methods={"GET"})
      * @return JsonResponse
      */
     public function me(): JsonResponse
@@ -52,6 +50,22 @@ class UserController extends VirtualController
             $user = $this->userProfileRepository->getProfile($userId);
             $this->responseBuilder->addPayload($user);
             return $this->responseBuilder->jsonResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/user/{userId}", methods={"GET"})
+     * @param string $userId
+     * @return JsonResponse
+     */
+    public function userById(string $userId): JsonResponse {
+        try {
+            $user = $this->userRepository->findUserById($userId);
+            $this->responseBuilder->addObject($user);
+            return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();

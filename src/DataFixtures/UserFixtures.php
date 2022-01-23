@@ -17,8 +17,8 @@ class UserFixtures extends Fixture
     {
         $userid = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
         $user = new User();
-        $companyInfo = new UserCompanyInfo();
         $user->profile = new UserProfile();
+        $user->company = new UserCompanyInfo();
         $user
             ->setUserId($userid)
             ->setEmail('levan.ostrowski@gmail.com')
@@ -36,7 +36,7 @@ class UserFixtures extends Fixture
             ->setPhone('514380928')
             ->setCreatedAt();;
 
-        $companyInfo
+        $user->company
             ->setUserId($userid)
             ->setCompanyName('Roots-Connector')
             ->setCompanyWww('www.rootsconnector.com')
@@ -80,8 +80,6 @@ class UserFixtures extends Fixture
             ->setCreatedAt();
 
         $manager->persist($user);
-        $manager->persist($user->profile);
-        $manager->persist($companyInfo);
         $manager->flush();
     }
 }

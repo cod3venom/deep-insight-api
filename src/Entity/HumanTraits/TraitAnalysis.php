@@ -22,271 +22,271 @@ class TraitAnalysis
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $birthDay;
+    private ?string $birthDay = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $lifePath;
+    private ?string $lifePath = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $theDrivingForce;
+    private ?string $theDrivingForce = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $theMatrixOfExellence;
+    private ?string $theMatrixOfExellence = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $theMoralCode;
+    private ?string $theMoralCode = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $goalAndWants;
+    private ?string $goalAndWants = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $behavioursAndNeeds;
+    private ?string $behavioursAndNeeds = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $seekAndMindset;
+    private ?string $seekAndMindset = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $reactAndMotivationToAction;
+    private ?string $reactAndMotivationToAction = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $joinsAndDesire;
+    private ?string $joinsAndDesire = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $polarisation;
+    private ?string $polarisation = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $expression;
+    private ?string $expression = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $keyword;
+    private ?string $keyword = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $visualSeeItIntuition;
+    private ?string $visualSeeItIntuition = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $auditoryHearItThinking;
+    private ?string $auditoryHearItThinking = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $kinestericDoItSensation;
+    private ?string $kinestericDoItSensation = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $emotiveFeelItFeeling;
+    private ?string $emotiveFeelItFeeling = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $initializingAndAntithesis;
+    private ?string $initializingAndAntithesis = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $stabilizingAndSynthesis;
+    private ?string $stabilizingAndSynthesis = null;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $finishingThesis;
+    private ?string $finishingThesis = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $doerControl;
+    private ?string $doerControl = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $thinkerOrder;
+    private ?string $thinkerOrder = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $waterPeace;
+    private ?string $waterPeace = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $talkerFun;
+    private ?string $talkerFun = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $theValueOf;
+    private ?string $theValueOf = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $belief;
+    private ?string $belief = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $communication;
+    private ?string $communication = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $style;
+    private ?string $style = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $strength;
+    private ?string $strength = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $reward;
+    private ?string $reward = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $tactic;
+    private ?string $tactic = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $objective;
+    private ?string $objective = null;
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfMatter;
+    private ?string $worldOfMatter = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfInformation;
+    private ?string $worldOfInformation = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfFeeling;
+    private ?string $worldOfFeeling = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfFun;
+    private ?string $worldOfFun = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfUsability;
+    private ?string $worldOfUsability = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfRelations;
+    private ?string $worldOfRelations = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfDesireAndPower;
+    private ?string $worldOfDesireAndPower = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfSeekAndExplore;
+    private ?string $worldOfSeekAndExplore = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfCareer;
+    private ?string $worldOfCareer = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfFuture;
+    private ?string $worldOfFuture = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $worldOfSpirituality;
+    private ?string $worldOfSpirituality = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P1S;
+    private ?string $P1S = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P2M;
+    private ?string $P2M = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P3MY;
+    private ?string $P3MY = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P4W;
+    private ?string $P4W = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P5M;
+    private ?string $P5M = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P6J;
+    private ?string $P6J = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P7S;
+    private ?string $P7S = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P8U;
+    private ?string $P8U = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P9N;
+    private ?string $P9N = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $P10N;
+    private ?string $P10N = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $PTNde;
+    private ?string $PTNde = null;
 
     use UpdatedTrait;
     use CreatedTrait;
