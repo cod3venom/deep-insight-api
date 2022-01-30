@@ -280,4 +280,22 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
+
+    /**
+     * @Route (path="/search/{keyword}", methods={"POST"})
+     * @param string $keyword
+     * @return JsonResponse
+     */
+    public function searchForSubUser(string $keyword): JsonResponse
+    {
+        try {
+            $profile = $this->userProfileRepository->searchForSubUser($keyword);
+            return $this->responseBuilder->addObject($profile)
+                ->setStatus(Response::HTTP_OK)
+                ->objectResponse();
+        }
+        catch (\Exception $ex){
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
 }

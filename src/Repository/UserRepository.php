@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
+use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -32,6 +34,9 @@ class UserRepository extends ServiceEntityRepository
         try {
             $user  = $this->findByEmail($email);
             $flag = !empty($user->getUserId());
+            if ($flag) {
+                throw new UserAlreadyExistsException('User already exists');
+            }
             return $flag;
         }
         catch (Exception $ex){
@@ -124,6 +129,26 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $keyword
+     * @return array
+     */
+    public function searchForSubUser(string $keyword): array
+    {
+        try{
+            return $this->createQueryBuilder('u')
+                ->andWhere('LOWER(u.profile.firstName) = :keyword')
+                ->orWhere('LOWER(u.profile.lastName) = :keyword')
+                ->orWhere('LOWER(u.profile.email) = :keyword')
+                ->setParameter('keyword', strtolower($keyword))
+                ->getQuery()
+                ->getResult();
+        }
+        catch (NoResultException) {
+            return[];
+        }
+    }
+
+    /**
      * Returns list of sub-users
      * @return array
      */
@@ -136,6 +161,16 @@ class UserRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @throws UserRepeatedPasswordMatchingException
+     */
+    public function verifyRepeatedPassword(string $password, string $repeated): bool
+    {
+        if ($password !== $repeated) {
+            throw new UserRepeatedPasswordMatchingException("Provided passwords didn't match");
+        }
+        return true;
+    }
     /**
      * @throws OptimisticLockException
      * @throws ORMException

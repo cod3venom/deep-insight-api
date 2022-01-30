@@ -117,6 +117,29 @@ class UserProfileRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $keyword
+     * @return array
+     */
+    public function searchForSubUser(string $keyword): array
+    {
+        try{
+            return $this->createQueryBuilder('p')
+                ->select('u')
+                ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
+                ->andWhere('u.roles LIKE :roles')
+                ->andWhere('LOWER(p.firstName) = :keyword')
+                ->orWhere('LOWER(p.lastName) = :keyword')
+                ->orWhere('LOWER(p.email) = :keyword')
+                ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+                ->setParameter('keyword', strtolower($keyword))
+                ->getQuery()
+                ->getResult();
+        }
+        catch (NoResultException) {
+            return[];
+        }
+    }
+    /**
      * @param UserProfile $profile
      * @return void
      * @throws ORMException

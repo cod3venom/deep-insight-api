@@ -15,6 +15,7 @@ use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -47,9 +48,9 @@ class UserController extends VirtualController
     {
         try {
             $userId = $this->user()->getUserId();
-            $user = $this->userProfileRepository->getProfile($userId);
-            $this->responseBuilder->addPayload($user);
-            return $this->responseBuilder->jsonResponse();
+            $user = $this->userRepository->findUserById($userId);
+            $this->responseBuilder->addObject($user);
+            return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
@@ -64,6 +65,29 @@ class UserController extends VirtualController
     public function userById(string $userId): JsonResponse {
         try {
             $user = $this->userRepository->findUserById($userId);
+            $this->responseBuilder->addObject($user);
+            return $this->responseBuilder->objectResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/user/{userId}/set-avatar", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function setAvatar(Request $request): JsonResponse
+    {
+        try {
+            $avatarUrl = $request->get('avatar');
+
+            $userId = $this->user()->getUserId();
+            $user = $this->userRepository->findUserById($userId);
+            $user->profile->setAvatar($avatarUrl);
+
+            $this->userProfileRepository->update($user->profile);
             $this->responseBuilder->addObject($user);
             return $this->responseBuilder->objectResponse();
         }

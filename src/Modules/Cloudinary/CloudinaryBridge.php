@@ -56,6 +56,11 @@ class CloudinaryBridge extends AbstractResource
         ]]);
     }
 
+    public function imageToBase64(): string
+    {
+
+        return '';
+    }
     /**
      * This method is used to upload
      * image file to the Cloudinary service

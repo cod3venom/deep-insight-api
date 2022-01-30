@@ -33,15 +33,40 @@ class MediaBridgeController extends VirtualController
     }
 
 
+
+    /**
+     * @Route (path="/upload/single/image", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        try{
+            $image = $_FILES['image']['tmp_name'];
+
+            ## Upload image to the Cloudinary service
+            $result = (new CloudinaryBridge())
+                ->uploadImage($image)
+                ->getSingleResult();
+
+            return $this->responseBuilder->addObject($result)
+                ->setStatus(Response::HTTP_OK)
+                ->objectResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
     /**
      * @Route (path="/image/base-64/single", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      */
-    public function uploadBase64Image(Request $request): JsonResponse
+    public function uploadImageAsBase64(Request $request): JsonResponse
     {
         try{
-            $base64 = $request->get('base64');
+            $base64 = $request->get('image');
 
             ## Upload image to the Cloudinary service
             $result = (new CloudinaryBridge())
