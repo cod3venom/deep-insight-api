@@ -73,7 +73,8 @@ class SubUserCrudController extends VirtualController
     public function all(): JsonResponse
     {
         try {
-            $user = $this->userRepository->allSubUsers();
+            $userId = $this->user()->getUserId();
+            $user = $this->userRepository->allSubUsers($userId);
             $this->responseBuilder->addPayload($user);
             return $this->responseBuilder->jsonResponse();
         }

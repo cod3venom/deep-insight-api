@@ -152,10 +152,12 @@ class UserRepository extends ServiceEntityRepository
      * Returns list of sub-users
      * @return array
      */
-    public function allSubUsers(): array
+    public function allSubUsers(string $myUserId): array
     {
         return $this->createQueryBuilder('u')
+            ->andWhere('u.userAuthorId = :authorId')
             ->andWhere('u.roles LIKE :roles')
+            ->setParameter('authorId', $myUserId)
             ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
             ->getQuery()
             ->getResult();

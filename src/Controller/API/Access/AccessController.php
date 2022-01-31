@@ -105,6 +105,7 @@ class AccessController extends VirtualController
 
             $this->userRepository->save($user);
 
+            $user = $authService->authenticate($email, $password);
             return $this->responseBuilder->addObject($user)->objectResponse();
 
         } catch (
