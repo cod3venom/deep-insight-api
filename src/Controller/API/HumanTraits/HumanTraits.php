@@ -14,6 +14,7 @@ namespace App\Controller\API\HumanTraits;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\TraitAnalysisRepository;
+use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
@@ -39,13 +40,18 @@ class HumanTraits extends VirtualController
 
     private TraitAnalysisRepository $traitAnalysisRepository;
 
+    private TraitItemRepository $traitItemRepository;
+
     private HumanTraitsService $humanTraitsService;
+
+
 
     public function __construct(
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
         TraitAnalysisRepository $traitAnalysisRepository,
+        TraitItemRepository $traitItemRepository,
         HumanTraitsService $humanTraitsService
     )
     {
@@ -53,6 +59,7 @@ class HumanTraits extends VirtualController
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
+        $this->traitItemRepository = $traitItemRepository;
         $this->humanTraitsService = $humanTraitsService;
     }
 
@@ -67,7 +74,7 @@ class HumanTraits extends VirtualController
             $profile = $this->userProfileRepository->findSubUserById($userId);
             $birthday = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthday);
-            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport);
+            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
@@ -87,7 +94,7 @@ class HumanTraits extends VirtualController
             $birthDay = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
 
-            $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport);
+            $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){

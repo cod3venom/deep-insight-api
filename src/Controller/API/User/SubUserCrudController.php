@@ -168,14 +168,15 @@ class SubUserCrudController extends VirtualController
     public function update(Request $request, $subUserId): JsonResponse
     {
         $email = $request->get('email');
-        $password = password_hash(microtime(), PASSWORD_DEFAULT);
+        $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
 
-        $firstName = $request->get('firstName');
-        $lastName = $request->get('lastName');
-        $phone = $request->get('phone');
 
-        $birthDay = $request->get('birthDay');
-        $avatar = $request->get('avatar');
+        $firstName = $request->get('profile')['firstName'];
+        $lastName = $request->get('profile')['lastName'];
+        $phone = $request->get('profile')['phone'];
+
+        $birthDay = $request->get('profile')['birthDay'];
+        $avatar = $request->get('profile')['avatar'];
 
         try {
 
@@ -264,6 +265,28 @@ class SubUserCrudController extends VirtualController
         }
     }
 
+    /**
+     * @Route (path="/{userId}/set-avatar", methods={"POST"})
+     * @param Request $request
+     * @param string $userId
+     * @return JsonResponse
+     */
+    public function setAvatar(Request $request, string $userId): JsonResponse
+    {
+        try {
+            $avatarUrl = $request->get('avatar');
+
+            $user = $this->userRepository->findUserById($userId);
+            $user->profile->setAvatar($avatarUrl);
+
+            $this->userProfileRepository->update($user->profile);
+            $this->responseBuilder->addObject($user);
+            return $this->responseBuilder->objectResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
     /**
      * @Route (path="/{subUserId}", methods={"GET"})
      * @param string $subUserId

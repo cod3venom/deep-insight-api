@@ -11,6 +11,7 @@
 
 namespace App\Service\HumanTraitServices\Helpers\SchemaBuilder;
 use App\Entity\HumanTraits\TraitAnalysis;
+use App\Repository\TraitItemRepository;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -27,7 +28,7 @@ use JetBrains\PhpStorm\Pure;
  */
 class SchemaBuilder
 {
-   #[Pure] public function buildFromObject(TraitAnalysis $analysis): array
+   #[Pure] public function buildFromObject(TraitAnalysis $analysis, TraitItemRepository $itemRepository): array
     {
         return [
            [
@@ -37,25 +38,25 @@ class SchemaBuilder
                        'name' => 'Life path',
                        'value'=> $analysis->getLifePath(),
                        'type' => 'int',
-                       'icon' => 'lifePath.svg'
+                       'icon' =>  $itemRepository->findIconByTraitName('Life Path')
                   ],
                   [
                       'name' => 'The driving force',
                       'value'=> $analysis->getTheDrivingForce(),
                       'type' => 'int',
-                      'icon' => 'theDrivingForce.svg'
+                      'icon' => $itemRepository->findIconByTraitName('The driving force')
                   ],
                    [
                        'name' => 'The Matrix of Excellence',
                        'value'=> $analysis->getTheMatrixOfExellence(),
                        'type' => 'int',
-                       'icon' => 'theMatrixOfExcellence.svg'
+                       'icon' => $itemRepository->findIconByTraitName('The driving force')
                   ],
                   [
                       'name' => 'The Moral Code',
                       'value'=> $analysis->getTheMoralCode(),
                       'type' => 'int',
-                      'icon' => 'theMoralCode.svg'
+                      'icon' => $itemRepository->findIconByTraitName('The driving force')
                   ],
               ]
           ],
@@ -66,31 +67,31 @@ class SchemaBuilder
                         'name' => 'Goals & Wants',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Behaviors & Needs',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Seeks & Mindset',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'React & Motive to Action',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => ' Joins & Desire',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ]
                 ]
             ],
@@ -101,13 +102,13 @@ class SchemaBuilder
                         'name' => 'Polarisation',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Expression',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Keyword',
@@ -124,7 +125,7 @@ class SchemaBuilder
                         'name' => 'Visual | See it | Intuition',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Auditory | Hear it | Thinking',
@@ -136,13 +137,13 @@ class SchemaBuilder
                         'name' => 'Kinesteric | Do it | Sensation',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' =>  $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Emotive | Feel it | Feeling',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                 ]
             ],
@@ -153,19 +154,19 @@ class SchemaBuilder
                         'name' => 'Initializing & antithesis',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Stabilizing & synthesis',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Finishing & thesis',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                 ]
             ],
@@ -176,25 +177,25 @@ class SchemaBuilder
                         'name' => 'Doer - Control',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Thinker - Order',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Water - Peace',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Talker - Fun',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                 ]
             ],
@@ -205,43 +206,43 @@ class SchemaBuilder
                         'name' => 'The Value of',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Belief',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Communication',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Style',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Strength',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Tactic',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'Objective',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                 ]
             ],
@@ -252,67 +253,67 @@ class SchemaBuilder
                         'name' => 'World of Action',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Matter',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Feeling',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Fun',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Usability',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Relations',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Desire&Power',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Seek&Explore',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Career',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Future',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                     [
                         'name' => 'World of Spirituality',
                         'value'=> $analysis->getLifePath(),
                         'type' => 'int',
-                        'icon' => 'lifePath.svg'
+                        'icon' => $itemRepository->findIconByTraitName('The driving force')
                     ],
                 ]
             ],
