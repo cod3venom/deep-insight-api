@@ -107,8 +107,7 @@ class SubUserCrudController extends VirtualController
 
             $userAuthorId = $this->user()->getUserId(); # generate auth user id
             $userId = Uuid::uuid4()->toString(); # generate user id for the creating user
-            $birthDay = DateHelper::slashToDash($birthDay); # port birth day string to the date time object
-
+            $birthDay = DateHelper::birthDay($birthDay);
 
             # Check if user already exists
             if ($this->userRepository->exists($email)) {

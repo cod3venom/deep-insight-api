@@ -19,6 +19,15 @@ class DateHelper
     public const BIRTH_DAY_FORMAT = 'd/m/Y';
 
     /**
+     * @param string $date
+     * @return DateTime
+     */
+    public static function convertToBirthDay(string $date): DateTime
+    {
+        return datetime::createfromformat(self::BIRTH_DAY_FORMAT, $date);
+    }
+
+    /**
      * @throws Exception
      */
     public static function birthDay(string $dateStr = "", DateTime $dateTime = null): DateTime

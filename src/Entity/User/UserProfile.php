@@ -7,9 +7,11 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\Traits\UuidTrait;
+use App\Modules\Reflector\Reflector;
 use App\Repository\UserProfileRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use ReflectionException;
 
 /**
  * @ORM\Entity(repositoryClass=UserProfileRepository::class)
@@ -150,10 +152,11 @@ class UserProfile
         return $this;
     }
 
-    public function arrayToProfile(array $input): self {
-        foreach ($input as $k=>$v){
-            $this->{$k} = $v;
-        }
+    /**
+     * @throws ReflectionException
+     */
+    public function arrayToEntity(array $input): self {
+        Reflector::arrayToEntity($this, $input);
         return $this;
     }
 }

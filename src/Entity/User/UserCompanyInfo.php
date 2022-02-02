@@ -6,8 +6,10 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\Traits\UuidTrait;
+use App\Modules\Reflector\Reflector;
 use App\Repository\UserCompanyInfoRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ReflectionException;
 
 /**
  * @ORM\Entity(repositoryClass=UserCompanyInfoRepository::class)
@@ -297,6 +299,14 @@ class UserCompanyInfo
     {
         $this->categories = $categories;
 
+        return $this;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function arrayToEntity(array $input): self {
+        Reflector::arrayToEntity($this, $input);
         return $this;
     }
 }
