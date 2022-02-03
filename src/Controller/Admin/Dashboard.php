@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\HumanTraits\TraitAnalysisCrud;
 use App\Controller\Admin\HumanTraits\TraitCategoryCrud;
 use App\Controller\Admin\HumanTraits\TraitColorCrud;
 use App\Controller\Admin\HumanTraits\TraitItemCrud;
@@ -58,19 +59,23 @@ class Dashboard extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
 
-        yield MenuItem::subMenu('Users', 'fa fa-users')->setSubItems([
+//        yield MenuItem::subMenu('Users', 'fa fa-users')->setSubItems([
+//
+//            MenuItem::linkToCrud('Main Users', 'fas fa-user-friends', Entity\User\User::class)
+//                ->setController(UsersCrud::class),
+//
+//            MenuItem::linkToCrud('Sub Users', 'fas fa-people-arrows', Entity\User\User::class)
+//                ->setController(UsersCrud::class),
+//        ]);
 
-            MenuItem::linkToCrud('Main Users', 'fas fa-user-friends', Entity\User\User::class)
-                ->setController(UsersCrud::class),
+        yield MenuItem::linkToCrud('Users', 'fas fa-users', Entity\User\User::class)
+            ->setController(UsersCrud::class);
 
-            MenuItem::linkToCrud('Sub Users', 'fas fa-people-arrows', Entity\User\User::class)
-                ->setController(UsersCrud::class),
-        ]);
 
         yield MenuItem::subMenu('Human traits', 'fa fa-database')->setSubItems([
 
-            MenuItem::linkToCrud('Analyses', 'fas fa-chart-pie', Entity\HumanTraits\TraitColor::class)
-                ->setController(TraitColorCrud::class),
+            MenuItem::linkToCrud('Analyses', 'fas fa-chart-pie', Entity\HumanTraits\TraitAnalysis::class)
+                ->setController(TraitAnalysisCrud::class),
 
             MenuItem::linkToCrud('Trait Categories', 'fas fa-sitemap', Entity\HumanTraits\TraitCategory::class)
                 ->setController(TraitCategoryCrud::class),
