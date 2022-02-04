@@ -67,14 +67,20 @@ class UsersCrud extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
 
-        $id    = IntegerField::new('id');
-        $email     = TextField::new('email');
-        $role     = ArrayField::new('roles');
+        $email     = TextField::new('email')->hideOnForm();
+        $password     = TextField::new('password')->hideOnForm();
+        $role     = ArrayField::new('roles')->hideOnForm();
+
+        $firstname = TextField::new('profile')->setProperty('firstName')->hideOnForm();
+        $lastName =  TextField::new('profile')->setProperty('lastName')->hideOnForm();
+        $email =  TextField::new('profile')->setProperty('email')->hideOnForm();
+        $phone =  TextField::new('profile')->setProperty('phone')->hideOnForm();
+        $birthDay =  TextField::new('profile')->setProperty('firstName')->hideOnForm();
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $email, $role];
+            return [$email, $password, $role, $firstname, $lastName];
         }
 
-        return [$id, $email, $role];
+        return [$email, $role];
     }
 }
