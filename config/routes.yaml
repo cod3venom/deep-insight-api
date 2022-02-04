@@ -1,6 +1,6 @@
 index:
     path: /
-    controller: App\Controller\Homepage::__invoke()
+    controller: App\Controller\HomePage::__invoke()
 
 api_login_check:
     path: /api/login_check
