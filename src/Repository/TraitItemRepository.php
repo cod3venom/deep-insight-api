@@ -45,7 +45,7 @@ class TraitItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
-        if (is_array($obj)) {
+        if (is_array($obj) && count($obj) > 0) {
             $obj = $obj[0];
         }
 

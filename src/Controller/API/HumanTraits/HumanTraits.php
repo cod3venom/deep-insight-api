@@ -72,8 +72,7 @@ class HumanTraits extends VirtualController
         try{
             $userId = $this->user()->getUserId();
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $birthday = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthday);
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($profile->getBirthDay());
             $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
@@ -91,8 +90,7 @@ class HumanTraits extends VirtualController
     {
         try{
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $birthDay = $profile->getBirthDay()->format(DateHelper::BIRTH_DAY_FORMAT);
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay( $profile->getBirthDay());
 
             $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();

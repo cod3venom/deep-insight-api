@@ -66,7 +66,7 @@ final class AuthService
         $user = $this->userRepository->findByEmail($email);
 
         if (is_null($user->getId())) {
-            throw new UserNotFoundException("Wrong E-mail or Password");
+            throw new UserNotFoundException("User not found");
         }
 
         if (!password_verify($password, $user->getPassword())) {

@@ -52,6 +52,15 @@ class VirtualActions
             ->setStatus(Response::HTTP_BAD_REQUEST);
     }
 
+    /**
+     * @return ResponseBuilder
+     */
+    public function notFound(): ResponseBuilder
+    {
+        return $this->responseBuilder->addMessage('Not found')
+            ->setStatus(Response::HTTP_NOT_FOUND);
+    }
+
     public function ruleViolation(string $fieldName): ResponseBuilder {
         $message = $fieldName . ' cant be null';
         return $this->responseBuilder->addMessage($message)

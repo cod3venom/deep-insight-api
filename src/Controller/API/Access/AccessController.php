@@ -24,6 +24,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Exception;
 use InvalidArgumentException;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -108,21 +109,23 @@ class AccessController extends VirtualController
             $user = $authService->authenticate($email, $password);
             return $this->responseBuilder->addObject($user)->objectResponse();
 
-        } catch (
-        UserAlreadyExistsException |
-        UserRepeatedPasswordMatchingException $e) {
-            $this->responseBuilder->addMessage($e->getMessage());
-        } catch (ORMException $e) {
+        } catch (UserAlreadyExistsException | UserRepeatedPasswordMatchingException $e) {
+            $this->responseBuilder->addMessage($e->getMessage())
+            ->setStatus(Response::HTTP_BAD_REQUEST);
+        }
+        catch (Exception $e) {
             $this->responseBuilder->somethingWentWrong();
         }
         return $this->responseBuilder->jsonResponse();
     }
+
     /**
      * @Route (path="/sign-in", methods={"POST"})
      * @param Request $request
      * @param AuthService $authService
      * @param SerializerInterface $serializer
      * @return JsonResponse
+     * @throws ORMException
      */
     public function signIn(Request $request, AuthService $authService, SerializerInterface $serializer): JsonResponse
     {
@@ -133,15 +136,18 @@ class AccessController extends VirtualController
             $user = $authService->authenticate($email, $password);
             return $this->responseBuilder->addObject($user)->objectResponse();
 
-        } catch (UserNotFoundException
-        |OptimisticLockException
-        |NonUniqueResultException
-        |NoResultException
-        |WrongPasswordException
-        |InvalidArgumentException $e) {
-            $this->responseBuilder->addMessage($e->getMessage());
-        } catch (ORMException $e) {
-            $this->responseBuilder->somethingWentWrong();
+        } catch (UserNotFoundException $e) {
+            $this->responseBuilder->addMessage($e->getMessage())
+                ->setStatus(Response::HTTP_NOT_FOUND);
+
+        } catch ( OptimisticLockException |
+        NonUniqueResultException |
+        NoResultException |
+        WrongPasswordException |
+        InvalidArgumentException $e
+        ) {
+            $this->responseBuilder->addMessage($e->getMessage())
+                ->setStatus(Response::HTTP_BAD_REQUEST);
         }
 
         return $this->responseBuilder->jsonResponse();

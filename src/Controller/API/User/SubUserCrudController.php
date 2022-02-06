@@ -12,6 +12,7 @@
 namespace App\Controller\API\User;
 
 use App\Entity\User\User;
+use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
@@ -91,25 +92,20 @@ class SubUserCrudController extends VirtualController
     public function add(Request $request): JsonResponse
     {
         $email = $request->get('email');
-        $password = password_hash(microtime(), PASSWORD_DEFAULT);
+        $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
 
-        $firstName = $request->get('firstName');
-        $lastName = $request->get('lastName');
-        $phone = $request->get('phone');
+        if (!empty($password)) {
+            $password = password_hash($password, PASSWORD_DEFAULT);
+        }
 
-        $birthDay = $request->get('birthDay');
-        $avatar = $request->get('avatar');
+        $profile = $request->get('profile');
+        $company = $request->get('company');
 
         try {
 
-            # Validate input or throw @InvalidArgumentException
-            $this->rulesValidation($email, $firstName, $lastName, $birthDay);
+            $userAuthorId = $this->user()->getUserId();
+            $userId = Uuid::uuid4()->toString();
 
-            $userAuthorId = $this->user()->getUserId(); # generate auth user id
-            $userId = Uuid::uuid4()->toString(); # generate user id for the creating user
-            $birthDay = DateHelper::birthDay($birthDay);
-
-            # Check if user already exists
             if ($this->userRepository->exists($email)) {
                 return $this->responseBuilder->addMessage('User already exists')
                     ->setStatus(Response::HTTP_ALREADY_REPORTED)
@@ -119,6 +115,7 @@ class SubUserCrudController extends VirtualController
 
             $subUserAcc = new User();
             $subUserAcc->profile = new UserProfile();
+            $subUserAcc->company = new UserCompanyInfo();
 
             $subUserAcc
                 ->setUserId($userId)
@@ -129,18 +126,13 @@ class SubUserCrudController extends VirtualController
                 ->setLastLoginAt()
                 ->setCreatedAt();
 
-            $subUserAcc->profile
-                ->setUserId($userId)
-                ->setFirstName($firstName)
-                ->setLastName($lastName)
-                ->setEmail($email)
-                ->setPhone($phone)
-                ->setBirthDay($birthDay)
-                ->setAvatar($avatar)
-                ->setCreatedAt();
+            $subUserAcc->profile->setUserId($userId)->setCreatedAt();
+            $subUserAcc->company->setUserId($userId)->setCreatedAt();
+
+            $subUserAcc->profile->arrayToEntity($profile);
+            $subUserAcc->company->arrayToEntity($company);
 
             $this->userRepository->save($subUserAcc);
-            $this->userProfileRepository->save($subUserAcc->profile);
 
             return $this->responseBuilder
                 ->addObject($subUserAcc->profile)
@@ -167,26 +159,19 @@ class SubUserCrudController extends VirtualController
     public function update(Request $request, $subUserId): JsonResponse
     {
         $email = $request->get('email');
-        $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
+        $password = $request->get('password');
+
+        if (!empty($password)) {
+            $password = password_hash($password, PASSWORD_DEFAULT);
+        }
+        $profile = $request->get('profile');
+        $company = $request->get('company');
 
 
-        $firstName = $request->get('profile')['firstName'];
-        $lastName = $request->get('profile')['lastName'];
-        $phone = $request->get('profile')['phone'];
-
-        $birthDay = $request->get('profile')['birthDay'];
-        $avatar = $request->get('profile')['avatar'];
 
         try {
 
 
-            # Validate input or throw @InvalidArgumentException
-            $this->rulesValidation($email, $firstName, $lastName, $birthDay);
-
-            $userAuthorId = $this->user()->getUserId(); # generate auth user id
-            $birthDay = DateHelper::birthDay($birthDay); # port birth day string to the date time object
-
-            # Check if user already exists
             if (!$this->userRepository->existsAsSubUser($subUserId)) {
                 return $this->responseBuilder->addMessage('User does not  exists')
                     ->setStatus(Response::HTTP_NOT_FOUND)
@@ -194,28 +179,39 @@ class SubUserCrudController extends VirtualController
             }
 
             $subUserAcc = $this->userRepository->findSubUserById($subUserId);
+            if (is_null($subUserAcc->profile)) {
+                $subUserAcc->profile = new UserProfile();
+            }
+            if (is_null($subUserAcc->company)) {
+                $subUserAcc->company = new UserCompanyInfo();
+            }
+
+            if ($email) {
+                $subUserAcc
+                    ->setEmail($email)
+                    ->profile->setEmail($email);
+            }
+            if ($password) {
+                $subUserAcc->setPassword($password);
+            }
 
             $subUserAcc
-                ->setUserAuthorId($userAuthorId)
-                ->setEmail($email)
-                ->setPassword($password)
-                ->setRoles([User::ROLE_SUB_USER])
-                ->setLastLoginAt()
-                ->setCreatedAt();
-
+                ->setUserId($subUserId)
+                ->setUpdatedAt();
             $subUserAcc->profile
-                ->setFirstName($firstName)
-                ->setLastName($lastName)
-                ->setEmail($email)
-                ->setPhone($phone)
-                ->setBirthDay($birthDay)
-                ->setAvatar($avatar)
-                ->setCreatedAt();
+                ->setUserId($subUserId)
+                ->setCreatedAt();;
+
+            $subUserAcc->company
+                ->setUserId($subUserId)
+                ->setUpdatedAt();
+
+            $subUserAcc->profile->arrayToEntity($profile);
+            $subUserAcc->company->arrayToEntity($company);
 
             $this->userRepository->update($subUserAcc);
-            $this->userProfileRepository->update($subUserAcc->profile);
 
-            $this->responseBuilder->addObject($subUserAcc->profile);
+            $this->responseBuilder->addObject($subUserAcc);
             return $this->responseBuilder->objectResponse();
         }
         catch (\InvalidArgumentException $ex){
@@ -295,6 +291,7 @@ class SubUserCrudController extends VirtualController
     {
         try {
             $profile = $this->userRepository->findSubUserById($subUserId);
+            $birthday = $profile->profile->getBirthDay();
             return $this->responseBuilder->addObject($profile)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();

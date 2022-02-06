@@ -27,21 +27,21 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $email
+     * @param string|null $email
      * @return bool
+     * @throws UserAlreadyExistsException
+     * @throws NonUniqueResultException
      */
-    public function exists(string $email): bool {
-        try {
-            $user  = $this->findByEmail($email);
-            $flag = !empty($user->getUserId());
-            if ($flag) {
-                throw new UserAlreadyExistsException('User already exists');
-            }
-            return $flag;
-        }
-        catch (Exception $ex){
+    public function exists(?string $email): bool {
+        if (!$email) {
             return false;
         }
+        $user  = $this->findByEmail($email);
+
+        if (!empty($user->getUserId())) {
+            throw new UserAlreadyExistsException('User already exists');
+        }
+        return false;
     }
 
     /**

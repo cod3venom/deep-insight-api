@@ -27,12 +27,12 @@ class UserProfile
     private string $userId;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private string $firstName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private string $lastName;
 
@@ -128,9 +128,9 @@ class UserProfile
         return $this;
     }
 
-    public function getBirthDay(): DateTime
+    public function getBirthDay(): string
     {
-        return $this->birthDay;
+        return date_format($this->birthDay, 'Y-m-d');
     }
 
     public function setBirthDay(DateTime $birthDay): self

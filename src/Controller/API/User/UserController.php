@@ -12,6 +12,8 @@
 namespace App\Controller\API\User;
 
 use App\Entity\User\User;
+use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
@@ -90,8 +92,6 @@ class UserController extends VirtualController
             $profile = $request->get('profile');
             $company = $request->get('company');
 
-            $profile['birthDay'] = DateHelper::birthDay($profile['birthDay']);
-
             $userId = $this->user()->getUserId();
 
             $userAcc = $this->userRepository->findUserById($userId);
@@ -102,6 +102,19 @@ class UserController extends VirtualController
                 $userAcc->setPassword(password_hash($password, PASSWORD_DEFAULT));
             }
 
+            if (is_null($userAcc->profile)) {
+                $userAcc->profile = new UserProfile();
+                $userAcc->profile
+                    ->setUserId($userId)
+                    ->setCreatedAt();
+            }
+
+            if (is_null($userAcc->company)) {
+                $userAcc->company = new UserCompanyInfo();
+                $userAcc->company
+                    ->setUserId($userId)
+                    ->setCreatedAt();
+            }
             $userAcc->profile->arrayToEntity($profile);
             $userAcc->company->arrayToEntity($company);
 
