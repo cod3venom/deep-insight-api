@@ -58,33 +58,25 @@ class Dashboard extends AbstractDashboardController
      */
     public function configureMenuItems(): iterable
     {
-
-//        yield MenuItem::subMenu('Users', 'fa fa-users')->setSubItems([
-//
-//            MenuItem::linkToCrud('Main Users', 'fas fa-user-friends', Entity\User\User::class)
-//                ->setController(UsersCrud::class),
-//
-//            MenuItem::linkToCrud('Sub Users', 'fas fa-people-arrows', Entity\User\User::class)
-//                ->setController(UsersCrud::class),
-//        ]);
-
         yield MenuItem::linkToCrud('Users', 'fas fa-users', Entity\User\User::class)
             ->setController(UsersCrud::class);
 
-
         yield MenuItem::subMenu('Human traits', 'fa fa-database')->setSubItems([
-
-            MenuItem::linkToCrud('Analyses', 'fas fa-chart-pie', Entity\HumanTraits\TraitAnalysis::class)
-                ->setController(TraitAnalysisCrud::class),
 
             MenuItem::linkToCrud('Trait Categories', 'fas fa-sitemap', Entity\HumanTraits\TraitCategory::class)
                 ->setController(TraitCategoryCrud::class),
-
             MenuItem::linkToCrud('Trait Items', 'fas fa-list', Entity\HumanTraits\TraitItem::class)
-                ->setController(TraitItemCrud::class),
+                ->setController(TraitItemCrud::class)
 
-//            MenuItem::linkToCrud('Trait colors', 'fas fa-tint', Entity\HumanTraits\TraitColor::class)
-//                ->setController(TraitColorCrud::class),
+        ]);
+
+        yield MenuItem::subMenu('Analyses', 'fas fa-chart-pie')->setSubItems([
+
+            MenuItem::linkToCrud('Records', 'fas fa-list', Entity\HumanTraits\TraitAnalysis::class)
+                ->setController(TraitAnalysisCrud::class),
+
+            MenuItem::linkToRoute('Import from sheet', 'fa fa-file-import', 'admin_import_analysis_from_sheet')
+
         ]);
     }
 }

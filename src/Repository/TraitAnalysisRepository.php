@@ -6,7 +6,10 @@ use App\Entity\HumanTraits\TraitAnalysis;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -43,9 +46,44 @@ class TraitAnalysisRepository extends ServiceEntityRepository
             return $result->getSingleResult()
                 ;
         }
-        catch (\Exception $ex){
+        catch (Exception $ex){
             return new TraitAnalysis();
         }
+    }
+
+    /**
+     * @param TraitAnalysis $item
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function save(TraitAnalysis $item)
+    {
+        $this->_em->persist($item);
+        $this->_em->flush();
+    }
+
+    /**
+     * @param TraitAnalysis $item
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function update(TraitAnalysis $item)
+    {
+        $this->_em->flush($item);
+    }
+
+    /**
+     * @param TraitAnalysis $item
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(TraitAnalysis $item)
+    {
+        $this->_em->remove($item);
+        $this->_em->flush();
     }
 
 }

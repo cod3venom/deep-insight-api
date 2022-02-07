@@ -1,0 +1,14 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% form_theme new_form '@EasyAdmin/symfony-form-themes/bootstrap_5_layout.html.twig' %}
+{% block page_title 'Analytics sheet - importer' %}
+{% block main %}
+    <div class="row">
+        <div class="col-3">
+            {{ form_start(new_form) }}
+            {{ form_widget(new_form) }}
+            {{ form_end(new_form) }}
+            <strong style="color: red;">{{ message }}</strong>
+        </div>
+    </div>
+{% endblock %}
