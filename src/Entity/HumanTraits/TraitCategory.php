@@ -3,6 +3,7 @@
 namespace App\Entity\HumanTraits;
 
 use App\Entity\Traits\CreatedTrait;
+use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\TraitCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,12 +14,7 @@ use Ramsey\Uuid\Uuid;
  */
 class TraitCategory
 {
-    /**
-     * @ORM\GeneratedValue
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     */
-    private string $id;
+   use IdTrait;
 
     /**
      * @ORM\Column(type="string", length=255)

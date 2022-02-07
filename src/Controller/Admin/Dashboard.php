@@ -83,8 +83,8 @@ class Dashboard extends AbstractDashboardController
             MenuItem::linkToCrud('Trait Items', 'fas fa-list', Entity\HumanTraits\TraitItem::class)
                 ->setController(TraitItemCrud::class),
 
-            MenuItem::linkToCrud('Trait colors', 'fas fa-tint', Entity\HumanTraits\TraitColor::class)
-                ->setController(TraitColorCrud::class),
+//            MenuItem::linkToCrud('Trait colors', 'fas fa-tint', Entity\HumanTraits\TraitColor::class)
+//                ->setController(TraitColorCrud::class),
         ]);
     }
 }

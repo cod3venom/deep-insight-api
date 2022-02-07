@@ -8,6 +8,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\UuidV4;
@@ -24,6 +26,7 @@ class TraitCategoryRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TraitCategory::class);
     }
+
 
     /**
      * @throws NonUniqueResultException
@@ -56,14 +59,40 @@ class TraitCategoryRepository extends ServiceEntityRepository
 
     public function getAllCategoryNames(): array {
         return $this->createQueryBuilder('c')
-            ->select('c.categoryId, c.categoryName')
+            ->select('c.id, c.categoryName')
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
     }
 
-    public function save(TraitItem $item)
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    public function save(TraitCategory $item)
     {
        $this->_em->persist($item);
        $this->_em->flush();
+    }
+
+    /**
+     * @param TraitCategory $item
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function update(TraitCategory $item)
+    {
+        $this->_em->flush();
+    }
+
+    /**
+     * @param TraitCategory $item
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(TraitCategory $item)
+    {
+        $this->_em->remove($item);
+        $this->_em->flush();
     }
 }

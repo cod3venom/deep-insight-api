@@ -15,6 +15,18 @@ use Ramsey\Uuid\Uuid;
  */
 class TraitItem
 {
+    public const TYPE_STRING   = 'string';
+    public const TYPE_NUMBER  = 'number';
+    public const TYPE_PERCENTAGE = 'percentage';
+    public const TYPE_BOOLEAN = 'boolean';
+
+    public array $dataTypes = [
+        self::TYPE_STRING,
+        self::TYPE_NUMBER,
+        self::TYPE_PERCENTAGE,
+        self::TYPE_BOOLEAN
+    ];
+
     /**
      * @ORM\Column(type="string", length=255)
      * @ORM\Id

@@ -9,12 +9,14 @@ use App\Entity\HumanTraits\TraitColor;
 use App\Entity\HumanTraits\TraitItem;
 use App\Entity\User\User;
 use App\Repository\TraitCategoryRepository;
+use App\Repository\TraitItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -35,15 +37,25 @@ class TraitItemCrud extends AbstractCrudController
      */
     private ParameterBagInterface $parameterBag;
 
+    /**
+     * @var TraitCategoryRepository
+     */
     private TraitCategoryRepository $traitCategoryRepository;
+
+    /**
+     * @var TraitItemRepository
+     */
+    private TraitItemRepository $traitItemRepository;
 
     public function __construct(
         ParameterBagInterface $parameterBag,
-        TraitCategoryRepository $traitCategoryRepository
+        TraitCategoryRepository $traitCategoryRepository,
+        TraitItemRepository $traitItemRepository
     )
     {
         $this->parameterBag = $parameterBag;
         $this->traitCategoryRepository = $traitCategoryRepository;
+        $this->traitItemRepository = $traitItemRepository;
     }
 
     /**
@@ -74,15 +86,50 @@ class TraitItemCrud extends AbstractCrudController
     }
 
 
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof TraitItem) {
+            $entityInstance->setCreatedAt();
+            $this->traitItemRepository->save($entityInstance);
+        }
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof TraitItem) {
+            $entityInstance->setUpdatedAt();
+            $this->traitItemRepository->update($entityInstance);
+        }
+    }
+
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof TraitItem) {
+            $this->traitItemRepository->delete($entityInstance);
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
     public function configureFields(string $pageName): iterable
     {
+        $allCategories = $this->traitCategoryRepository->getAllCategoryNames();
+        $categoryChoices = [];
+
+        foreach ($allCategories as $category) {
+            $categoryChoices[$category['id']] = $category['categoryName'];
+        }
 
         $id         = IntegerField::new('id');
         $name       = TextField::new('name');
-        $dataType   = TextField::new('dataType');
+        $dataType   = ChoiceField::new('dataType')
+            ->setChoices(array_flip((new TraitItem())->dataTypes));
+
+        $categories   = ChoiceField::new('categoryId')
+            ->setChoices(array_flip($categoryChoices));
+
+
 
 
         $icon       = ImageField::new('icon')
@@ -90,8 +137,8 @@ class TraitItemCrud extends AbstractCrudController
             ->setBasePath($this->parameterBag->get('trait_icons_base'));
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $dataType, $icon];
+            return [$id, $name, $categories, $dataType, $icon];
         }
-        return [$name, $dataType, $icon];
+        return [$name, $dataType, $categories, $icon];
     }
 }

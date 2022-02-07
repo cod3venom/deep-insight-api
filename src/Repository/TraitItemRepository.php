@@ -6,6 +6,8 @@ use App\Entity\HumanTraits\TraitCategory;
 use App\Entity\HumanTraits\TraitItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use phpDocumentor\Reflection\Types\Array_;
 
@@ -55,7 +57,38 @@ class TraitItemRepository extends ServiceEntityRepository
         if (!$obj->getIcon()) {
             return "";
         }
-        return 'http://localhost:8000/assets/traits/icons/'. $obj->getIcon();
+        return $_ENV['FRONTEND_ASSETS']. $obj->getIcon();
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    public function save(TraitItem $item)
+    {
+        $this->_em->persist($item);
+        $this->_em->flush();
+    }
+
+    /**
+     * @param TraitItem $item
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function update(TraitItem $item)
+    {
+        $this->_em->flush($item);
+    }
+
+    /**
+     * @param TraitItem $item
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(TraitItem $item)
+    {
+        $this->_em->remove($item);
+        $this->_em->flush();
+    }
 }
