@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
 /**
  * @method TraitAnalysis|null find($id, $lockMode = null, $lockVersion = null)
@@ -16,9 +17,11 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TraitAnalysisRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private LoggerInterface $logger;
+    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
     {
         parent::__construct($registry, TraitAnalysis::class);
+        $this->logger = $logger;
     }
 
     /**
@@ -28,12 +31,15 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     public function findTraitsByBirthDay($value): TraitAnalysis
     {
         try{
-            return $this->createQueryBuilder('t')
+            $result =  $this->createQueryBuilder('t')
                 ->andWhere('t.birthDay = :birthDay')
                 ->setParameter('birthDay', $value)
                 ->setMaxResults(1)
-                ->getQuery()
-                ->getSingleResult()
+                ->getQuery();
+            $sql  = $result->getSQL();
+
+            $this->logger->debug('SEARCHING FOR', [$sql]);
+            return $result->getSingleResult()
                 ;
         }
         catch (\Exception $ex){
