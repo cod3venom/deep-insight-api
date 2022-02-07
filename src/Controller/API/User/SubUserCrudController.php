@@ -173,6 +173,7 @@ class SubUserCrudController extends VirtualController
             }
 
             $subUserAcc = $this->userRepository->findSubUserById($subUserId);
+
             if (is_null($subUserAcc->profile)) {
                 $subUserAcc->profile = new UserProfile();
             }
@@ -289,7 +290,6 @@ class SubUserCrudController extends VirtualController
     {
         try {
             $profile = $this->userRepository->findSubUserById($subUserId);
-            $birthday = $profile->profile->getBirthDay();
             return $this->responseBuilder->addObject($profile)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();

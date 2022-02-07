@@ -130,11 +130,12 @@ class UserProfile
 
     public function getBirthDay(): string
     {
-        return date_format($this->birthDay, 'Y-m-d');
+        return date_format($this->birthDay, 'd/m/Y');
     }
 
     public function setBirthDay(DateTime $birthDay): self
     {
+        $birthDay->format('d/m/Y');
         $this->birthDay = $birthDay;
 
         return $this;
