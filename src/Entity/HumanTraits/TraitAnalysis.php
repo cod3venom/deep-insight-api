@@ -288,8 +288,6 @@ class TraitAnalysis
      */
     private ?string $PTNde = null;
 
-    use UpdatedTrait;
-    use CreatedTrait;
 
     public function getId(): ?int
     {
