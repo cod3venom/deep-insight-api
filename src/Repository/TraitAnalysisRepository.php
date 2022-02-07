@@ -28,17 +28,17 @@ class TraitAnalysisRepository extends ServiceEntityRepository
      * @param $value
      * @return TraitAnalysis
      */
-    public function findTraitsByBirthDay($value): TraitAnalysis
+    public function findTraitsByBirthDay($birthDay): TraitAnalysis
     {
         try{
             $result =  $this->createQueryBuilder('t')
                 ->andWhere('t.birthDay = :birthDay')
-                ->setParameter('birthDay', $value)
+                ->setParameter('birthDay', $birthDay)
                 ->setMaxResults(1)
                 ->getQuery();
             $sql  = $result->getSQL();
 
-            $this->logger->debug('SEARCHING FOR', [$sql]);
+            $this->logger->debug('SEARCHING FOR', [$sql, ['birthDay' => $birthDay]]);
             return $result->getSingleResult()
                 ;
         }
