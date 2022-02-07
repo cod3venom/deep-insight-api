@@ -18,6 +18,9 @@ class SchemaBuilder
 {
    public function buildFromObject(TraitAnalysis $analysis, TraitItemRepository $itemRepository): array
     {
+        if (is_null($analysis->getBirthDay())) {
+            return [];
+        }
         return [
            [
               'category'=> 'The hidden drive',

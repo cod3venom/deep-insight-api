@@ -98,9 +98,10 @@ class UserController extends VirtualController
             if (!empty($email)) {
                 $userAcc->setEmail($email);
             }
-            if (!empty($password))  {
+            if (!empty($password) && $userAcc->getPassword() !== $password) {
                 $userAcc->setPassword(password_hash($password, PASSWORD_DEFAULT));
             }
+
 
             if (is_null($userAcc->profile)) {
                 $userAcc->profile = new UserProfile();

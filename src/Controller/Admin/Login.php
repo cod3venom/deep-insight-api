@@ -49,8 +49,8 @@ class Login extends AbstractController
 
             // the title visible above the login form (define this option only if you are
             // rendering the login template in a regular Symfony controller; when rendering
-            // it from an EasyAdmin Dashboard this is automatically set as the Dashbo ard title)
-            'page_title' => 'App login',
+            // it from an EasyAdmin Dashboard this is automatically set as the Dashboard title)
+            'page_title' => 'DeepInsigihtDiscovery',
 
             // the string used to generate the CSRF token. If you don't define
             // this parameter, the login form won't include a CSRF token
@@ -60,13 +60,13 @@ class Login extends AbstractController
             'target_path' => $this->generateUrl('dashboard'),
 
             // the label displayed for the username form field (the |trans filter is applied to it)
-            'username_label' => 'Your username',
+            'username_label' => 'E-Mail address',
 
             // the label displayed for the password form field (the |trans filter is applied to it)
-            'password_label' => 'Your password',
+            'password_label' => 'Password',
 
             // the label displayed for the Sign In form button (the |trans filter is applied to it)
-            'sign_in_label' => 'Log in',
+            'sign_in_label' => 'Sign in',
 
             // the 'name' HTML attribute of the <input> used for the username field (default: '_username')
             #'username_parameter' => 'email',

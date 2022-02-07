@@ -94,9 +94,6 @@ class SubUserCrudController extends VirtualController
         $email = $request->get('email');
         $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
 
-        if (!empty($password)) {
-            $password = password_hash($password, PASSWORD_DEFAULT);
-        }
 
         $profile = $request->get('profile');
         $company = $request->get('company');
@@ -161,9 +158,6 @@ class SubUserCrudController extends VirtualController
         $email = $request->get('email');
         $password = $request->get('password');
 
-        if (!empty($password)) {
-            $password = password_hash($password, PASSWORD_DEFAULT);
-        }
         $profile = $request->get('profile');
         $company = $request->get('company');
 
@@ -184,6 +178,10 @@ class SubUserCrudController extends VirtualController
             }
             if (is_null($subUserAcc->company)) {
                 $subUserAcc->company = new UserCompanyInfo();
+            }
+
+            if ($subUserAcc->getPassword() !== $password) {
+                $password = password_hash($password, PASSWORD_DEFAULT);
             }
 
             if ($email) {
