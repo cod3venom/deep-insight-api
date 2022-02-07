@@ -57,6 +57,8 @@ final class Reflector
                 }
 
                 if ($paramType === 'DateTime') {
+                    $v .= ' 00:00:00';
+                    $v = str_replace('/', '-', $v);
                     $v = new DateTime($v);
                 }
             }
