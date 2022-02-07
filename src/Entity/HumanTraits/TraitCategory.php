@@ -26,9 +26,9 @@ class TraitCategory
     private string $categoryName;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private string $position;
+    private ?string $position;
 
     use UpdatedTrait;
     use CreatedTrait;
