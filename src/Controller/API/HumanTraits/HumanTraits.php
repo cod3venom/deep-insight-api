@@ -18,6 +18,7 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,6 +29,11 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class HumanTraits extends VirtualController
 {
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
     /**
      * @var UserRepository
      */
@@ -47,6 +53,7 @@ class HumanTraits extends VirtualController
 
 
     public function __construct(
+        LoggerInterface $logger,
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
@@ -56,6 +63,7 @@ class HumanTraits extends VirtualController
     )
     {
         parent::__construct($serializer);
+        $this->logger = $logger;
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
@@ -77,6 +85,7 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
+            $this->logger->error('SOME ERROR', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -96,6 +105,7 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
+            $this->logger->error('SOME ERROR SUB', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

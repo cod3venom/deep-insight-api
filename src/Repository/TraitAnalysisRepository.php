@@ -28,9 +28,10 @@ class TraitAnalysisRepository extends ServiceEntityRepository
      * @param $value
      * @return TraitAnalysis
      */
-    public function findTraitsByBirthDay($birthDay): TraitAnalysis
+    public function findTraitsByBirthDay(?string $birthDay): TraitAnalysis
     {
         try{
+            $birthDay = (string) $birthDay;
             $result =  $this->createQueryBuilder('t')
                 ->andWhere('t.birthDay = :birthDay')
                 ->setParameter('birthDay', $birthDay)
