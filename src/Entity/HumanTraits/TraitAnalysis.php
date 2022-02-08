@@ -178,6 +178,12 @@ class TraitAnalysis
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $objective = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $worldOfAction = null;
+
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -676,6 +682,19 @@ class TraitAnalysis
 
         return $this;
     }
+
+    public function getWorldOfAction(): ?string
+    {
+        return $this->worldOfAction;
+    }
+
+    public function setWorldOfAction(?string $worldOfAction): self
+    {
+        $this->worldOfAction = $worldOfAction;
+
+        return $this;
+    }
+
     public function getWorldOfMatter(): ?string
     {
         return $this->worldOfMatter;

@@ -16,8 +16,12 @@ use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
+use App\Repository\TraitAnalysisRepository;
+use App\Repository\TraitColorRepository;
+use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
+use App\Service\HumanTraitServices\HumanTraitsService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
 use Ramsey\Uuid\Uuid;
@@ -43,7 +47,16 @@ class SubUserCrudController extends VirtualController
      */
     private UserProfileRepository $userProfileRepository;
 
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository,UserProfileRepository $userProfileRepository)
+    /**
+     * @param SerializerInterface $serializer
+     * @param UserRepository $userRepository
+     * @param UserProfileRepository $userProfileRepository
+     */
+    public function __construct(
+        SerializerInterface $serializer,
+        UserRepository $userRepository,
+        UserProfileRepository $userProfileRepository,
+    )
     {
         parent::__construct($serializer);
         $this->userRepository = $userRepository;
@@ -75,8 +88,8 @@ class SubUserCrudController extends VirtualController
     {
         try {
             $userId = $this->user()->getUserId();
-            $user = $this->userRepository->allSubUsers($userId);
-            $this->responseBuilder->addPayload($user);
+            $subUsers = $this->userRepository->allSubUsers($userId);
+            $this->responseBuilder->addPayload($subUsers);
             return $this->responseBuilder->jsonResponse();
         }
         catch (\Exception $ex) {

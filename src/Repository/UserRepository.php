@@ -5,7 +5,9 @@ namespace App\Repository;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
+use App\Service\HumanTraitServices\HumanTraitsService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -21,9 +23,39 @@ use Exception;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    /**
+     * @var TraitAnalysisRepository
+     */
+    private TraitAnalysisRepository $traitAnalysisRepository;
+
+    /**
+     * @var TraitItemRepository
+     */
+    private TraitItemRepository $traitItemRepository;
+
+    /**
+     * @var TraitColorRepository
+     */
+    private TraitColorRepository $traitColorRepository;
+
+    /**
+     * @var HumanTraitsService
+     */
+    private HumanTraitsService $humanTraitsService;
+
+    public function __construct(
+        ManagerRegistry $registry,
+        TraitAnalysisRepository $traitAnalysisRepository,
+        TraitItemRepository $traitItemRepository,
+        TraitColorRepository $traitColorRepository,
+        HumanTraitsService $humanTraitsService
+    )
     {
         parent::__construct($registry, User::class);
+        $this->traitAnalysisRepository = $traitAnalysisRepository;
+        $this->traitItemRepository = $traitItemRepository;
+        $this->traitColorRepository = $traitColorRepository;
+        $this->humanTraitsService = $humanTraitsService;
     }
 
     /**
@@ -96,12 +128,17 @@ class UserRepository extends ServiceEntityRepository
     public function findUserById(string $id): User
     {
         try{
-            return $this->createQueryBuilder('u')
+            $user = $this->createQueryBuilder('u')
                 ->andWhere('u.userId = :userId')
                 ->setParameter('userId', $id)
                 ->setMaxResults(1)
                 ->getQuery()
-                ->getSingleResult();
+                ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
+
+            if ($user instanceof User) {
+                $user = $this->applyAnalyses($user);
+            }
+            return $user;
         }
         catch (NoResultException) {
             return new User();
@@ -150,19 +187,41 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * Returns list of sub-users
+     * @param string $myUserId
      * @return array
      */
     public function allSubUsers(string $myUserId): array
     {
-        return $this->createQueryBuilder('u')
+        $result = [];
+        $allSubUsers = $this->createQueryBuilder('u')
             ->andWhere('u.userAuthorId = :authorId')
             ->andWhere('u.roles LIKE :roles')
             ->setParameter('authorId', $myUserId)
             ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
             ->getQuery()
-            ->getResult();
+            ->getResult(AbstractQuery::HYDRATE_OBJECT);
+
+        foreach ($allSubUsers as $subUser) {
+            if (!($subUser instanceof User)) {
+                continue;
+            }
+
+            $subUser = $this->applyAnalyses($subUser);
+            $result[] = $subUser;
+        }
+        return $result;
     }
 
+    public function applyAnalyses(User $user): User
+    {
+        $analyses = $this->traitAnalysisRepository->findTraitsByBirthDay($user->profile->getBirthDay());
+        $colorsReport = $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analyses, $this->traitItemRepository, $this->traitColorRepository);
+        $analysisReport =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analyses, $this->traitItemRepository);
+
+        $user->profile->setAnalysisReport($analysisReport);
+        $user->profile->setColorsReport($colorsReport);
+        return $user;
+    }
     /**
      * @throws UserRepeatedPasswordMatchingException
      */

@@ -14,6 +14,7 @@ namespace App\Controller\API\HumanTraits;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\TraitAnalysisRepository;
+use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
@@ -48,6 +49,11 @@ class HumanTraits extends VirtualController
 
     private TraitItemRepository $traitItemRepository;
 
+    /**
+     * @var TraitColorRepository
+     */
+    private TraitColorRepository $traitColorRepository;
+
     private HumanTraitsService $humanTraitsService;
 
 
@@ -59,6 +65,7 @@ class HumanTraits extends VirtualController
         UserProfileRepository $userProfileRepository,
         TraitAnalysisRepository $traitAnalysisRepository,
         TraitItemRepository $traitItemRepository,
+        TraitColorRepository $traitColorRepository,
         HumanTraitsService $humanTraitsService
     )
     {
@@ -68,6 +75,7 @@ class HumanTraits extends VirtualController
         $this->userProfileRepository = $userProfileRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
         $this->traitItemRepository = $traitItemRepository;
+        $this->traitColorRepository = $traitColorRepository;
         $this->humanTraitsService = $humanTraitsService;
     }
 
@@ -81,7 +89,7 @@ class HumanTraits extends VirtualController
             $userId = $this->user()->getUserId();
             $profile = $this->userProfileRepository->findSubUserById($userId);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($profile->getBirthDay());
-            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
+            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
@@ -95,13 +103,13 @@ class HumanTraits extends VirtualController
      * @param string $userId
      * @return JsonResponse
      */
-    public function byUserId(string $userId): JsonResponse
+    public function reportBySubUser(string $userId): JsonResponse
     {
         try{
             $profile = $this->userProfileRepository->findSubUserById($userId);
             $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay( $profile->getBirthDay());
 
-            $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildFromObject($analysisReport, $this->traitItemRepository);
+            $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
@@ -109,4 +117,25 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
+
+    /**
+     * @Route (path="/sub-users/colors/{subUserId}", methods={"GET"})
+     * @param string $subUserId
+     * @return JsonResponse
+     */
+    public function colorsBySubUser(string $subUserId): JsonResponse
+    {
+        try{
+            $userId = $this->user()->getUserId();
+            $profile = $this->userProfileRepository->findSubUserById($userId);
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($profile->getBirthDay());
+            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analysisReport, $this->traitItemRepository, $this->traitColorRepository);
+            return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
+        }
+        catch (\Exception $ex){
+            $this->logger->error('SOME ERROR', [$ex]);
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
 }

@@ -65,8 +65,12 @@ class Dashboard extends AbstractDashboardController
 
             MenuItem::linkToCrud('Trait Categories', 'fas fa-sitemap', Entity\HumanTraits\TraitCategory::class)
                 ->setController(TraitCategoryCrud::class),
+
             MenuItem::linkToCrud('Trait Items', 'fas fa-list', Entity\HumanTraits\TraitItem::class)
-                ->setController(TraitItemCrud::class)
+                ->setController(TraitItemCrud::class),
+
+            MenuItem::linkToCrud('Trait Colors', 'fas fa-palette', Entity\HumanTraits\TraitColor::class)
+                ->setController(TraitColorCrud::class)
 
         ]);
 

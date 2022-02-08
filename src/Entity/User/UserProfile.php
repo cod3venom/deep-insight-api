@@ -63,6 +63,11 @@ class UserProfile
      */
     private ?User $user;
 
+
+    private ?array $analysisReport = [];
+
+    private ?array $colorsReport = [];
+
     use UpdatedTrait;
     use CreatedTrait;
 
@@ -149,6 +154,30 @@ class UserProfile
     public function setAvatar(?string $avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getAnalysisReport(): ?array
+    {
+        return $this->analysisReport;
+    }
+
+    public function setAnalysisReport(?array $analysisReport): self
+    {
+        $this->analysisReport = $analysisReport;
+
+        return $this;
+    }
+
+    public function getColorsReport(): ?array
+    {
+        return $this->colorsReport;
+    }
+
+    public function setColorsReport(?array $colorsReport): self
+    {
+        $this->colorsReport = $colorsReport;
 
         return $this;
     }

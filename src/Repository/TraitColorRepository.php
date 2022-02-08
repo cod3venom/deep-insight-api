@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\HumanTraits\TraitColor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,32 +20,25 @@ class TraitColorRepository extends ServiceEntityRepository
         parent::__construct($registry, TraitColor::class);
     }
 
-    // /**
-    //  * @return TraitColor[] Returns an array of TraitColor objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findColorByWorldName(string $worldName): ?string
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
+        $obj =  $this->createQueryBuilder('t')
+            ->andWhere('LOWER(t.name) = :worldName')
+            ->setParameter('worldName', strtolower($worldName))
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+            ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
-    /*
-    public function findOneBySomeField($value): ?TraitColor
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if (is_array($obj) && count($obj) > 0) {
+            $obj = $obj[0];
+        }
+
+        if (!($obj instanceof TraitColor)) {
+            return "";
+        }
+        if (!$obj->getColor()) {
+            return "";
+        }
+        return $obj->getColor();
     }
-    */
 }
