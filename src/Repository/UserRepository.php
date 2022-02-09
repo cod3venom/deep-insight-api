@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
+use App\Entity\User\UserProfile;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
@@ -214,7 +215,8 @@ class UserRepository extends ServiceEntityRepository
 
     public function applyAnalyses(User $user): User
     {
-        $analyses = $this->traitAnalysisRepository->findTraitsByBirthDay($user->profile->getBirthDay());
+        $birthDay = date_format($user->profile->getBirthDay(), UserProfile::BirthDayFormat);
+        $analyses = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
         $colorsReport = $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analyses, $this->traitItemRepository, $this->traitColorRepository);
         $analysisReport =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analyses, $this->traitItemRepository);
 

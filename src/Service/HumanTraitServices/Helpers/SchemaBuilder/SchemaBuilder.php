@@ -166,7 +166,7 @@ class SchemaBuilder
                         'name' => 'Doer - Control',
                         'value' => $analysis->getDoerControl(),
 
-                        'icon' => $itemRepository->findIconByTraitName('Temperament')
+                        'icon' => $itemRepository->findIconByTraitName('Doer - Control')
                     ],
                     [
                         'name' => 'Thinker - Order',
@@ -195,7 +195,7 @@ class SchemaBuilder
                         'name' => 'The Value of',
                         'value' => $analysis->getTheValueOf(),
 
-                        'icon' => $itemRepository->findIconByTraitName('The hidden Spheres of Life')
+                        'icon' => $itemRepository->findIconByTraitName('The Value of')
                     ],
                     [
                         'name' => 'Belief',

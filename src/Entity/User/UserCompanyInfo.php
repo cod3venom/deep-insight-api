@@ -25,7 +25,7 @@ class UserCompanyInfo
 
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $companyName;
 
@@ -61,9 +61,9 @@ class UserCompanyInfo
     private ?int $nip;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?array $districts = [];
+    private ?string $districts = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -71,14 +71,14 @@ class UserCompanyInfo
     private ?string $headQuartersCity;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $businessEmail;
+    private ?string $businessEmails = '';
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?array $businessPhones = [];
+    private ?string $businessPhones = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -91,14 +91,14 @@ class UserCompanyInfo
     private ?string $profit;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
-    private ?array $growthYearToYear = [];
+    private ?string $growthYearToYear = '';
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
-    private ?array $categories = [];
+    private ?string $categories = '';
 
     /**
      * @ORM\OneToOne (targetEntity=User::class, mappedBy="company",  cascade={"persist", "remove", "detach", "refresh"})
@@ -206,12 +206,12 @@ class UserCompanyInfo
         return $this;
     }
 
-    public function getDistricts(): ?array
+    public function getDistricts(): ?string
     {
         return $this->districts;
     }
 
-    public function setDistricts(?array $districts): self
+    public function setDistricts(?string $districts): self
     {
         $this->districts = $districts;
 
@@ -230,24 +230,25 @@ class UserCompanyInfo
         return $this;
     }
 
-    public function getBusinessEmail(): ?string
+    public function getBusinessEmails(): ?string
     {
-        return $this->businessEmail;
+        return $this->businessEmails;
     }
 
-    public function setBusinessEmail(?string $businessEmail): self
+    public function setBusinessEmails(?string $businessEmails): self
     {
-        $this->businessEmail = $businessEmail;
+        $this->businessEmails = $businessEmails;
 
         return $this;
     }
 
-    public function getBusinessPhones(): ?array
+
+    public function getBusinessPhones(): ?string
     {
         return $this->businessPhones;
     }
 
-    public function setBusinessPhones(?array $businessPhones): self
+    public function setBusinessPhones(?string $businessPhones): self
     {
         $this->businessPhones = $businessPhones;
 
@@ -278,24 +279,24 @@ class UserCompanyInfo
         return $this;
     }
 
-    public function getGrowthYearToYear(): ?array
+    public function getGrowthYearToYear(): ?string
     {
         return $this->growthYearToYear;
     }
 
-    public function setGrowthYearToYear(?array $growthYearToYear): self
+    public function setGrowthYearToYear(?string $growthYearToYear): self
     {
         $this->growthYearToYear = $growthYearToYear;
 
         return $this;
     }
 
-    public function getCategories(): ?array
+    public function getCategories(): ?string
     {
         return $this->categories;
     }
 
-    public function setCategories(?array $categories): self
+    public function setCategories(?string $categories): self
     {
         $this->categories = $categories;
 

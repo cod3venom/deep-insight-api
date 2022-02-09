@@ -8,6 +8,8 @@ parameters:
     trait_icons_base: 'assets/traits/icons/'
     trait_icons_dir: 'public/assets/traits/icons'
 
+    user_avatars_dir: 'public/assets/avatar/'
+
 services:
     # default configuration for services in *this* file
     _defaults:

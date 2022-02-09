@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\User\User;
+use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -11,6 +12,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 /**
  * @method UserProfile|null find($id, $lockMode = null, $lockVersion = null)
@@ -20,9 +22,11 @@ use Exception;
  */
 class UserProfileRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private LoggerInterface $logger;
+    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
     {
         parent::__construct($registry, UserProfile::class);
+        $this->logger = $logger;
     }
 
     /**
@@ -123,19 +127,44 @@ class UserProfileRepository extends ServiceEntityRepository
     public function searchForSubUser(string $keyword): array
     {
         try{
+
+            $this->logger->info('searchForSubUser', ['keyword' => $keyword]);
             return $this->createQueryBuilder('p')
                 ->select('u')
-                ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
+                ->innerJoin(User::class, 'u', 'WITH', 'u.userId = p.userId')
+                ->innerJoin(UserCompanyInfo::class, 'c', 'WITH', 'c.userId = p.userId')
+
                 ->andWhere('u.roles LIKE :roles')
-                ->andWhere('LOWER(p.firstName) = :keyword')
-                ->orWhere('LOWER(p.lastName) = :keyword')
-                ->orWhere('LOWER(p.email) = :keyword')
+                ->andWhere('LOWER(p.firstName) LIKE :keyword')
+                ->orWhere('LOWER(p.lastName) LIKE :keyword')
+                ->orWhere('LOWER(p.email) LIKE :keyword')
+
+                ->orWhere('LOWER(c.companyName) LIKE :keyword')
+                ->orWhere('LOWER(c.companyWww) LIKE :keyword')
+                ->orWhere('LOWER(c.companyIndustry) LIKE :keyword')
+                ->orWhere('LOWER(c.wayToEarnMoney) LIKE :keyword')
+                ->orWhere('CAST(c.regon as string) LIKE :keyword')
+                ->orWhere('CAST(c.krs as string) LIKE :keyword')
+                ->orWhere('CAST(c.nip as string) LIKE :keyword')
+                ->orWhere('CAST(c.districts as string) LIKE :keyword')
+                ->orWhere('CAST(c.headQuartersCity as string) LIKE :keyword')
+                ->orWhere('CAST(c.businessEmails as string) LIKE :keyword')
+                ->orWhere('CAST(c.businessPhones as string) LIKE :keyword')
+                ->orWhere('CAST(c.revenue as string) LIKE :keyword')
+                ->orWhere('CAST(c.profit as string) LIKE :keyword')
+                ->orWhere('CAST(c.growthYearToYear as string) LIKE :keyword')
+//                ->orWhere('CAST(c.categories as string) LIKE :keyword')
+
+
                 ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
-                ->setParameter('keyword', strtolower($keyword))
+                ->setParameter('keyword', '%' . strtolower($keyword). '%')
+
                 ->getQuery()
                 ->getResult();
+
         }
-        catch (NoResultException) {
+        catch (Exception $e) {
+            $this->logger->error('searchForSubUser', [$e]);
             return[];
         }
     }

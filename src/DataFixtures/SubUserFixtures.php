@@ -83,36 +83,19 @@ class SubUserFixtures extends Fixture
                 ->setRegon(12345)
                 ->setKrs(54321)
                 ->setNip(56789)
-                ->setDistricts([
-                    'LA',
-                ])
+                ->setDistricts('LA')
                 ->setHeadQuartersCity('USA ....')
-                ->setBusinessEmail('bussiness@'.str_replace(' ', '-', $company).'.com')
-                ->setBusinessPhones([
-                    '51438092'.$i,
-                    '51438092'.$i,
-                    '51438092'.$i,
-                    '51438092'.$i,
-                ])
+                ->setBusinessEmails('bussiness@'.str_replace(' ', '-', $company).'.com')
+                ->setBusinessPhones(
+                    '51438092,'.$i.
+                    ', 51438092'.$i.
+                    ', 51438092'.$i.
+                    ', 51438092'.$i
+                )
                 ->setRevenue('10000000')
                 ->setProfit('5000000')
-                ->setGrowthYearToYear([
-                    '0' => [
-                        '2017' => $i.'1500',
-                        '2018' => $i.'5000000'
-                    ],
-                    '1' => [
-                        '2019' => $i.'21500',
-                        '2020' => $i.'5000000'
-                    ]
-                ])
-                ->setCategories([
-                    'IT',
-                    'Programming',
-                    'Big Data',
-                    'AI',
-                    'Cyber Security'
-                ])
+                ->setGrowthYearToYear('')
+                ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
                 ->setCreatedAt();
 
             $manager->persist($user);

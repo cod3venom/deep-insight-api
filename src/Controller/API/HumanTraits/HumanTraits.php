@@ -11,6 +11,7 @@
 
 namespace App\Controller\API\HumanTraits;
 
+use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\TraitAnalysisRepository;
@@ -88,7 +89,9 @@ class HumanTraits extends VirtualController
         try{
             $userId = $this->user()->getUserId();
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($profile->getBirthDay());
+            $birthDay = date_format($profile->getBirthDay(), UserProfile::BirthDayFormat);
+
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
             $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
@@ -107,7 +110,8 @@ class HumanTraits extends VirtualController
     {
         try{
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay( $profile->getBirthDay());
+            $birthDay = date_format($profile->getBirthDay(), UserProfile::BirthDayFormat);
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
 
             $defaultSchema = $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analysisReport, $this->traitItemRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
@@ -128,7 +132,9 @@ class HumanTraits extends VirtualController
         try{
             $userId = $this->user()->getUserId();
             $profile = $this->userProfileRepository->findSubUserById($userId);
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($profile->getBirthDay());
+            $birthDay = date_format($profile->getBirthDay(), UserProfile::BirthDayFormat);
+
+            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
             $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analysisReport, $this->traitItemRepository, $this->traitColorRepository);
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }

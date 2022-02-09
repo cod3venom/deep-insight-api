@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ColorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -70,7 +71,7 @@ class TraitColorCrud extends AbstractCrudController
 
         $id    = IntegerField::new('id');
         $name     = TextField::new('name');
-        $color     = ArrayField::new('color');
+        $color     = ColorField::new('color');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $color];

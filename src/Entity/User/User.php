@@ -23,6 +23,12 @@ class User implements UserInterface
     public const ROLE_SUB_USER = 'ROLE_SUB_USER';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
 
+    public array $rolesList = [
+        self::ROLE_USER,
+        self::ROLE_SUB_USER,
+        self::ROLE_ADMIN,
+    ];
+
     private string $token = "";
 
     use IdTrait;
@@ -74,6 +80,12 @@ class User implements UserInterface
      * @var UserCompanyInfo|null
      */
     public ?UserCompanyInfo $company;
+
+    public function __construct()
+    {
+        $this->profile = new UserProfile();
+        $this->company = new UserCompanyInfo();
+    }
 
     use UpdatedTrait;
     use CreatedTrait;

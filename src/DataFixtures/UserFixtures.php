@@ -45,38 +45,19 @@ class UserFixtures extends Fixture
             ->setRegon(12345)
             ->setKrs(54321)
             ->setNip(56789)
-            ->setDistricts([
-                'Birminggram',
-                'Warsaw',
-                'Tokio'
-            ])
+            ->setDistricts('LA, Birmingham')
             ->setHeadQuartersCity('England ....')
-            ->setBusinessEmail('bussiness@rootsconnector.com')
-            ->setBusinessPhones([
-                '514380928',
-                '514380929',
-                '514380930',
+            ->setBusinessEmails('bussiness@rootsconnector.com')
+            ->setBusinessPhones(
+                '514380928, '.
+                '514380929, '.
+                '514380930, '.
                 '514380931'
-            ])
+            )
             ->setRevenue('10000000')
             ->setProfit('5000000')
-            ->setGrowthYearToYear([
-                '0' => [
-                    '2017' => '21500',
-                    '2018' => '5000000'
-                ],
-                '1' => [
-                    '2019' => '21500',
-                    '2020' => '5000000'
-                ]
-            ])
-            ->setCategories([
-                'IT',
-                'Programming',
-                'Big Data',
-                'AI',
-                'Cyber Security'
-            ])
+            ->setGrowthYearToYear('')
+            ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
             ->setCreatedAt();
 
         $manager->persist($user);

@@ -194,7 +194,7 @@ class SubUserCrudController extends VirtualController
                 $subUserAcc->company = new UserCompanyInfo();
             }
 
-            if ($subUserAcc->getPassword() !== $password) {
+            if (!empty($password) && $subUserAcc->getPassword() !== $password) {
                 $password = password_hash($password, PASSWORD_DEFAULT);
             }
 
@@ -326,6 +326,22 @@ class SubUserCrudController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex){
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/import-from-sheet", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function importFromSheet(Request $request)
+    {
+
+        try {
+            $file = $_FILES['file']['tmp_name'];
+
+        } catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

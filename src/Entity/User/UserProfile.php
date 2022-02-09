@@ -18,6 +18,11 @@ use ReflectionException;
  */
 class UserProfile
 {
+    /**
+     * BirthDay Date format
+     */
+    public const BirthDayFormat = 'd/m/Y';
+
 
     use IdTrait;
 
@@ -71,6 +76,12 @@ class UserProfile
     use UpdatedTrait;
     use CreatedTrait;
 
+    public function __construct()
+    {
+        if (isset($this->birthDay)) {
+            $this->birthDay->format('d/m/Y');
+        }
+    }
 
     public function getUserId(): string
     {
@@ -133,9 +144,10 @@ class UserProfile
         return $this;
     }
 
-    public function getBirthDay(): string
+    public function getBirthDay(): DateTime
     {
-        return date_format($this->birthDay, 'd/m/Y');
+        $this->birthDay->format('d/m/Y');
+        return $this->birthDay;
     }
 
     public function setBirthDay(DateTime $birthDay): self
