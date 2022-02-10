@@ -46,19 +46,19 @@ class UserCompanyInfo
 
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?int $regon;
+    private ?string $regon;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?int $krs;
+    private ?string $krs;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
-    private ?int $nip;
+    private ?string $nip;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -122,36 +122,36 @@ class UserCompanyInfo
         return $this;
     }
 
-    public function getRegon(): ?int
+    public function getRegon(): ?string
     {
         return $this->regon;
     }
 
-    public function setRegon(?int $regon): self
+    public function setRegon(?string $regon): self
     {
         $this->regon = $regon;
 
         return $this;
     }
 
-    public function getKrs(): ?int
+    public function getKrs(): ?string
     {
         return $this->krs;
     }
 
-    public function setKrs(?int $krs): self
+    public function setKrs(?string $krs): self
     {
         $this->krs = $krs;
 
         return $this;
     }
 
-    public function getNip(): ?int
+    public function getNip(): ?string
     {
         return $this->nip;
     }
 
-    public function setNip(?int $nip): self
+    public function setNip(?string $nip): self
     {
         $this->nip = $nip;
 

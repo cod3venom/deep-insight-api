@@ -16,18 +16,22 @@ use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
+use App\Repository\ImportedSubUsersRepository;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use App\Service\SubUserService\SubUserService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -61,40 +65,6 @@ class SubUserCrudController extends VirtualController
         parent::__construct($serializer);
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
-    }
-
-    private function rulesValidation($email, $firstName, $lastName, $birthDay)
-    {
-        if (empty($email) ||  !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-           throw new \InvalidArgumentException('Email is not valid');
-        }
-        if (empty($firstName)) {
-            throw new \InvalidArgumentException('First Name is not valid');
-        }
-        if (empty($lastName)) {
-            throw new \InvalidArgumentException('Last Name is not valid');
-        }
-
-        if (empty($birthDay)) {
-            throw new \InvalidArgumentException('Birth Day is not valid');
-        }
-    }
-
-    /**
-     * @Route (path="/", methods={"GET"})
-     * @return JsonResponse
-     */
-    public function all(): JsonResponse
-    {
-        try {
-            $userId = $this->user()->getUserId();
-            $subUsers = $this->userRepository->allSubUsers($userId);
-            $this->responseBuilder->addPayload($subUsers);
-            return $this->responseBuilder->jsonResponse();
-        }
-        catch (\Exception $ex) {
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
     }
 
     /**
@@ -173,8 +143,6 @@ class SubUserCrudController extends VirtualController
 
         $profile = $request->get('profile');
         $company = $request->get('company');
-
-
 
         try {
 
@@ -273,6 +241,70 @@ class SubUserCrudController extends VirtualController
     }
 
     /**
+     * @Route (path="/all", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function mySubUsers(Request $request): JsonResponse
+    {
+        try {
+            $startFrom = (int)$request->get('startFrom');
+            $limit = (int)$request->get('limit');
+
+            $userId = $this->user()->getUserId();
+            $subUsers = $this->userRepository
+                ->setStartFrom($startFrom)
+                ->setLimit($limit)
+                ->allSubUsers($userId, true);
+
+            $this->responseBuilder->addPayload($subUsers);
+            return $this->responseBuilder->jsonResponse();
+        }
+        catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+
+    /**
+     * @Route (path="/{subUserId}", methods={"GET"})
+     * @param string $subUserId
+     * @return JsonResponse
+     */
+    public function getSubUser(string $subUserId): JsonResponse
+    {
+        try {
+            $profile = $this->userRepository->findSubUserById($subUserId);
+            return $this->responseBuilder->addObject($profile)
+                ->setStatus(Response::HTTP_OK)
+                ->objectResponse();
+        }
+        catch (\Exception $ex){
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+
+    /**
+     * @Route (path="/search/{keyword}", methods={"POST"})
+     * @param string $keyword
+     * @return JsonResponse
+     */
+    public function searchForSubUser(string $keyword): JsonResponse
+    {
+        try {
+            $profile = $this->userProfileRepository->searchForSubUser($keyword);
+            return $this->responseBuilder->addObject($profile)
+                ->setStatus(Response::HTTP_OK)
+                ->objectResponse();
+        }
+        catch (\Exception $ex){
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+
+    /**
      * @Route (path="/{userId}/set-avatar", methods={"POST"})
      * @param Request $request
      * @param string $userId
@@ -294,52 +326,67 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
-    /**
-     * @Route (path="/{subUserId}", methods={"GET"})
-     * @param string $subUserId
-     * @return JsonResponse
-     */
-    public function getSubUser(string $subUserId): JsonResponse
-    {
-        try {
-            $profile = $this->userRepository->findSubUserById($subUserId);
-            return $this->responseBuilder->addObject($profile)
-                ->setStatus(Response::HTTP_OK)
-                ->objectResponse();
-        }
-        catch (\Exception $ex){
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
 
-    /**
-     * @Route (path="/search/{keyword}", methods={"POST"})
-     * @param string $keyword
-     * @return JsonResponse
-     */
-    public function searchForSubUser(string $keyword): JsonResponse
-    {
-        try {
-            $profile = $this->userProfileRepository->searchForSubUser($keyword);
-            return $this->responseBuilder->addObject($profile)
-                ->setStatus(Response::HTTP_OK)
-                ->objectResponse();
-        }
-        catch (\Exception $ex){
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
 
     /**
      * @Route (path="/import-from-sheet", methods={"POST"})
      * @param Request $request
+     * @param SubUserService $subUserService
+     * @param ImportedSubUsersRepository $importedSubUsersRepository
      * @return JsonResponse
      */
-    public function importFromSheet(Request $request)
+    public function importFromSheet(
+        Request $request,
+        SubUserService $subUserService,
+        ImportedSubUsersRepository $importedSubUsersRepository
+    ): JsonResponse
     {
-
         try {
-            $file = $_FILES['file']['tmp_name'];
+
+            $authorId = $this->user()->getUserId();
+            $file = $request->files->get('file');
+
+            if (!($file instanceof UploadedFile)) {
+                return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+            }
+
+            $subUserService->SubUserImporter()->import(
+                $authorId,
+                $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/',
+                $file,
+                $this->userRepository,
+                $importedSubUsersRepository
+            );
+            return $this->responseBuilder->setStatus(Response::HTTP_OK)->jsonResponse();
+
+        } catch (\Exception $ex) {
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
+    /**
+     * @Route (path="/export-to-sheet", methods={"POST"})
+     * @param Request $request
+     * @param SubUserService $subUserService
+     * @param ImportedSubUsersRepository $importedSubUsersRepository
+     * @return JsonResponse|Response
+     */
+    public function exportToSheet(
+        Request $request,
+        SubUserService $subUserService,
+        ImportedSubUsersRepository $importedSubUsersRepository
+    ): JsonResponse|Response
+    {
+        try {
+
+            $authorId = $this->user()->getUserId();
+            $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
+            $writer = $subUserService->SubUserExporter()->export($authorId);
+            $writer->save($fileUniqName);
+
+            return $this->responseBuilder->addPayload([
+                'file' => 'wwww.'.$_ENV['BACKEND_HOST'].'/'. $fileUniqName
+            ])->setStatus(Response::HTTP_OK)->jsonResponse();
 
         } catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();

@@ -13,6 +13,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
@@ -44,6 +45,11 @@ class UserRepository extends ServiceEntityRepository
      */
     private HumanTraitsService $humanTraitsService;
 
+
+    private int $startFrom = 0;
+    private int $limit = 50;
+
+
     public function __construct(
         ManagerRegistry $registry,
         TraitAnalysisRepository $traitAnalysisRepository,
@@ -57,6 +63,28 @@ class UserRepository extends ServiceEntityRepository
         $this->traitItemRepository = $traitItemRepository;
         $this->traitColorRepository = $traitColorRepository;
         $this->humanTraitsService = $humanTraitsService;
+    }
+
+    public function getStartFrom(): int {
+        return $this->startFrom;
+    }
+    public function setStartFrom(?int $startFrom): self {
+        if (!$startFrom){
+            return $this;
+        }
+        $this->startFrom = $startFrom;
+        return $this;
+    }
+
+    public function getLimit(): int {
+        return $this->limit;
+    }
+    public function setLimit(?int $limit): self {
+        if (!$limit){
+            return $this;
+        }
+        $this->limit = $limit;
+        return $this;
     }
 
     /**
@@ -106,6 +134,8 @@ class UserRepository extends ServiceEntityRepository
 
 
     /**
+     * @param string $email
+     * @return User
      * @throws NonUniqueResultException
      */
     public function findByEmail(string $email): User
@@ -124,6 +154,8 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $id
+     * @return User
      * @throws NonUniqueResultException
      */
     public function findUserById(string $id): User
@@ -191,28 +223,45 @@ class UserRepository extends ServiceEntityRepository
      * @param string $myUserId
      * @return array
      */
-    public function allSubUsers(string $myUserId): array
+    public function allSubUsers(string $authorUserId, bool $addAnalyses = false): array
     {
         $result = [];
-        $allSubUsers = $this->createQueryBuilder('u')
+        $allSubUsers = $this
+            ->createQueryBuilder('u')
             ->andWhere('u.userAuthorId = :authorId')
-            ->andWhere('u.roles LIKE :roles')
-            ->setParameter('authorId', $myUserId)
+            ->andWhere('u.roles LIKE :roles');
+
+        if ($this->startFrom !== -1) {
+            $allSubUsers->setFirstResult($this->startFrom)->setMaxResults($this->limit);
+        }
+
+       $allSubUsers = $allSubUsers->addOrderBy('u.createdAt', 'DESC')
+            ->setParameter('authorId', $authorUserId)
             ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
-        foreach ($allSubUsers as $subUser) {
-            if (!($subUser instanceof User)) {
-                continue;
-            }
+        if ($addAnalyses) {
+            foreach ($allSubUsers as $subUser) {
+                if (!($subUser instanceof User)) {
+                    continue;
+                }
 
-            $subUser = $this->applyAnalyses($subUser);
-            $result[] = $subUser;
+                $subUser = $this->applyAnalyses($subUser);
+                $result[] = $subUser;
+            }
+            return $result;
         }
-        return $result;
+        return $allSubUsers;
     }
 
+
+    /**
+     * Find and apply analyses for
+     * the provided user
+     * @param User $user
+     * @return User
+     */
     public function applyAnalyses(User $user): User
     {
         $birthDay = date_format($user->profile->getBirthDay(), UserProfile::BirthDayFormat);

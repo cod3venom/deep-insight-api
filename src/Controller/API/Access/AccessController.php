@@ -70,7 +70,7 @@ class AccessController extends VirtualController
      * @param AuthService $authService
      * @param SerializerInterface $serializer
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function signUp(Request $request, AuthService $authService, SerializerInterface $serializer): JsonResponse
     {

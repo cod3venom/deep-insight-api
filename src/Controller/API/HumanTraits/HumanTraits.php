@@ -22,6 +22,7 @@ use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -46,8 +47,14 @@ class HumanTraits extends VirtualController
      */
     private UserProfileRepository $userProfileRepository;
 
+    /**
+     * @var TraitAnalysisRepository
+     */
     private TraitAnalysisRepository $traitAnalysisRepository;
 
+    /**
+     * @var TraitItemRepository
+     */
     private TraitItemRepository $traitItemRepository;
 
     /**
@@ -55,6 +62,9 @@ class HumanTraits extends VirtualController
      */
     private TraitColorRepository $traitColorRepository;
 
+    /**
+     * @var HumanTraitsService
+     */
     private HumanTraitsService $humanTraitsService;
 
 
@@ -84,7 +94,7 @@ class HumanTraits extends VirtualController
      * @Route (path="/report")
      * @return JsonResponse
      */
-    public function myReport(): JsonResponse
+    public function reportForMe(): JsonResponse
     {
         try{
             $userId = $this->user()->getUserId();
@@ -106,7 +116,7 @@ class HumanTraits extends VirtualController
      * @param string $userId
      * @return JsonResponse
      */
-    public function reportBySubUser(string $userId): JsonResponse
+    public function reportForSubUser(string $userId): JsonResponse
     {
         try{
             $profile = $this->userProfileRepository->findSubUserById($userId);
@@ -139,9 +149,8 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SOME ERROR', [$ex]);
+            $this->logger->error('colorsBySubUser', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
-
 }

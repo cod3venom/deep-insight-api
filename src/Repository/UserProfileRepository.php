@@ -44,7 +44,7 @@ class UserProfileRepository extends ServiceEntityRepository
 
     public function existBySubUserId(string $subUserId): bool {
         try {
-            return !!$this->findSubUserById($subUserId)->getUserId();
+            return !!$this->findSubUsersById($subUserId)->getUserId();
         }
         catch (Exception $ex){
             return false;
@@ -138,6 +138,10 @@ class UserProfileRepository extends ServiceEntityRepository
                 ->andWhere('LOWER(p.firstName) LIKE :keyword')
                 ->orWhere('LOWER(p.lastName) LIKE :keyword')
                 ->orWhere('LOWER(p.email) LIKE :keyword')
+                ->orWhere('LOWER(p.placeOfBirth) LIKE :keyword')
+                ->orWhere('LOWER(p.linksToProfiles) LIKE :keyword')
+                ->orWhere('LOWER(p.notesDescriptionsComments) LIKE :keyword')
+                ->orWhere('LOWER(p.country) LIKE :keyword')
 
                 ->orWhere('LOWER(c.companyName) LIKE :keyword')
                 ->orWhere('LOWER(c.companyWww) LIKE :keyword')
@@ -153,7 +157,7 @@ class UserProfileRepository extends ServiceEntityRepository
                 ->orWhere('CAST(c.revenue as string) LIKE :keyword')
                 ->orWhere('CAST(c.profit as string) LIKE :keyword')
                 ->orWhere('CAST(c.growthYearToYear as string) LIKE :keyword')
-//                ->orWhere('CAST(c.categories as string) LIKE :keyword')
+                ->orWhere('CAST(c.categories as string) LIKE :keyword')
 
 
                 ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
@@ -168,6 +172,11 @@ class UserProfileRepository extends ServiceEntityRepository
             return[];
         }
     }
+
+    public function filterByWorlds() {
+
+    }
+
     /**
      * @param UserProfile $profile
      * @return void

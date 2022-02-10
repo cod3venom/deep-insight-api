@@ -145,6 +145,12 @@ class UsersCrud extends AbstractCrudController
             ->setEmail($entityInstance->getEmail())
             ->setUpdatedAt();
 
+        if (!str_contains($entityInstance->profile->getAvatar(), 'http')) {
+            $entityInstance->profile
+                ->setAvatar($_ENV['BACKEND_ASSETS'] . '/avatar/' . $entityInstance->profile->getAvatar());
+        }
+
+
 
         $entityInstance->company
             ->setUpdatedAt();

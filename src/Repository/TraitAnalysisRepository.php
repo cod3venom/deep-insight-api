@@ -8,6 +8,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -28,7 +29,7 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $value
+     * @param string|null $birthDay
      * @return TraitAnalysis
      */
     public function findTraitsByBirthDay(?string $birthDay): TraitAnalysis
@@ -40,15 +41,21 @@ class TraitAnalysisRepository extends ServiceEntityRepository
                 ->setParameter('birthDay', $birthDay)
                 ->setMaxResults(1)
                 ->getQuery();
-            $sql  = $result->getSQL();
 
-            $this->logger->debug('SEARCHING FOR', [$sql, ['birthDay' => $birthDay]]);
-            return $result->getSingleResult()
-                ;
+            return $result->getSingleResult();
         }
         catch (Exception $ex){
             return new TraitAnalysis();
         }
+    }
+
+
+
+    public function filterTraitsBy(string $birthDay): QueryBuilder
+    {
+        return $this->createQueryBuilder('traits')
+            ->andWhere('traits.birthDay = :birthDay')
+            ->setParameter('birthDay', $birthDay);
     }
 
     /**

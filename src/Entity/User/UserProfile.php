@@ -49,12 +49,37 @@ class UserProfile
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private string $phone;
+    private ?string $phone;
 
     /**
      * @ORM\Column(type="date")
      */
     private DateTime $birthDay;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $placeOfBirth;
+
+    /**
+     * @ORM\Column(type="text", length=255, nullable=true)
+     */
+    private ?string $positionInTheCompany;
+
+    /**
+     * @ORM\Column(type="text",  nullable=true)
+     */
+    private ?string $linksToProfiles;
+
+    /**
+     * @ORM\Column(type="text", length=255, nullable=true)
+     */
+    private ?string $notesDescriptionsComments;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $country;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -158,6 +183,18 @@ class UserProfile
         return $this;
     }
 
+    public function getPlaceOfBirth(): ?string
+    {
+        return $this->placeOfBirth;
+    }
+
+    public function setPlaceOfBirth(?string $placeOfBirth): self
+    {
+        $this->placeOfBirth = $placeOfBirth;
+
+        return $this;
+    }
+
     public function getAvatar(): ?string
     {
         return $this->avatar;
@@ -166,6 +203,55 @@ class UserProfile
     public function setAvatar(?string $avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getPositionInTheCompany(): ?string
+    {
+        return $this->positionInTheCompany;
+    }
+
+    public function setPositionInTheCompany(?string $positionInTheCompany): self
+    {
+        $this->positionInTheCompany = $positionInTheCompany;
+
+        return $this;
+    }
+
+
+    public function getLinksToProfiles(): ?string
+    {
+        return $this->linksToProfiles;
+    }
+
+    public function setLinksToProfiles(?string $linksToProfiles): self
+    {
+        $this->linksToProfiles = $linksToProfiles;
+
+        return $this;
+    }
+
+    public function getNotesDescriptionsComments(): ?string
+    {
+        return $this->notesDescriptionsComments;
+    }
+
+    public function setNotesDescriptionsComments(?string $notesDescriptionsComments): self
+    {
+        $this->notesDescriptionsComments = $notesDescriptionsComments;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(?string $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }
