@@ -93,7 +93,6 @@ class UserProfile
      */
     private ?User $user;
 
-
     private ?array $analysisReport = [];
 
     private ?array $colorsReport = [];

@@ -20,8 +20,11 @@ use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use Doctrine\DBAL\Schema\Schema;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Psr\Log\LoggerInterface;
 
@@ -95,18 +98,23 @@ class SubUsersExporter
     }
 
     /**
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
-    public function export(string $authorUserId) {
+    public function export(string $authorUserId): array
+    {
 
         $this->schemaBuilder = new SchemaBuilder();
         $spreadSheet = new Spreadsheet();
-        $drawing = new Drawing();
+        $drawing = new MemoryDrawing();
         $writer = new Xlsx($spreadSheet);
 
         $sheet = $spreadSheet->getActiveSheet();
 
         $sheet->setTitle('Deep Insight Discovery - Export');
+
+        $sheet->getStyle('A1:CD1')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1f49ff');
+        $sheet->getStyle('A1:CD1')->getFont()->getColor()->setRGB('ffffff');
+        $sheet ->getRowDimension(1)->setRowHeight(50);
 
         $sheet->getCell('A1')->setValue('Photo');
         $sheet->getCell('B1')->setValue('First Name');
@@ -197,14 +205,17 @@ class SubUsersExporter
         $sheet->getCell('CC1')->setValue('P10N');
         $sheet->getCell('CD1')->setValue('PTNde');
 
+        $emptyIndexes = [1, 2];
         $subUsers = $this
             ->userRepository
             ->setStartFrom(-1)
             ->allSubUsers($authorUserId);
 
-        $counter = 1;
-        foreach ($subUsers as $subUser) {
+        $subUsers = array_merge($emptyIndexes, $subUsers);
 
+        for ($i = 2; $i < count($subUsers); $i ++) {
+
+            $subUser = $subUsers[$i];
             if (!($subUser instanceof User)) {
                 continue;
             }
@@ -215,105 +226,109 @@ class SubUsersExporter
             $profile = &$subUser->profile;
             $company = &$subUser->company;
             $analysis = &$userTraits;
-            $counter += 1;
 
 
+           if (!is_null($profile->getAvatar())) {
+               $drawing->setImageResource(imagecreatefrompng($profile->getAvatar()));
+               $drawing->setCoordinates($sheet->getCell('A'.$i)->getCoordinate());
+               $drawing->setWidthAndHeight(50, 50);
+               $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG);
+               $drawing->setMimeType(MemoryDrawing::MIMETYPE_DEFAULT);
+               $drawing->setWorksheet($sheet);
+
+               $sheet
+                ->getRowDimension($i)->setRowHeight(50);
+           }
+
+            $sheet->getCell('B'. $i)->setValue($profile->getFirstName());
+            $sheet->getCell('C'. $i)->setValue($profile->getLastName());
+            $sheet->getCell('D'. $i)->setValue($subUser->getEmail());
+            $sheet->getCell('E'. $i)->setValue($profile->getPhone());
+            $sheet->getCell('F'. $i)->setValue($profile->getBirthDay());
+            $sheet->getCell('G'. $i)->setValue($profile->getPlaceOfBirth());
+            $sheet->getCell('H'. $i)->setValue($profile->getLinksToProfiles());
+            $sheet->getCell('I'. $i)->setValue($profile->getNotesDescriptionsComments());
+            $sheet->getCell('J'. $i)->setValue($profile->getCountry());
+
+            $sheet->getCell('K'. $i)->setValue($company->getCompanyName());
+            $sheet->getCell('L'. $i)->setValue($company->getCompanyWww());
+            $sheet->getCell('M'. $i)->setValue($company->getCompanyIndustry());
+            $sheet->getCell('N'. $i)->setValue($company->getWayToEarnMoney());
+            $sheet->getCell('O'. $i)->setValue($company->getRegon());
+            $sheet->getCell('P'. $i)->setValue($company->getKrs());
+            $sheet->getCell('Q'. $i)->setValue($company->getNip());
+            $sheet->getCell('S'. $i)->setValue($company->getDistricts());
+            $sheet->getCell('T'. $i)->setValue($company->getHeadQuartersCity());
+            $sheet->getCell('U'. $i)->setValue($company->getBusinessPhones());
+            $sheet->getCell('V'. $i)->setValue($company->getBusinessEmails());
+            $sheet->getCell('W'. $i)->setValue($company->getRevenue());
+            $sheet->getCell('X'. $i)->setValue($company->getProfit());
+            $sheet->getCell('Y'. $i)->setValue($company->getGrowthYearToYear());
+            $sheet->getCell('Z'. $i)->setValue($company->getCategories());
+
+            $sheet->getCell('AA'. $i)->setValue($analysis->getLifePath());
+            $sheet->getCell('AB'. $i)->setValue($analysis->getTheDrivingForce());
+            $sheet->getCell('AC'. $i)->setValue($analysis->getTheMatrixOfExellence());
+            $sheet->getCell('AD'. $i)->setValue($analysis->getTheMoralCode());
+            $sheet->getCell('AE'. $i)->setValue($analysis->getGoalAndWants());
+            $sheet->getCell('AF'. $i)->setValue($analysis->getBehavioursAndNeeds());
+            $sheet->getCell('AG'. $i)->setValue($analysis->getSeekAndMindset());
+            $sheet->getCell('AI'. $i)->setValue($analysis->getReactAndMotivationToAction());
+
+            $sheet->getCell('AJ'. $i)->setValue($analysis->getJoinsAndDesire());
+            $sheet->getCell('AK'. $i)->setValue($analysis->getPolarisation());
+            $sheet->getCell('AL'. $i)->setValue($analysis->getExpression());
+            $sheet->getCell('AM'. $i)->setValue($analysis->getKeyword());
+            $sheet->getCell('AN'. $i)->setValue($analysis->getVisualSeeItIntuition());
+            $sheet->getCell('AO'. $i)->setValue($analysis->getAuditoryHearItThinking());
+            $sheet->getCell('AP'. $i)->setValue($analysis->getKinestericDoItSensation());
+            $sheet->getCell('AQ'. $i)->setValue($analysis->getEmotiveFeelItFeeling());
+            $sheet->getCell('AR'. $i)->setValue($analysis->getInitializingAndAntithesis());
+            $sheet->getCell('AS'. $i)->setValue($analysis->getStabilizingAndSynthesis());
+            $sheet->getCell('AT'. $i)->setValue($analysis->getFinishingThesis());
+            $sheet->getCell('AU'. $i)->setValue($analysis->getDoerControl());
+            $sheet->getCell('AV'. $i)->setValue($analysis->getThinkerOrder());
+            $sheet->getCell('AW'. $i)->setValue($analysis->getWaterPeace());
+            $sheet->getCell('AX'. $i)->setValue($analysis->getTalkerFun());
+            $sheet->getCell('AY'. $i)->setValue($analysis->getTheValueOf());
+            $sheet->getCell('AZ'. $i)->setValue($analysis->getTheValueOf());
+
+            $sheet->getCell('BA'. $i)->setValue($analysis->getBelief());
+            $sheet->getCell('BB'. $i)->setValue($analysis->getCommunication());
+            $sheet->getCell('BC'. $i)->setValue($analysis->getStyle());
+            $sheet->getCell('BD'. $i)->setValue($analysis->getStrength());
+            $sheet->getCell('BE'. $i)->setValue($analysis->getTactic());
+            $sheet->getCell('BF'. $i)->setValue($analysis->getObjective());
+            $sheet->getCell('BG'. $i)->setValue($analysis->getWorldOfAction());
+            $sheet->getCell('BH'. $i)->setValue($analysis->getWorldOfMatter());
+            $sheet->getCell('BI'. $i)->setValue($analysis->getWorldOfInformation());
+
+            $sheet->getCell('BK'. $i)->setValue($analysis->getWorldOfFeeling());
+            $sheet->getCell('BL'. $i)->setValue($analysis->getWorldOfFun());
+            $sheet->getCell('BM'. $i)->setValue($analysis->getWorldOfUsability());
+            $sheet->getCell('BN'. $i)->setValue($analysis->getWorldOfRelations());
+            $sheet->getCell('BO'. $i)->setValue($analysis->getWorldOfDesireAndPower());
+            $sheet->getCell('BP'. $i)->setValue($analysis->getWorldOfSeekAndExplore());
+            $sheet->getCell('BQ'. $i)->setValue($analysis->getWorldOfCareer());
+            $sheet->getCell('BR'. $i)->setValue($analysis->getWorldOfFuture());
+            $sheet->getCell('B1'. $i)->setValue($analysis->getWorldOfSpirituality());
 
 
-            if (file_exists($profile->getAvatar())) {
-                $drawing->setPath($profile->getAvatar()); /* put your path and image here */
-                $drawing->setCoordinates('A1');
-                $drawing->setWorksheet($sheet);
-            }
-            $sheet->getCell('A1'. $counter)->setValue($profile->getAvatar());
-            $sheet->getCell('B1'. $counter)->setValue($profile->getFirstName());
-            $sheet->getCell('C1'. $counter)->setValue($profile->getLastName());
-            $sheet->getCell('D1'. $counter)->setValue($subUser->getEmail());
-            $sheet->getCell('E1'. $counter)->setValue($profile->getPhone());
-            $sheet->getCell('F1'. $counter)->setValue($profile->getBirthDay());
-            $sheet->getCell('G1'. $counter)->setValue($profile->getPlaceOfBirth());
-            $sheet->getCell('H1'. $counter)->setValue($profile->getLinksToProfiles());
-            $sheet->getCell('I1'. $counter)->setValue($profile->getNotesDescriptionsComments());
-            $sheet->getCell('J1'. $counter)->setValue($profile->getCountry());
-
-            $sheet->getCell('K1'. $counter)->setValue($company->getCompanyName());
-            $sheet->getCell('L1'. $counter)->setValue($company->getCompanyWww());
-            $sheet->getCell('M1'. $counter)->setValue($company->getCompanyIndustry());
-            $sheet->getCell('N1'. $counter)->setValue($company->getWayToEarnMoney());
-            $sheet->getCell('O1'. $counter)->setValue($company->getRegon());
-            $sheet->getCell('P1'. $counter)->setValue($company->getKrs());
-            $sheet->getCell('Q1'. $counter)->setValue($company->getNip());
-//            $sheet->getCell('R1'. $counter)->setValue('NIP');
-            $sheet->getCell('S1'. $counter)->setValue($company->getDistricts());
-            $sheet->getCell('T1'. $counter)->setValue($company->getHeadQuartersCity());
-            $sheet->getCell('U1'. $counter)->setValue($company->getBusinessPhones());
-            $sheet->getCell('V1'. $counter)->setValue($company->getBusinessEmails());
-            $sheet->getCell('W1'. $counter)->setValue($company->getRevenue());
-            $sheet->getCell('X1'. $counter)->setValue($company->getProfit());
-            $sheet->getCell('Y1'. $counter)->setValue($company->getGrowthYearToYear());
-            $sheet->getCell('Z1'. $counter)->setValue($company->getCategories());
-
-            $sheet->getCell('AA1'. $counter)->setValue($analysis->getLifePath());
-            $sheet->getCell('AB1'. $counter)->setValue($analysis->getTheDrivingForce());
-            $sheet->getCell('AC1'. $counter)->setValue($analysis->getTheMatrixOfExellence());
-            $sheet->getCell('AD1'. $counter)->setValue($analysis->getTheMoralCode());
-            $sheet->getCell('AE1'. $counter)->setValue($analysis->getGoalAndWants());
-            $sheet->getCell('AF1'. $counter)->setValue($analysis->getBehavioursAndNeeds());
-            $sheet->getCell('AG1'. $counter)->setValue($analysis->getSeekAndMindset());
-            $sheet->getCell('AI1'. $counter)->setValue($analysis->getReactAndMotivationToAction());
-
-            $sheet->getCell('AJ1'. $counter)->setValue($analysis->getJoinsAndDesire());
-            $sheet->getCell('AK1'. $counter)->setValue($analysis->getPolarisation());
-            $sheet->getCell('AL1'. $counter)->setValue($analysis->getExpression());
-            $sheet->getCell('AM1'. $counter)->setValue($analysis->getKeyword());
-            $sheet->getCell('AN1'. $counter)->setValue($analysis->getVisualSeeItIntuition());
-            $sheet->getCell('AO1'. $counter)->setValue($analysis->getAuditoryHearItThinking());
-            $sheet->getCell('AP1'. $counter)->setValue($analysis->getKinestericDoItSensation());
-            $sheet->getCell('AQ1'. $counter)->setValue($analysis->getEmotiveFeelItFeeling());
-            $sheet->getCell('AR1'. $counter)->setValue($analysis->getInitializingAndAntithesis());
-            $sheet->getCell('AS1'. $counter)->setValue($analysis->getStabilizingAndSynthesis());
-            $sheet->getCell('AT1'. $counter)->setValue($analysis->getFinishingThesis());
-            $sheet->getCell('AU1'. $counter)->setValue($analysis->getDoerControl());
-            $sheet->getCell('AV1'. $counter)->setValue($analysis->getThinkerOrder());
-            $sheet->getCell('AW1'. $counter)->setValue($analysis->getWaterPeace());
-            $sheet->getCell('AX1'. $counter)->setValue($analysis->getTalkerFun());
-            $sheet->getCell('AY1'. $counter)->setValue($analysis->getTheValueOf());
-            $sheet->getCell('AZ1'. $counter)->setValue($analysis->getTheValueOf());
-
-            $sheet->getCell('BA1'. $counter)->setValue($analysis->getBelief());
-            $sheet->getCell('BB1'. $counter)->setValue($analysis->getCommunication());
-            $sheet->getCell('BC1'. $counter)->setValue($analysis->getStyle());
-            $sheet->getCell('BD1'. $counter)->setValue($analysis->getStrength());
-            $sheet->getCell('BE1'. $counter)->setValue($analysis->getTactic());
-            $sheet->getCell('BF1'. $counter)->setValue($analysis->getObjective());
-            $sheet->getCell('BG1'. $counter)->setValue($analysis->getWorldOfAction());
-            $sheet->getCell('BH1'. $counter)->setValue($analysis->getWorldOfMatter());
-            $sheet->getCell('BI1'. $counter)->setValue($analysis->getWorldOfInformation());
-
-            $sheet->getCell('BK1'. $counter)->setValue($analysis->getWorldOfFeeling());
-            $sheet->getCell('BL1'. $counter)->setValue($analysis->getWorldOfFun());
-            $sheet->getCell('BM1'. $counter)->setValue($analysis->getWorldOfUsability());
-            $sheet->getCell('BN1'. $counter)->setValue($analysis->getWorldOfRelations());
-            $sheet->getCell('BO1'. $counter)->setValue($analysis->getWorldOfDesireAndPower());
-            $sheet->getCell('BP1'. $counter)->setValue($analysis->getWorldOfSeekAndExplore());
-            $sheet->getCell('BQ1'. $counter)->setValue($analysis->getWorldOfCareer());
-            $sheet->getCell('BR1'. $counter)->setValue($analysis->getWorldOfFuture());
-            $sheet->getCell('BS1'. $counter)->setValue($analysis->getWorldOfSpirituality());
-
-
-            $sheet->getCell('BT1'. $counter)->setValue($analysis->getP1S());
-            $sheet->getCell('BU1'. $counter)->setValue($analysis->getP2M());
-            $sheet->getCell('BV1'. $counter)->setValue($analysis->getP3My());
-            $sheet->getCell('BW1'. $counter)->setValue($analysis->getP4W());
-            $sheet->getCell('BX1'. $counter)->setValue($analysis->getP5M());
-            $sheet->getCell('BY1'. $counter)->setValue($analysis->getP6J());
-            $sheet->getCell('BZ1'. $counter)->setValue($analysis->getP7S());
-            $sheet->getCell('CA1'. $counter)->setValue($analysis->getP8U());
-            $sheet->getCell('CB1'. $counter)->setValue($analysis->getP9N());
-            $sheet->getCell('CC1'. $counter)->setValue($analysis->getP10N());
-            $sheet->getCell('CD1'. $counter)->setValue($analysis->getPTNde());
+            $sheet->getCell('BT'. $i)->setValue($analysis->getP1S());
+            $sheet->getCell('BU'. $i)->setValue($analysis->getP2M());
+            $sheet->getCell('BV'. $i)->setValue($analysis->getP3My());
+            $sheet->getCell('BW'. $i)->setValue($analysis->getP4W());
+            $sheet->getCell('BX'. $i)->setValue($analysis->getP5M());
+            $sheet->getCell('BY'. $i)->setValue($analysis->getP6J());
+            $sheet->getCell('BZ'. $i)->setValue($analysis->getP7S());
+            $sheet->getCell('CA'. $i)->setValue($analysis->getP8U());
+            $sheet->getCell('CB'. $i)->setValue($analysis->getP9N());
+            $sheet->getCell('CC'. $i)->setValue($analysis->getP10N());
+            $sheet->getCell('CD'. $i)->setValue($analysis->getPTNde());
         }
 
-        return $writer;
+        $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
+        $writer->save($fileUniqName);
+        return ['file' => $_ENV['BACKEND_URL']. $fileUniqName];
     }
 }

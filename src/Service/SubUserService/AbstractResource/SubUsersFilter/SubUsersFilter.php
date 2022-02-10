@@ -19,6 +19,8 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use App\Service\SubUserService\AbstractResource\SubUsersFilter\Sources\ByWorld;
+use JetBrains\PhpStorm\Pure;
 use Psr\Log\LoggerInterface;
 
 final class SubUsersFilter extends LazyLoading
@@ -88,21 +90,20 @@ final class SubUsersFilter extends LazyLoading
     }
 
 
-    public function filterByWorlds(string $myUserId, string $worldName, string $direction = 'asc'|'desc'): array {
-
-        $result = [];
-
-        $subUsers = $this->userRepository->allSubUsers($myUserId);
-
-        return $result;
-    }
-
-    private function applyAnalyses(User $user): array
+    #[Pure] public function byWorld(string $authorUserId, string $worldName): ByWorld
     {
-//        $birthDay = date_format($user->profile->getBirthDay(), UserProfile::BirthDayFormat);
-//        $traitsQb = $this->traitAnalysisRepository->filterTraitsBy($birthDay);
-//        $traitsQb->orderBy('traits.'.$this->getFilteringColumn(), $this->getFilteringDirection());
-//        return $traitsQb->getQuery()->getResult();
-        return [];
+        return (new ByWorld(
+            $this->logger,
+            $this->userRepository,
+            $this->userProfileRepository,
+            $this->traitAnalysisRepository,
+            $this->traitItemRepository,
+            $this->traitColorRepository,
+            $this->humanTraitsService,
+            $authorUserId,
+            $worldName
+        ));
     }
+
+
 }

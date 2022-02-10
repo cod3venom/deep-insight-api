@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\HumanTraits\TraitAnalysis;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -56,6 +57,14 @@ class TraitAnalysisRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('traits')
             ->andWhere('traits.birthDay = :birthDay')
             ->setParameter('birthDay', $birthDay);
+    }
+
+    /**
+     * @return EntityManagerInterface
+     */
+    public function getEntityManager():EntityManagerInterface
+    {
+        return $this->_em;
     }
 
     /**

@@ -26,6 +26,7 @@ use App\Service\HumanTraitServices\HumanTraitsService;
 use App\Service\SubUserService\SubUserService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,6 +43,11 @@ class SubUserCrudController extends VirtualController
 {
 
     /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
+    /**
      * @var UserRepository
      */
     private UserRepository $userRepository;
@@ -52,19 +58,62 @@ class SubUserCrudController extends VirtualController
     private UserProfileRepository $userProfileRepository;
 
     /**
+     * @var TraitAnalysisRepository
+     */
+    private TraitAnalysisRepository $traitAnalysisRepository;
+
+    /**
+     * @var TraitItemRepository
+     */
+    private TraitItemRepository $traitItemRepository;
+
+    /**
+     * @var TraitColorRepository
+     */
+    private TraitColorRepository $traitColorRepository;
+
+    /**
+     * @var HumanTraitsService
+     */
+    private HumanTraitsService $humanTraitsService;
+
+    /**
+     * @var SubUserService
+     */
+    private SubUserService $subUserService;
+
+    /**
+     * @param LoggerInterface $logger
      * @param SerializerInterface $serializer
      * @param UserRepository $userRepository
      * @param UserProfileRepository $userProfileRepository
+     * @param TraitAnalysisRepository $traitAnalysisRepository
+     * @param TraitItemRepository $traitItemRepository
+     * @param TraitColorRepository $traitColorRepository
+     * @param HumanTraitsService $humanTraitsService
+     * @param SubUserService $subUserService
      */
     public function __construct(
+        LoggerInterface $logger,
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
+        TraitAnalysisRepository $traitAnalysisRepository,
+        TraitItemRepository $traitItemRepository,
+        TraitColorRepository $traitColorRepository,
+        HumanTraitsService $humanTraitsService,
+        SubUserService $subUserService
     )
     {
         parent::__construct($serializer);
+        $this->logger = $logger;
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
+        $this->traitAnalysisRepository = $traitAnalysisRepository;
+        $this->traitItemRepository = $traitItemRepository;
+        $this->traitColorRepository = $traitColorRepository;
+        $this->humanTraitsService = $humanTraitsService;
+        $this->subUserService = $subUserService;
     }
 
     /**
@@ -303,6 +352,33 @@ class SubUserCrudController extends VirtualController
         }
     }
 
+    /**
+     * @Route (path="/filter-by/worlds/{world}", methods={"GET"})
+     * @param Request $request
+     * @param string $world
+     * @return JsonResponse
+     */
+    public function filterByWorld(Request $request, string $world): JsonResponse
+    {
+        try{
+
+            $authorUserId = $this->user()->getUserId();
+            $startFrom = (int)$request->get('startFrom');
+            $limit = (int)$request->get('limit');
+
+            $result = $this->subUserService
+                ->SubUserFilter()
+                ->byWorld($authorUserId, $world)
+                ->handle();
+
+
+            return $this->responseBuilder->addPayload($result)->jsonResponse();
+        }
+        catch (\Exception $ex){
+            $this->logger->error('SOME ERROR', [$ex]);
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
 
     /**
      * @Route (path="/{userId}/set-avatar", methods={"POST"})
@@ -335,14 +411,9 @@ class SubUserCrudController extends VirtualController
      * @param ImportedSubUsersRepository $importedSubUsersRepository
      * @return JsonResponse
      */
-    public function importFromSheet(
-        Request $request,
-        SubUserService $subUserService,
-        ImportedSubUsersRepository $importedSubUsersRepository
-    ): JsonResponse
+    public function importFromSheet(Request $request, SubUserService $subUserService, ImportedSubUsersRepository $importedSubUsersRepository): JsonResponse
     {
         try {
-
             $authorId = $this->user()->getUserId();
             $file = $request->files->get('file');
 
@@ -357,8 +428,8 @@ class SubUserCrudController extends VirtualController
                 $this->userRepository,
                 $importedSubUsersRepository
             );
-            return $this->responseBuilder->setStatus(Response::HTTP_OK)->jsonResponse();
 
+            return $this->responseBuilder->setStatus(Response::HTTP_OK)->jsonResponse();
         } catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
@@ -366,27 +437,15 @@ class SubUserCrudController extends VirtualController
 
     /**
      * @Route (path="/export-to-sheet", methods={"POST"})
-     * @param Request $request
      * @param SubUserService $subUserService
-     * @param ImportedSubUsersRepository $importedSubUsersRepository
      * @return JsonResponse|Response
      */
-    public function exportToSheet(
-        Request $request,
-        SubUserService $subUserService,
-        ImportedSubUsersRepository $importedSubUsersRepository
-    ): JsonResponse|Response
+    public function exportToSheet(SubUserService $subUserService,): JsonResponse|Response
     {
         try {
-
             $authorId = $this->user()->getUserId();
-            $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
-            $writer = $subUserService->SubUserExporter()->export($authorId);
-            $writer->save($fileUniqName);
-
-            return $this->responseBuilder->addPayload([
-                'file' => 'wwww.'.$_ENV['BACKEND_HOST'].'/'. $fileUniqName
-            ])->setStatus(Response::HTTP_OK)->jsonResponse();
+            $result = $subUserService->SubUserExporter()->export($authorId);
+            return $this->responseBuilder->addPayload($result)->setStatus(Response::HTTP_OK)->jsonResponse();
 
         } catch (\Exception $ex) {
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
