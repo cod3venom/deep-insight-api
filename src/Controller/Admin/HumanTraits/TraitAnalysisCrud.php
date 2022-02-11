@@ -89,7 +89,7 @@ class TraitAnalysisCrud extends AbstractCrudController
 //
 //        $icon       = ImageField::new('icon')
 //            ->setUploadDir($this->parameterBag->get('trait_icons_dir'))
-//            ->setBasePath($this->parameterBag->get('trait_icons_base'));
+//            ->setBasePath($this->parameterBag->get('trait_icons_upload_dir'));
 //
 //        if (Crud::PAGE_INDEX === $pageName) {
 //            return [$id, $name, $dataType, $icon];

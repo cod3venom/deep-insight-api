@@ -133,8 +133,8 @@ class TraitItemCrud extends AbstractCrudController
 
 
         $icon       = ImageField::new('icon')
-            ->setUploadDir($this->parameterBag->get('trait_icons_dir'))
-            ->setBasePath($this->parameterBag->get('trait_icons_base'));
+            ->setUploadDir($this->parameterBag->get('trait_icons_upload_dir'))
+            ->setBasePath($this->parameterBag->get('trait_icons_upload_dir_base'));
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $categories, $dataType, $icon];

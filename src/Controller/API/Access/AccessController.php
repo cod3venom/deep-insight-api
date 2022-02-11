@@ -13,6 +13,7 @@ namespace App\Controller\API\Access;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
+use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserRepository;
@@ -87,21 +88,28 @@ class AccessController extends VirtualController
 
             $this->userRepository->verifyRepeatedPassword($password, $passwordRepeat);
             $this->userRepository->exists($email);
+
+            $userId= Uuid::uuid4()->toString();;
             $user = new User();
             $user->setEmail($email)
-                ->setUserId(Uuid::uuid4()->toString())
+                ->setUserId($userId)
                 ->setPassword(password_hash($password, PASSWORD_DEFAULT))
+                ->setRoles([User::ROLE_USER])
                 ->setLastLoginAt()
                 ->setCreatedAt();
 
             $user->profile = new UserProfile();
             $user->profile
-                ->setUserId($user->getUserId())
+                ->setUserId($userId)
                 ->setEmail($user->getEmail())
                 ->setFirstName($userFirstName)
                 ->setLastName($userLastName)
                 ->setBirthDay(new DateTime($userBirthDate))
                 ->setAvatar($userAvatar)
+                ->setCreatedAt();
+
+            $user->company = new UserCompanyInfo();
+            $user->company->setUserId($userId)
                 ->setCreatedAt();
 
             $this->userRepository->save($user);

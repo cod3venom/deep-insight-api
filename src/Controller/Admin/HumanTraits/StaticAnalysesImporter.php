@@ -80,7 +80,7 @@ class StaticAnalysesImporter extends AbstractController
 
             try {
 
-                $fullPath = $this->uploadFile($this->getParameter('trait_sheets_dir'), $file, $slugger);
+                $fullPath = $this->uploadFile($this->getParameter('sheets_upload_dir'), $file, $slugger);
                 if (empty($fullPath) || !file_exists($fullPath)) {
                     $message = 'Something went wrong during the uploading process';
                 }

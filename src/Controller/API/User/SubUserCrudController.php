@@ -329,6 +329,7 @@ class SubUserCrudController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex){
+            $this->logger->error('SubUserCrudController::error', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -348,6 +349,7 @@ class SubUserCrudController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex){
+            $this->logger->error('SubUserCrudController::error', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -375,7 +377,7 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->addPayload($result)->jsonResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SOME ERROR', [$ex]);
+            $this->logger->error('SubUserCrudController::error', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -431,6 +433,7 @@ class SubUserCrudController extends VirtualController
 
             return $this->responseBuilder->setStatus(Response::HTTP_OK)->jsonResponse();
         } catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController::error', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -448,6 +451,7 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->addPayload($result)->setStatus(Response::HTTP_OK)->jsonResponse();
 
         } catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController::error', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

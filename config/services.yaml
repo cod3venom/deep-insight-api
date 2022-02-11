@@ -4,11 +4,13 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-    trait_sheets_dir: 'assets/traits/sheets/'
-    trait_icons_base: 'assets/traits/icons/'
-    trait_icons_dir: 'public/assets/traits/icons'
+    sheets_upload_dir: 'uploads/sheets/'
 
-    user_avatars_dir: 'public/assets/avatar/'
+    trait_icons_upload_dir: 'public/uploads/traits/icons'
+    trait_icons_upload_dir_base: 'uploads/traits/icons/'
+
+    user_avatars_upload_dir: 'public/uploads/avatars'
+    user_avatars_upload_dir_base: 'uploads/avatars/'
 
 services:
     # default configuration for services in *this* file

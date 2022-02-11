@@ -12,10 +12,13 @@
 namespace App\Controller\API\MediaBridge;
 
 use App\Modules\Cloudinary\CloudinaryBridge;
+use App\Modules\MediaBridge\MediaBridge;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,9 +30,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 class MediaBridgeController extends VirtualController
 {
 
-    public function __construct(SerializerInterface $serializer)
+    private ParameterBagInterface $parameterBag;
+    public function __construct(
+        SerializerInterface $serializer,
+        ParameterBagInterface $parameterBag
+    )
     {
         parent::__construct($serializer);
+        $this->parameterBag = $parameterBag;
     }
 
 
@@ -42,12 +50,12 @@ class MediaBridgeController extends VirtualController
     public function uploadImage(Request $request): JsonResponse
     {
         try{
-            $image = $_FILES['image']['tmp_name'];
+            $image = $request->files->get('image');
 
             ## Upload image to the Cloudinary service
-            $result = (new CloudinaryBridge())
-                ->uploadImage($image)
-                ->getSingleResult();
+            $result = (new MediaBridge())
+                ->setWhiteList(['png', 'jpeg', 'jpg'])
+                ->upload($image, $this->parameterBag->get('user_avatars_upload_dir_base'), $_ENV['BACKEND_URL']);
 
             return $this->responseBuilder->addObject($result)
                 ->setStatus(Response::HTTP_OK)

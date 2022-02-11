@@ -101,26 +101,10 @@ class UsersCrud extends AbstractCrudController
             $entityInstance->company = new UserCompanyInfo();
         }
 
-        $entityInstance
-            ->setUserId($userId)
-            ->setLastLoginAt()
-            ->setCreatedAt();
-
+        $entityInstance->setUserId($userId)->setLastLoginAt()->setCreatedAt();
         $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT));
-
-        $entityInstance->profile
-            ->setUserId($userId)
-            ->setEmail($entityInstance->getEmail())
-            ->setCreatedAt();
-
-        $entityInstance->profile
-            ->setAvatar($_ENV['BACKEND_ASSETS'] . '/avatar/'.$entityInstance->profile->getAvatar());
-
-        $entityInstance->company
-            ->setUserId($userId)
-            ->setCreatedAt();
-
-
+        $entityInstance->profile->setUserId($userId)->setEmail($entityInstance->getEmail())->setCreatedAt();
+        $entityInstance->company->setUserId($userId)->setCreatedAt();
         $this->userRepository->save($entityInstance);
     }
 
@@ -141,20 +125,8 @@ class UsersCrud extends AbstractCrudController
             $entityInstance->company = new UserCompanyInfo();
         }
 
-        $entityInstance->profile
-            ->setEmail($entityInstance->getEmail())
-            ->setUpdatedAt();
-
-        if (!str_contains($entityInstance->profile->getAvatar(), 'http')) {
-            $entityInstance->profile
-                ->setAvatar($_ENV['BACKEND_ASSETS'] . '/avatar/' . $entityInstance->profile->getAvatar());
-        }
-
-
-
-        $entityInstance->company
-            ->setUpdatedAt();
-
+        $entityInstance->profile->setEmail($entityInstance->getEmail())->setUpdatedAt();
+        $entityInstance->company->setUpdatedAt();
 
         if (in_array(User::ROLE_SUB_USER, $entityInstance->getRoles())) {
             $entityInstance->setUserAuthorId($entityInstance->getUserId());
@@ -193,8 +165,10 @@ class UsersCrud extends AbstractCrudController
         $birthDay =  DateField::new('profile.birthDay', 'Birth Day')
             ->setFormat('d/m/Y')
             ->setHelp('Choose birth date of the user');
-        $avatarIcon = ImageField::new('profile.avatar', 'Profile image')
-            ->setUploadDir($this->parameterBag->get('user_avatars_dir'));
+
+        $avatar = ImageField::new('profile.avatar', 'Profile image')
+            ->setUploadDir($this->parameterBag->get('user_avatars_upload_dir'))
+            ->setBasePath($this->parameterBag->get('user_avatars_upload_dir_base'));
 
 
         // Company
@@ -217,13 +191,13 @@ class UsersCrud extends AbstractCrudController
         $categories = TextareaField::new('company.Categories', 'Categories');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$avatarIcon, $firstName, $lasName,$email, $role];
+            return [$avatar, $firstName, $lasName,$email, $role];
         }
         return [
                 FormField::addPanel('Credentials'),
                 $authorId, $email, $password, $role,
                 FormField::addPanel('Profile'),
-                $firstName, $lasName, $phone, $birthDay, $avatarIcon,
+                $firstName, $lasName, $phone, $birthDay, $avatar,
                 FormField::addPanel('Company'),
                 $companyName, $companyWww, $industry, $wayToEarnMoney,
                 $regon, $krs, $nip, $districts, $headQuartersCity,
