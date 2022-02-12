@@ -4,17 +4,16 @@
  * Project: deep-insight-api.
  * Author: Levan Ostrowski
  * User: cod3venom
- * Date: 22.01.2022
- * Time: 07:42
+ * Date: 12.02.2022
+ * Time: 16:49
 */
-
 
 namespace App\Controller\Documentation;
 
 use App\Modules\VirtualController\VirtualController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 /**
  * @Route (path="/documentation", methods={"GET"})

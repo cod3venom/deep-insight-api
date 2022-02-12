@@ -23,6 +23,7 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use App\Service\LoggerService\LoggerService;
 use App\Service\SubUserService\SubUserService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
@@ -43,9 +44,9 @@ class SubUserCrudController extends VirtualController
 {
 
     /**
-     * @var LoggerInterface
+     * @var LoggerService
      */
-    private LoggerInterface $logger;
+    private LoggerService $logger;
 
     /**
      * @var UserRepository
@@ -83,7 +84,7 @@ class SubUserCrudController extends VirtualController
     private SubUserService $subUserService;
 
     /**
-     * @param LoggerInterface $logger
+     * @param LoggerService $logger
      * @param SerializerInterface $serializer
      * @param UserRepository $userRepository
      * @param UserProfileRepository $userProfileRepository
@@ -94,7 +95,7 @@ class SubUserCrudController extends VirtualController
      * @param SubUserService $subUserService
      */
     public function __construct(
-        LoggerInterface $logger,
+        LoggerService $logger,
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
@@ -169,12 +170,13 @@ class SubUserCrudController extends VirtualController
 
         }
         catch (\InvalidArgumentException $ex){
-            return $this->responseBuilder
-                ->addMessage($ex->getMessage())
+            $this->logger->error('SubUserCrudController', 'add', [$this->user(), $ex]);
+            return $this->responseBuilder->addMessage($ex->getMessage())
                 ->setStatus(Response::HTTP_BAD_REQUEST)
                 ->jsonResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController', 'add', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -244,12 +246,13 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->objectResponse();
         }
         catch (\InvalidArgumentException $ex){
-            return $this->responseBuilder
-                ->addMessage($ex->getMessage())
+            $this->logger->error('SubUserCrudController', 'update', [$this->user(), $ex]);
+            return $this->responseBuilder->addMessage($ex->getMessage())
                 ->setStatus(Response::HTTP_BAD_REQUEST)
                 ->jsonResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController', 'update', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -275,16 +278,16 @@ class SubUserCrudController extends VirtualController
             $this->userRepository->delete($user);
             $this->userProfileRepository->delete($profile);
 
-            return $this->responseBuilder->addPayload([])
-                ->setStatus(Response::HTTP_OK)
-                ->jsonResponse();
+            return $this->responseBuilder->addPayload([])->setStatus(Response::HTTP_OK)->jsonResponse();
         }
-        catch (NoResultException){
+        catch (NoResultException $ex){
+            $this->logger->error('SubUserCrudController', 'delete', [$this->user(), $ex]);
             return $this->responseBuilder->addMessage('User does not exists')
                 ->setStatus(Response::HTTP_NOT_FOUND)
                 ->jsonResponse();
         }
         catch (\Exception $ex){
+            $this->logger->error('SubUserCrudController', 'delete', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -297,19 +300,20 @@ class SubUserCrudController extends VirtualController
     public function mySubUsers(Request $request): JsonResponse
     {
         try {
-            $startFrom = (int)$request->get('startFrom');
+            $start = (int)$request->get('start');
             $limit = (int)$request->get('limit');
 
             $userId = $this->user()->getUserId();
             $subUsers = $this->userRepository
-                ->setStartFrom($startFrom)
-                ->setLimit($limit)
+//                ->setStartFrom($start)
+//                ->setLimit($limit)
                 ->allSubUsers($userId, true);
 
             $this->responseBuilder->addPayload($subUsers);
             return $this->responseBuilder->jsonResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController', 'mySubUsers', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -329,7 +333,7 @@ class SubUserCrudController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SubUserCrudController::error', [$ex]);
+            $this->logger->error('SubUserCrudController', 'getSubUser', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -349,7 +353,7 @@ class SubUserCrudController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SubUserCrudController::error', [$ex]);
+            $this->logger->error('SubUserCrudController', 'searchForSubUser', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -377,7 +381,7 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->addPayload($result)->jsonResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SubUserCrudController::error', [$ex]);
+            $this->logger->error('SubUserCrudController', 'filterByWorld', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -401,6 +405,7 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('SubUserCrudController', 'setAvatar', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -433,7 +438,7 @@ class SubUserCrudController extends VirtualController
 
             return $this->responseBuilder->setStatus(Response::HTTP_OK)->jsonResponse();
         } catch (\Exception $ex) {
-            $this->logger->error('SubUserCrudController::error', [$ex]);
+            $this->logger->error('SubUserCrudController', 'importFromSheet', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -443,7 +448,7 @@ class SubUserCrudController extends VirtualController
      * @param SubUserService $subUserService
      * @return JsonResponse|Response
      */
-    public function exportToSheet(SubUserService $subUserService,): JsonResponse|Response
+    public function exportToSheet(SubUserService $subUserService): JsonResponse|Response
     {
         try {
             $authorId = $this->user()->getUserId();
@@ -451,7 +456,7 @@ class SubUserCrudController extends VirtualController
             return $this->responseBuilder->addPayload($result)->setStatus(Response::HTTP_OK)->jsonResponse();
 
         } catch (\Exception $ex) {
-            $this->logger->error('SubUserCrudController::error', [$ex]);
+            $this->logger->error('SubUserCrudController', 'exportToSheet', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

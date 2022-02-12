@@ -16,6 +16,7 @@ use App\Modules\MediaBridge\MediaBridge;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
+use App\Service\LoggerService\LoggerService;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -29,17 +30,31 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class MediaBridgeController extends VirtualController
 {
+    /**
+     * @var LoggerService
+     */
+    private LoggerService $logger;
 
+    /**
+     * @var ParameterBagInterface
+     */
     private ParameterBagInterface $parameterBag;
+
+    /**
+     * @param SerializerInterface $serializer
+     * @param LoggerService $logger
+     * @param ParameterBagInterface $parameterBag
+     */
     public function __construct(
         SerializerInterface $serializer,
+        LoggerService $logger,
         ParameterBagInterface $parameterBag
     )
     {
         parent::__construct($serializer);
+        $this->logger = $logger;
         $this->parameterBag = $parameterBag;
     }
-
 
 
     /**
@@ -51,10 +66,7 @@ class MediaBridgeController extends VirtualController
     {
         try{
             $image = $request->files->get('image');
-
-            ## Upload image to the Cloudinary service
-            $result = (new MediaBridge())
-                ->setWhiteList(['png', 'jpeg', 'jpg'])
+            $result = (new MediaBridge())->setWhiteList(['png', 'jpeg', 'jpg'])
                 ->upload($image, $this->parameterBag->get('user_avatars_upload_dir_base'), $_ENV['BACKEND_URL']);
 
             return $this->responseBuilder->addObject($result)
@@ -62,6 +74,7 @@ class MediaBridgeController extends VirtualController
                 ->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('MediaBridgeController', 'uploadImage', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -75,17 +88,13 @@ class MediaBridgeController extends VirtualController
     {
         try{
             $base64 = $request->get('image');
-
-            ## Upload image to the Cloudinary service
-            $result = (new CloudinaryBridge())
-                ->uploadBase64Image($base64)
-                ->getSingleResult();
-
+            $result = (new CloudinaryBridge())->uploadBase64Image($base64)->getSingleResult();
             return $this->responseBuilder->addObject($result)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('MediaBridgeController', 'uploadImageAsBase64', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

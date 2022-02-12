@@ -18,6 +18,7 @@ use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
+use App\Service\LoggerService\LoggerService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,11 @@ class UserController extends VirtualController
 {
 
     /**
+     * @var LoggerService
+     */
+    private LoggerService $logger;
+
+    /**
      * @var UserRepository
      */
     private UserRepository $userRepository;
@@ -38,9 +44,15 @@ class UserController extends VirtualController
      */
     private UserProfileRepository $userProfileRepository;
 
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository,UserProfileRepository $userProfileRepository)
+    public function __construct(
+        SerializerInterface $serializer,
+        LoggerService $logger,
+        UserRepository $userRepository,
+        UserProfileRepository $userProfileRepository
+    )
     {
         parent::__construct($serializer);
+        $this->logger = $logger;
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
     }
@@ -58,6 +70,7 @@ class UserController extends VirtualController
             return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('UserController', 'me', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -74,6 +87,7 @@ class UserController extends VirtualController
             return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('UserController', 'userById', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -126,6 +140,7 @@ class UserController extends VirtualController
 
         }
         catch (\Exception $ex) {
+            $this->logger->error('UserController', 'update', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -149,6 +164,7 @@ class UserController extends VirtualController
             return $this->responseBuilder->objectResponse();
         }
         catch (\Exception $ex) {
+            $this->logger->error('UserController', 'setAvatar', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

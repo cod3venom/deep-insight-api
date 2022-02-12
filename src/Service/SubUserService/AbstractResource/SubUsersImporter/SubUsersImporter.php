@@ -19,6 +19,7 @@ use App\Modules\Sheet\SheetReader;
 use App\Modules\StringBuilder\StringBuilder;
 use App\Repository\ImportedSubUsersRepository;
 use App\Repository\UserRepository;
+use App\Service\SubUserService\AbstractResource\SubUsersImporter\Exceptions\MainColumnsAreEmptyException;
 use DateTime;
 use Exception;
 use InvalidArgumentException;
@@ -122,8 +123,8 @@ final class SubUsersImporter
             $phone = $entry[array_search('phone', $allSubUsers[0])];
             $birthDay = new DateTime($entry[array_search('birth_day', $allSubUsers[0])]);
             $placeOfBirth = $entry[array_search('place_of_birth', $allSubUsers[0])];
-            $avatar = $entry[array_search('avatar', $allSubUsers[0])];
-            $positionInTheCompany = $entry[array_search('avatar', $allSubUsers[0])];
+            $avatar = $entry[array_search('avatar', $allSubUsers[0])] || $entry[array_search('photo', $allSubUsers[0])];
+            $positionInTheCompany = $entry[array_search('position_in_the_company', $allSubUsers[0])];
             $linksToProfiles = $entry[array_search('links_to_profiles', $allSubUsers[0])];
             $notesDescriptionsComments = $entry[array_search('notes_descriptions_comments', $allSubUsers[0])];
             $country = $entry[array_search('country', $allSubUsers[0])];
@@ -144,6 +145,9 @@ final class SubUsersImporter
             $growthYearToYear = ($entry[array_search('growth_year_to_year', $allSubUsers[0])]);
             $categories = ($entry[array_search('categories', $allSubUsers[0])]);
 
+            if (is_null($firstName) || is_null($lastName)) {
+                throw new MainColumnsAreEmptyException('Main columns are empty');
+            }
             $user
                 ->setUserId($userId)
                 ->setUserAuthorId($authorUserId)

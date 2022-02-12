@@ -17,6 +17,7 @@ use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserRepository;
+use App\Service\LoggerService\LoggerService;
 use App\Service\UserServices\AuthService\AuthService;
 use App\Service\UserServices\AuthService\Exceptions\UserNotFoundException;
 use App\Service\UserServices\AuthService\Exceptions\WrongPasswordException;
@@ -38,19 +39,34 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class AccessController extends VirtualController
 {
+    /**
+     * @var LoggerService
+     */
+    private LoggerService $logger;
+
+    /**
+     * @var UserRepository
+     */
     private UserRepository $userRepository;
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository)
+
+    /**
+     * @param SerializerInterface $serializer
+     * @param LoggerService $logger
+     * @param UserRepository $userRepository
+     */
+    public function __construct(SerializerInterface $serializer, LoggerService $logger, UserRepository $userRepository)
     {
         parent::__construct($serializer);
+        $this->logger = $logger;
         $this->userRepository = $userRepository;
     }
+
     /**
      * @Route (path="/is-logged", methods={"GET", "POST"})
-     * @param Request $request
      * @param JWTEncoderInterface $encoder
      * @return JsonResponse
      */
-    public function isLogged(Request $request, JWTEncoderInterface $encoder): JsonResponse
+    public function isLogged(JWTEncoderInterface $encoder): JsonResponse
     {
         $status = false;
         try {
@@ -58,6 +74,7 @@ class AccessController extends VirtualController
             $status = !!$encoder->decode($token);
             $this->responseBuilder->setStatus(Response::HTTP_OK);
         } catch (JWTDecodeFailureException $ex) {
+            $this->logger->error('AccessController:isLogged', [$this->user()]);
             $this->responseBuilder->addMessage($ex->getMessage())
                 ->setStatus(Response::HTTP_UNAUTHORIZED);
         }
@@ -69,11 +86,9 @@ class AccessController extends VirtualController
      * @Route (path="/sign-up", methods={"POST"})
      * @param Request $request
      * @param AuthService $authService
-     * @param SerializerInterface $serializer
      * @return JsonResponse
-     * @throws Exception
      */
-    public function signUp(Request $request, AuthService $authService, SerializerInterface $serializer): JsonResponse
+    public function signUp(Request $request, AuthService $authService): JsonResponse
     {
         $email = $request->get('user_email');
         $password = $request->get('user_password');
@@ -118,13 +133,15 @@ class AccessController extends VirtualController
             return $this->responseBuilder->addObject($user)->objectResponse();
 
         } catch (UserAlreadyExistsException | UserRepeatedPasswordMatchingException $e) {
-            $this->responseBuilder->addMessage($e->getMessage())
-            ->setStatus(Response::HTTP_BAD_REQUEST);
+            $this->logger->error('AccessController', 'signUp', [$this->user(), $e]);
+
+            return $this->responseBuilder->addMessage($e->getMessage())
+            ->setStatus(Response::HTTP_BAD_REQUEST)->jsonResponse();
         }
         catch (Exception $e) {
-            $this->responseBuilder->somethingWentWrong();
+            $this->logger->error('AccessController', 'signUp', [$this->user(), $e]);
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
-        return $this->responseBuilder->jsonResponse();
     }
 
     /**
@@ -145,20 +162,19 @@ class AccessController extends VirtualController
             return $this->responseBuilder->addObject($user)->objectResponse();
 
         } catch (UserNotFoundException $e) {
-            $this->responseBuilder->addMessage($e->getMessage())
-                ->setStatus(Response::HTTP_NOT_FOUND);
+           return  $this->responseBuilder->addMessage($e->getMessage())
+                ->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
 
-        } catch ( OptimisticLockException |
-        NonUniqueResultException |
-        NoResultException |
-        WrongPasswordException |
-        InvalidArgumentException $e
+        } catch (
+            OptimisticLockException     |
+            NonUniqueResultException    |
+            NoResultException           |
+            WrongPasswordException      |
+            InvalidArgumentException $e
         ) {
-            $this->responseBuilder->addMessage($e->getMessage())
-                ->setStatus(Response::HTTP_BAD_REQUEST);
+            $this->logger->error('AccessController', 'signIn', [$this->user(), $e]);
+            return$this->responseBuilder->addMessage($e->getMessage())
+                ->setStatus(Response::HTTP_BAD_REQUEST)->jsonResponse();
         }
-
-        return $this->responseBuilder->jsonResponse();
     }
-
 }

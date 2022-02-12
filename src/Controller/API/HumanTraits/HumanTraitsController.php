@@ -20,6 +20,7 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use App\Service\LoggerService\LoggerService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,12 +31,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 /**
  * @Route (path="/me")
  */
-class HumanTraits extends VirtualController
+class HumanTraitsController extends VirtualController
 {
     /**
-     * @var LoggerInterface
+     * @var LoggerService
      */
-    private LoggerInterface $logger;
+    private LoggerService $logger;
 
     /**
      * @var UserRepository
@@ -57,10 +58,6 @@ class HumanTraits extends VirtualController
      */
     private TraitItemRepository $traitItemRepository;
 
-    /**
-     * @var TraitColorRepository
-     */
-    private TraitColorRepository $traitColorRepository;
 
     /**
      * @var HumanTraitsService
@@ -70,7 +67,7 @@ class HumanTraits extends VirtualController
 
 
     public function __construct(
-        LoggerInterface $logger,
+        LoggerService $logger,
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
@@ -86,7 +83,6 @@ class HumanTraits extends VirtualController
         $this->userProfileRepository = $userProfileRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
         $this->traitItemRepository = $traitItemRepository;
-        $this->traitColorRepository = $traitColorRepository;
         $this->humanTraitsService = $humanTraitsService;
     }
 
@@ -106,7 +102,7 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SOME ERROR', [$ex]);
+            $this->logger->error('HumanTraitsController' ,'reportForMe', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
@@ -127,29 +123,7 @@ class HumanTraits extends VirtualController
             return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (\Exception $ex){
-            $this->logger->error('SOME ERROR SUB', [$ex]);
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
-
-    /**
-     * @Route (path="/sub-users/colors/{subUserId}", methods={"GET"})
-     * @param string $subUserId
-     * @return JsonResponse
-     */
-    public function colorsBySubUser(string $subUserId): JsonResponse
-    {
-        try{
-            $userId = $this->user()->getUserId();
-            $profile = $this->userProfileRepository->findSubUserById($userId);
-            $birthDay = date_format($profile->getBirthDay(), UserProfile::BirthDayFormat);
-
-            $analysisReport = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
-            $defaultSchema =  $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analysisReport, $this->traitItemRepository, $this->traitColorRepository);
-            return $this->responseBuilder->addPayload($defaultSchema)->setStatus(Response::HTTP_OK)->jsonResponse();
-        }
-        catch (\Exception $ex){
-            $this->logger->error('colorsBySubUser', [$ex]);
+            $this->logger->error('HumanTraitsController', 'reportForSubUser', [$ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }

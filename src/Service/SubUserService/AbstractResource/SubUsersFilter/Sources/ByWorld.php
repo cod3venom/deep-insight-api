@@ -130,44 +130,17 @@ class ByWorld
         $result = [];
         $world = $this->transformInput($this->worldName);
         $schemaBuilder = $this->humanTraitsService->schemaBuilder();
-        $allSubUsers = $this->userRepository->setStartFrom(-1)->allSubUsers($this->authorUserId);
 
-        foreach ($allSubUsers as $subUser) {
-            if (!($subUser instanceof User)) {
-                continue;
-            }
-
-            $rawSql = "
-            SELECT * FROM   trait_analysis traits
-                       inner join user_profile PROFILE
-                               ON To_char(PROFILE.birth_day :: DATE, 'dd-mm-yyyy') = To_char(
-                                  traits.birth_day :: DATE, 'dd-mm-yyyy')
-                       inner join \"user\" usr
-                               ON PROFILE.user_id = usr.user_id
-                WHERE  usr.user_author_id = :authorUserId and usr.user_id = :userId
-                ORDER  BY Replace(traits.world_of_action, '%', '') :: INT ASC; 
-            ";
-
-            $subUserId = $subUser->getUserId();
-            $em = $this->traitAnalysisRepository->getEntityManager();
-            $stmt = $em->getConnection()->prepare($rawSql);
-            $stmt->bindParam('userId', $subUserId);
-            $stmt->bindParam('authorUserId', $this->authorUserId);
-            $res = $stmt->executeQuery();
-
-
-            $analyses = $res->fetchAll();
-
-            $colorsReport = $schemaBuilder->buildWorldsFromObject($analyses, $this->traitItemRepository, $this->traitColorRepository);
-            $analysisReport =  $schemaBuilder->buildTraitsFromObject($analyses, $this->traitItemRepository);
-
-            $subUser->profile->setAnalysisReport($analysisReport);
-            $subUser->profile->setColorsReport($colorsReport);
-
-            $result[] = $subUser;
-
-
-        }
+        $result = $this->userRepository->createQueryBuilder('user')
+            ->select("user, profile, analysis")
+            ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
+            ->innerJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d-%m-%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d-%m-%Y')")
+            ->getQuery()
+            ->getResult(AbstractQuery::HYDRATE_OBJECT);
+        //$colorsReport = $schemaBuilder->buildWorldsFromObject($analyses, $this->traitItemRepository, $this->traitColorRepository);
+        //$analysisReport =  $schemaBuilder->buildTraitsFromObject($analyses, $this->traitItemRepository);
+        //$subUser->profile->setAnalysisReport($analysisReport);
+        //$subUser->profile->setColorsReport($colorsReport);
 
         return $result;
     }
