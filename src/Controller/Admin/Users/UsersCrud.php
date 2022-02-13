@@ -127,8 +127,7 @@ class UsersCrud extends AbstractCrudController
 
         $entityInstance->profile->setEmail($entityInstance->getEmail())->setUpdatedAt();
 
-        $prevUserRecords = $this->userRepository->findByEmail($entityInstance->getEmail());
-        if ($prevUserRecords->getPassword() !== $entityInstance->getPassword()) {
+        if (!str_starts_with($entityInstance->getPassword(), '$2y$')) {
             $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT));
         }
 
@@ -159,15 +158,22 @@ class UsersCrud extends AbstractCrudController
 
         // Account
         $authorId = TextField::new('userAuthorId');
-        $email = TextField::new('email');
-        $password = TextField::new('password');
-        $role = ArrayField::new('roles');
+        $email = TextField::new('email')
+            ->setRequired(true);
 
+        $password = TextField::new('password')
+            ->setRequired(true);
+
+        $role = ArrayField::new('roles')
+            ->setRequired(true);
         // Profile
-        $firstName = TextField::new('profile.firstName', 'First Name');
-        $lasName = TextField::new('profile.lastName', 'Last Name');
+        $firstName = TextField::new('profile.firstName', 'First Name')
+            ->setRequired(true);
+        $lasName = TextField::new('profile.lastName', 'Last Name')
+            ->setRequired(true);
         $phone =  TextField::new('profile.phone', 'Phone number');
         $birthDay =  DateField::new('profile.birthDay', 'Birth Day')
+            ->setRequired(true)
             ->setFormat('d/m/Y')
             ->setHelp('Choose birth date of the user');
 
