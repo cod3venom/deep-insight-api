@@ -126,12 +126,17 @@ class UsersCrud extends AbstractCrudController
         }
 
         $entityInstance->profile->setEmail($entityInstance->getEmail())->setUpdatedAt();
-        $entityInstance->company->setUpdatedAt();
+
+        $prevUserRecords = $this->userRepository->findByEmail($entityInstance->getEmail());
+        if ($prevUserRecords->getPassword() !== $entityInstance->getPassword()) {
+            $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT))
+        }
 
         if (in_array(User::ROLE_SUB_USER, $entityInstance->getRoles())) {
             $entityInstance->setUserAuthorId($entityInstance->getUserId());
         }
 
+        $entityInstance->company->setUpdatedAt();
         $this->userRepository->update($entityInstance);
     }
 
