@@ -129,7 +129,7 @@ class UsersCrud extends AbstractCrudController
 
         $prevUserRecords = $this->userRepository->findByEmail($entityInstance->getEmail());
         if ($prevUserRecords->getPassword() !== $entityInstance->getPassword()) {
-            $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT))
+            $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT));
         }
 
         if (in_array(User::ROLE_SUB_USER, $entityInstance->getRoles())) {
