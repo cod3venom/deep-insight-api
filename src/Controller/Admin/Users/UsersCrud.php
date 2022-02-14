@@ -189,9 +189,9 @@ class UsersCrud extends AbstractCrudController
         $industry = TextField::new('company.companyIndustry', 'Industry')
             ->setHelp('for eg: IT, Manufacturer, Food');
         $wayToEarnMoney = TextField::new('company.wayToEarnMoney', 'Way to earn money');
-        $regon = NumberField::new('company.regon', 'Regon');
-        $krs = NumberField::new('company.krs', 'Krs');
-        $nip = NumberField::new('company.nip', 'Nip');
+        $regon = TextField::new('company.regon', 'Regon');
+        $krs = TextField::new('company.krs', 'Krs');
+        $nip = TextField::new('company.nip', 'Nip');
         $districts = TextareaField::new('company.districts', 'Districts');
         $headQuartersCity = TextField::new('company.headQuartersCity', 'Head Quarters');
         $businessEmails = TextareaField::new('company.businessEmails', 'Business Emails');
