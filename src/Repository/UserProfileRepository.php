@@ -136,9 +136,9 @@ class UserProfileRepository extends ServiceEntityRepository
 
                 ->andWhere('u.roles LIKE :roles')
                 ->andWhere('u.userAuthorId = :userAuthorId')
-//                ->orWhere("LOWER(concat(p.firstName, ' ', p.lastName)) LIKE :keyword")
-                ->orWhere('LOWER(p.firstName) LIKE :keyword')
-                ->orWhere('LOWER(p.lastName) LIKE :keyword')
+                ->andWhere("LOWER(concat(p.firstName, ' ', p.lastName)) LIKE :keyword")
+                // ->orWhere('LOWER(p.firstName) LIKE :keyword')
+                // ->orWhere('LOWER(p.lastName) LIKE :keyword')
                 ->orWhere('LOWER(p.email) LIKE :keyword')
                 ->orWhere('LOWER(p.placeOfBirth) LIKE :keyword')
                 ->orWhere('LOWER(p.linksToProfiles) LIKE :keyword')
