@@ -113,7 +113,7 @@ final class SubUsersImporter
             }
 
 
-            $userExists = $userRepository->findByEmail($email);
+            $userExists = $userRepository->isMySubUser($authorUserId, $email);
             if ($userExists->getUserId()) {
                 continue;
             }

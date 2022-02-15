@@ -132,7 +132,21 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-
+    public function isMySubUser(string $authorUserId, string $email) {
+        try{
+            return $this->createQueryBuilder('u')
+                ->andWhere('LOWER(u.email) = :email')
+                ->andWhere('u.userAuthorId = :userAuthorId')
+                ->setParameter('email', strtolower($email))
+                ->setParameter('userAuthorId', $authorUserId)
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult();
+        }
+        catch (NoResultException) {
+            return new User();
+        }
+    }
     /**
      * @param string $email
      * @return User

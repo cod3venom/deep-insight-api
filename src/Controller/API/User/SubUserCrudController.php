@@ -27,6 +27,7 @@ use App\Service\LoggerService\LoggerService;
 use App\Service\SubUserService\SubUserService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
+use http\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -130,6 +131,13 @@ class SubUserCrudController extends VirtualController
 
         $profile = $request->get('profile');
         $company = $request->get('company');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException('Provided email is not valid');
+        }
+
+        if (strlen($password) < 5) {
+            throw new InvalidArgumentException('Password should contain at least 5 characters');
+        }
 
         try {
 
@@ -305,8 +313,8 @@ class SubUserCrudController extends VirtualController
 
             $userId = $this->user()->getUserId();
             $subUsers = $this->userRepository
-//                ->setStartFrom($start)
-//                ->setLimit($limit)
+                ->setStartFrom(0)
+                ->setLimit(50)
                 ->allSubUsers($userId, true);
 
             $this->responseBuilder->addPayload($subUsers);

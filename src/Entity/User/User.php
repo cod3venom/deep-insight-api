@@ -44,7 +44,7 @@ class User implements UserInterface
     private ?string $userAuthorId;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255, unique=false)
      */
     private string $email;
 
