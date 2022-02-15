@@ -355,7 +355,8 @@ class SubUserCrudController extends VirtualController
     public function searchForSubUser(string $keyword): JsonResponse
     {
         try {
-            $profile = $this->userProfileRepository->searchForSubUser($keyword);
+            $authorId = $this->user()->getUserId();
+            $profile = $this->userProfileRepository->searchForSubUser($authorId, $keyword);
             return $this->responseBuilder->addObject($profile)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();

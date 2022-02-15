@@ -124,7 +124,7 @@ class UserProfileRepository extends ServiceEntityRepository
      * @param string $keyword
      * @return array
      */
-    public function searchForSubUser(string $keyword): array
+    public function searchForSubUser(string $authorId, string $keyword): array
     {
         try{
 
@@ -135,7 +135,9 @@ class UserProfileRepository extends ServiceEntityRepository
                 ->innerJoin(UserCompanyInfo::class, 'c', 'WITH', 'c.userId = p.userId')
 
                 ->andWhere('u.roles LIKE :roles')
-                ->andWhere('LOWER(p.firstName) LIKE :keyword')
+                ->andWhere('u.userAuthorId = :userAuthorId')
+//                ->orWhere("LOWER(concat(p.firstName, ' ', p.lastName)) LIKE :keyword")
+                ->orWhere('LOWER(p.firstName) LIKE :keyword')
                 ->orWhere('LOWER(p.lastName) LIKE :keyword')
                 ->orWhere('LOWER(p.email) LIKE :keyword')
                 ->orWhere('LOWER(p.placeOfBirth) LIKE :keyword')
@@ -160,6 +162,7 @@ class UserProfileRepository extends ServiceEntityRepository
                 ->orWhere('CAST(c.categories as string) LIKE :keyword')
 
 
+                ->setParameter('userAuthorId', $authorId)
                 ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
                 ->setParameter('keyword', '%' . strtolower($keyword). '%')
 

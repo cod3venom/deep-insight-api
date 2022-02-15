@@ -2,6 +2,7 @@
 
 namespace App\Entity\HumanTraits;
 
+use App\Entity\Test;
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Repository\TraitAnalysisRepository;
@@ -293,6 +294,8 @@ class TraitAnalysis
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $PTNde = null;
+
+
 
 
     public function getId(): ?int
@@ -958,5 +961,6 @@ class TraitAnalysis
 
         return $this;
     }
+
 
 }
