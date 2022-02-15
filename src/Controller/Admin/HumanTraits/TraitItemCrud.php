@@ -143,7 +143,9 @@ class TraitItemCrud extends AbstractCrudController
             if (strpos($name, '&')) {
                 $name = str_replace('&', 'And', $name);
             }
-
+            if (strpos($name, '|')) {
+                $name = str_replace('|', 'Or', $name);
+            }
             return $name;
         });
 
