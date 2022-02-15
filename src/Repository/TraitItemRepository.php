@@ -57,7 +57,7 @@ class TraitItemRepository extends ServiceEntityRepository
         if (!$obj->getIcon()) {
             return "";
         }
-        return $_ENV['BACKEND_ASSETS'] . '/traits/icons/' . $obj->getIcon();
+        return $_ENV['BACKEND_URL'] . '/uploads/traits/icons/' . $obj->getIcon();
     }
 
     /**
