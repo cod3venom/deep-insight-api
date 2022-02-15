@@ -175,10 +175,10 @@ class SchemaBuilder
                         'icon' => $itemRepository->findIconByTraitName('Thinker - Order')
                     ],
                     [
-                        'name' => 'Water - Peace',
+                        'name' => 'Watcher - Peace',
                         'value' => $analysis->getWaterPeace(),
 
-                        'icon' => $itemRepository->findIconByTraitName('Water - Peace')
+                        'icon' => $itemRepository->findIconByTraitName('Watcher - Peace')
                     ],
                     [
                         'name' => 'Talker - Fun',
