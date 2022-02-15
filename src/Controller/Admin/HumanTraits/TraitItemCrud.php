@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Uid\UuidV4;
 
 
@@ -136,9 +137,12 @@ class TraitItemCrud extends AbstractCrudController
             ->setUploadDir($this->parameterBag->get('trait_icons_upload_dir'))
             ->setBasePath($this->parameterBag->get('trait_icons_upload_dir_base'));
 
+        $icon->setUploadedFileNamePattern('[slug]-[contenthash].[extension]');
+
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $name, $categories, $dataType, $icon];
         }
         return [$name, $dataType, $categories, $icon];
     }
+
 }
