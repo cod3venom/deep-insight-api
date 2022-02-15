@@ -20,6 +20,7 @@ use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use Doctrine\DBAL\Schema\Schema;
+use GdImage;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -230,7 +231,7 @@ class SubUsersExporter
                    $createdImg = imagecreatefromjpeg($avatarUrl);
                }
 
-               if (!is_null($createdImg) || (array($createdImg))) {
+               if (($createdImg instanceof GdImage)) {
                    $drawing = new MemoryDrawing();
                    $drawing->setImageResource($createdImg);
                    $drawing->setCoordinates($sheet->getCell('A'.$i)->getCoordinate());
