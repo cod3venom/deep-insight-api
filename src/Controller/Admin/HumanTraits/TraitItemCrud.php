@@ -89,12 +89,6 @@ class TraitItemCrud extends AbstractCrudController
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if ($entityInstance instanceof TraitItem) {
-
-            if (str_contains($entityInstance->getIcon(), '&')) {
-                $icon = str_replace('&', '', $entityInstance->getIcon());
-                $entityInstance->setIcon($icon);
-            }
-
             $entityInstance->setCreatedAt();
             $this->traitItemRepository->save($entityInstance);
         }
@@ -103,12 +97,6 @@ class TraitItemCrud extends AbstractCrudController
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if ($entityInstance instanceof TraitItem) {
-
-            if (str_contains($entityInstance->getIcon(), '&')) {
-                $icon = str_replace('&', '', $entityInstance->getIcon());
-                $entityInstance->setIcon($icon);
-            }
-
             $entityInstance->setUpdatedAt();
             $this->traitItemRepository->update($entityInstance);
         }
