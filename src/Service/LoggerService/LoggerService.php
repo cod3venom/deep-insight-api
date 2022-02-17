@@ -22,22 +22,41 @@ final class LoggerService
         $this->logger = $logger;
     }
 
-
+    /**
+     * @param string $identifier
+     * @param null $message
+     * @param null $params
+     */
     public function debug(string $identifier, $message = null, $params = null) {
         $desc = sprintf(self::logFormat, $identifier, $message);
         $this->logger->debug($desc, $params);
     }
 
+    /**
+     * @param string $identifier
+     * @param null $message
+     * @param array $params
+     */
     public function error(string $identifier, $message = null, $params = []) {
         $desc = sprintf(self::logFormat, $identifier, $message);
         $this->logger->debug($desc, $params);
     }
 
+    /**
+     * @param string $identifier
+     * @param null $message
+     * @param array $params
+     */
     public function warning(string $identifier, $message = null, $params = []) {
         $desc = sprintf(self::logFormat, $identifier, $message);
         $this->logger->debug($desc, $params);
     }
 
+    /**
+     * @param string $identifier
+     * @param null $message
+     * @param array $params
+     */
     public function info(string $identifier, $message = null, $params = []) {
         $desc = sprintf(self::logFormat, $identifier, $message);
         $this->logger->debug($desc, $params);

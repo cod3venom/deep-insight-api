@@ -19,7 +19,7 @@ abstract class AbstractResource
     /**
      * @return SchemaBuilder
      */
-    public function schemaBuilder(): SchemaBuilder
+    #[Pure] public function schemaBuilder(): SchemaBuilder
     {
         return (new SchemaBuilder());
     }

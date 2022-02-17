@@ -20,6 +20,10 @@ class TraitColorRepository extends ServiceEntityRepository
         parent::__construct($registry, TraitColor::class);
     }
 
+    /**
+     * @param string $worldName
+     * @return string|null
+     */
     public function findColorByWorldName(string $worldName): ?string
     {
         $obj =  $this->createQueryBuilder('t')

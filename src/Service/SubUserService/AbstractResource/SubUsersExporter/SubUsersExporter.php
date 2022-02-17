@@ -8,7 +8,7 @@
  * Time: 15:30
 */
 
-namespace App\Service\SubUserService\AbstractResource\SubUsersExporter\Exceptions;
+namespace App\Service\SubUserService\AbstractResource\SubUsersExporter;
 
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;

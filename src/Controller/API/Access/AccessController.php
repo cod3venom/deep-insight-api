@@ -98,7 +98,6 @@ class AccessController extends VirtualController
         $userBirthDate = $request->get('user_birth_date');
         $userAvatar = $request->get("user_profile_image");
 
-
         try {
 
             $this->userRepository->verifyRepeatedPassword($password, $passwordRepeat);

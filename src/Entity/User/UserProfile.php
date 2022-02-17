@@ -93,6 +93,8 @@ class UserProfile
      */
     private ?User $user;
 
+    public ?TraitAnalysis $traitAnalysis = null;
+
     private ?array $analysisReport = [];
 
     private ?array $colorsReport = [];
@@ -254,6 +256,7 @@ class UserProfile
 
         return $this;
     }
+
 
     public function getAnalysisReport(): ?array
     {

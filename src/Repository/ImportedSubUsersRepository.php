@@ -23,8 +23,6 @@ class ImportedSubUsersRepository extends ServiceEntityRepository
 
     /**
      * @param ImportedSubUsers $user
-     * @throws OptimisticLockException
-     * @throws ORMException
      */
     public function save(ImportedSubUsers $user)
     {
@@ -33,8 +31,7 @@ class ImportedSubUsersRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
+     * @param ImportedSubUsers $user
      */
     public function update(ImportedSubUsers $user)
     {
@@ -44,8 +41,6 @@ class ImportedSubUsersRepository extends ServiceEntityRepository
     /**
      * @param ImportedSubUsers $profile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(ImportedSubUsers $profile)
     {

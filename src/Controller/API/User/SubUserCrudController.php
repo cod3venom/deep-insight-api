@@ -11,6 +11,7 @@
 
 namespace App\Controller\API\User;
 
+use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
 use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
@@ -20,6 +21,7 @@ use App\Repository\ImportedSubUsersRepository;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
+use App\Repository\UserCompanyInfoRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
@@ -27,6 +29,7 @@ use App\Service\LoggerService\LoggerService;
 use App\Service\SubUserService\SubUserService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
+use Exception;
 use http\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -58,6 +61,11 @@ class SubUserCrudController extends VirtualController
      * @var UserProfileRepository
      */
     private UserProfileRepository $userProfileRepository;
+
+    /**
+     * @var UserCompanyInfoRepository
+     */
+    private UserCompanyInfoRepository $userCompanyInfoRepository;
 
     /**
      * @var TraitAnalysisRepository
@@ -100,6 +108,7 @@ class SubUserCrudController extends VirtualController
         SerializerInterface $serializer,
         UserRepository $userRepository,
         UserProfileRepository $userProfileRepository,
+        UserCompanyInfoRepository $userCompanyInfoRepository,
         TraitAnalysisRepository $traitAnalysisRepository,
         TraitItemRepository $traitItemRepository,
         TraitColorRepository $traitColorRepository,
@@ -111,6 +120,7 @@ class SubUserCrudController extends VirtualController
         $this->logger = $logger;
         $this->userRepository = $userRepository;
         $this->userProfileRepository = $userProfileRepository;
+        $this->userCompanyInfoRepository = $userCompanyInfoRepository;
         $this->traitAnalysisRepository = $traitAnalysisRepository;
         $this->traitItemRepository = $traitItemRepository;
         $this->traitColorRepository = $traitColorRepository;
@@ -127,10 +137,9 @@ class SubUserCrudController extends VirtualController
     {
         $email = $request->get('email');
         $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
-
-
         $profile = $request->get('profile');
         $company = $request->get('company');
+
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Provided email is not valid');
         }
@@ -145,23 +154,15 @@ class SubUserCrudController extends VirtualController
             $userId = Uuid::uuid4()->toString();
 
             if ($this->userRepository->exists($email)) {
-                return $this->responseBuilder->addMessage('User already exists')
-                    ->setStatus(Response::HTTP_ALREADY_REPORTED)
-                    ->jsonResponse();
+                return $this->responseBuilder->addMessage('User already exists')->setStatus(Response::HTTP_ALREADY_REPORTED)->jsonResponse();
             }
-
 
             $subUserAcc = new User();
             $subUserAcc->profile = new UserProfile();
             $subUserAcc->company = new UserCompanyInfo();
 
-            $subUserAcc
-                ->setUserId($userId)
-                ->setUserAuthorId($userAuthorId)
-                ->setEmail($email)
-                ->setPassword($password)
-                ->setRoles([User::ROLE_SUB_USER])
-                ->setLastLoginAt()
+            $subUserAcc->setUserId($userId)->setUserAuthorId($userAuthorId)->setEmail($email)
+                ->setPassword($password)->setRoles([User::ROLE_SUB_USER])->setLastLoginAt()
                 ->setCreatedAt();
 
             $subUserAcc->profile->setUserId($userId)->setCreatedAt();
@@ -169,7 +170,6 @@ class SubUserCrudController extends VirtualController
 
             $subUserAcc->profile->arrayToEntity($profile);
             $subUserAcc->company->arrayToEntity($company);
-
             $this->userRepository->save($subUserAcc);
 
             return $this->responseBuilder
@@ -205,14 +205,11 @@ class SubUserCrudController extends VirtualController
 
         try {
 
-
             if (!$this->userRepository->existsAsSubUser($subUserId)) {
-                return $this->responseBuilder->addMessage('User does not  exists')
-                    ->setStatus(Response::HTTP_NOT_FOUND)
-                    ->jsonResponse();
+                return $this->responseBuilder->addMessage('User does not  exists')->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
 
-            $subUserAcc = $this->userRepository->findSubUserById($subUserId);
+            $subUserAcc = $this->userRepository->getSubUserById($subUserId);
 
             if (is_null($subUserAcc->profile)) {
                 $subUserAcc->profile = new UserProfile();
@@ -226,38 +223,28 @@ class SubUserCrudController extends VirtualController
             }
 
             if ($email) {
-                $subUserAcc
-                    ->setEmail($email)
-                    ->profile->setEmail($email);
+                $subUserAcc->setEmail($email)->profile->setEmail($email);
             }
             if ($password) {
                 $subUserAcc->setPassword($password);
             }
 
-            $subUserAcc
-                ->setUserId($subUserId)
-                ->setUpdatedAt();
-            $subUserAcc->profile
-                ->setUserId($subUserId)
-                ->setCreatedAt();;
-
-            $subUserAcc->company
-                ->setUserId($subUserId)
-                ->setUpdatedAt();
-
             $subUserAcc->profile->arrayToEntity($profile);
             $subUserAcc->company->arrayToEntity($company);
 
+            $subUserAcc->setUserId($subUserId)->setUpdatedAt();
+
+            $subUserAcc->profile->setUserId($subUserId)->setCreatedAt();
+            $subUserAcc->company->setUserId($subUserId)->setUpdatedAt();
             $this->userRepository->update($subUserAcc);
 
             $this->responseBuilder->addObject($subUserAcc);
             return $this->responseBuilder->objectResponse();
         }
+
         catch (\InvalidArgumentException $ex){
             $this->logger->error('SubUserCrudController', 'update', [$this->user(), $ex]);
-            return $this->responseBuilder->addMessage($ex->getMessage())
-                ->setStatus(Response::HTTP_BAD_REQUEST)
-                ->jsonResponse();
+            return $this->responseBuilder->addMessage($ex->getMessage())->setStatus(Response::HTTP_BAD_REQUEST)->jsonResponse();
         }
         catch (\Exception $ex) {
             $this->logger->error('SubUserCrudController', 'update', [$this->user(), $ex]);
@@ -280,12 +267,10 @@ class SubUserCrudController extends VirtualController
                     ->jsonResponse();
             }
 
-            $user = $this->userRepository->findSubUserById($subUserId);
+            $user = $this->userRepository->getSubUserById($subUserId);
             $profile = $this->userProfileRepository->findSubUserById($subUserId);
 
             $this->userRepository->delete($user);
-            $this->userProfileRepository->delete($profile);
-
             return $this->responseBuilder->addPayload([])->setStatus(Response::HTTP_OK)->jsonResponse();
         }
         catch (NoResultException $ex){
@@ -312,10 +297,7 @@ class SubUserCrudController extends VirtualController
             $limit = (int)$request->get('limit');
 
             $userId = $this->user()->getUserId();
-            $subUsers = $this->userRepository
-                ->setStartFrom(0)
-                ->setLimit(50)
-                ->allSubUsers($userId, true);
+            $subUsers = $this->userRepository->setStartFrom($start)->setLimit($limit)->allSubUsers($userId);
 
             $this->responseBuilder->addPayload($subUsers);
             return $this->responseBuilder->jsonResponse();
@@ -335,7 +317,7 @@ class SubUserCrudController extends VirtualController
     public function getSubUser(string $subUserId): JsonResponse
     {
         try {
-            $profile = $this->userRepository->findSubUserById($subUserId);
+            $profile = $this->userRepository->getSubUserById($subUserId);
             return $this->responseBuilder->addObject($profile)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();
@@ -348,20 +330,20 @@ class SubUserCrudController extends VirtualController
 
 
     /**
-     * @Route (path="/search/{keyword}", methods={"POST"})
-     * @param string $keyword
+     * @Route (path="/search/{searchText}", methods={"POST"})
+     * @param string $searchText
      * @return JsonResponse
      */
-    public function searchForSubUser(string $keyword): JsonResponse
+    public function searchForSubUser(string $searchText): JsonResponse
     {
         try {
             $authorId = $this->user()->getUserId();
-            $profile = $this->userProfileRepository->searchForSubUser($authorId, $keyword);
+            $profile = $this->subUserService->SubUserFilter()->byText($authorId, $searchText)->handle();
             return $this->responseBuilder->addObject($profile)
                 ->setStatus(Response::HTTP_OK)
                 ->objectResponse();
         }
-        catch (\Exception $ex){
+        catch (\Doctrine\DBAL\Driver\Exception | Exception $ex){
             $this->logger->error('SubUserCrudController', 'searchForSubUser', [$this->user(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
@@ -396,17 +378,17 @@ class SubUserCrudController extends VirtualController
     }
 
     /**
-     * @Route (path="/{userId}/set-avatar", methods={"POST"})
+     * @Route (path="/{subUserId}/set-avatar", methods={"POST"})
      * @param Request $request
-     * @param string $userId
+     * @param string $subUserId
      * @return JsonResponse
      */
-    public function setAvatar(Request $request, string $userId): JsonResponse
+    public function setAvatar(Request $request, string $subUserId): JsonResponse
     {
         try {
             $avatarUrl = $request->get('avatar');
 
-            $user = $this->userRepository->findUserById($userId);
+            $user = $this->userRepository->getSubUserById($subUserId);
             $user->profile->setAvatar($avatarUrl);
 
             $this->userProfileRepository->update($user->profile);

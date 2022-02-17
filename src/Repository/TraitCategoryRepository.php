@@ -27,7 +27,6 @@ class TraitCategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, TraitCategory::class);
     }
 
-
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException
@@ -41,6 +40,7 @@ class TraitCategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
     }
+
     /**
      * @param string $name
      * @return TraitCategory
@@ -65,8 +65,7 @@ class TraitCategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
+     * @param TraitCategory $item
      */
     public function save(TraitCategory $item)
     {
@@ -76,8 +75,6 @@ class TraitCategoryRepository extends ServiceEntityRepository
 
     /**
      * @param TraitCategory $item
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function update(TraitCategory $item)
     {
@@ -87,8 +84,6 @@ class TraitCategoryRepository extends ServiceEntityRepository
     /**
      * @param TraitCategory $item
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(TraitCategory $item)
     {

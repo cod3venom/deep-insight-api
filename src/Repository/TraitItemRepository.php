@@ -61,8 +61,7 @@ class TraitItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
+     * @param TraitItem $item
      */
     public function save(TraitItem $item)
     {
@@ -72,8 +71,6 @@ class TraitItemRepository extends ServiceEntityRepository
 
     /**
      * @param TraitItem $item
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function update(TraitItem $item)
     {
@@ -83,8 +80,6 @@ class TraitItemRepository extends ServiceEntityRepository
     /**
      * @param TraitItem $item
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(TraitItem $item)
     {

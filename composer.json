@@ -23,6 +23,7 @@
         "gedmo/doctrine-extensions": "^3.1",
         "lexik/jwt-authentication-bundle": "^2.14",
         "nelmio/cors-bundle": "^2.1",
+        "opsway/doctrine-dbal-postgresql": "~0.8",
         "oro/doctrine-extensions": "2.*",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpoffice/phpspreadsheet": "^1.21",

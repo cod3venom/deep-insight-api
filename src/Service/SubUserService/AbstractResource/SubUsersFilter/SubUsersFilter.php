@@ -19,6 +19,7 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
+use App\Service\SubUserService\AbstractResource\SubUsersFilter\Sources\ByText;
 use App\Service\SubUserService\AbstractResource\SubUsersFilter\Sources\ByWorld;
 use JetBrains\PhpStorm\Pure;
 use Psr\Log\LoggerInterface;
@@ -89,6 +90,20 @@ final class SubUsersFilter extends LazyLoading
         $this->humanTraitsService = $humanTraitsService;
     }
 
+    #[Pure] public function byText(string $authorUserId, string $searchText): ByText
+    {
+        return (new ByText(
+            $this->logger,
+            $this->userRepository,
+            $this->userProfileRepository,
+            $this->traitAnalysisRepository,
+            $this->traitItemRepository,
+            $this->traitColorRepository,
+            $this->humanTraitsService,
+            $authorUserId,
+            $searchText
+        ));
+    }
 
     #[Pure] public function byWorld(string $authorUserId, string $worldName): ByWorld
     {

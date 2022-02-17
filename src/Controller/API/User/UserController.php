@@ -44,12 +44,7 @@ class UserController extends VirtualController
      */
     private UserProfileRepository $userProfileRepository;
 
-    public function __construct(
-        SerializerInterface $serializer,
-        LoggerService $logger,
-        UserRepository $userRepository,
-        UserProfileRepository $userProfileRepository
-    )
+    public function __construct(SerializerInterface $serializer,LoggerService $logger,UserRepository $userRepository,UserProfileRepository $userProfileRepository)
     {
         parent::__construct($serializer);
         $this->logger = $logger;
@@ -65,7 +60,7 @@ class UserController extends VirtualController
     {
         try {
             $userId = $this->user()->getUserId();
-            $user = $this->userRepository->findUserById($userId);
+            $user = $this->userRepository->getUserById($userId);
             $this->responseBuilder->addObject($user);
             return $this->responseBuilder->objectResponse();
         }
@@ -75,6 +70,7 @@ class UserController extends VirtualController
         }
     }
 
+
     /**
      * @Route (path="/user/{userId}", methods={"GET"})
      * @param string $userId
@@ -82,7 +78,7 @@ class UserController extends VirtualController
      */
     public function userById(string $userId): JsonResponse {
         try {
-            $user = $this->userRepository->findUserById($userId);
+            $user = $this->userRepository->getUserById($userId);
             $this->responseBuilder->addObject($user);
             return $this->responseBuilder->objectResponse();
         }
@@ -102,13 +98,11 @@ class UserController extends VirtualController
         try {
             $email = $request->get('email');
             $password = $request->get('password');
-
             $profile = $request->get('profile');
             $company = $request->get('company');
 
             $userId = $this->user()->getUserId();
-
-            $userAcc = $this->userRepository->findUserById($userId);
+            $userAcc = $this->userRepository->getUserById($userId);
             if (!empty($email)) {
                 $userAcc->setEmail($email);
             }
@@ -119,22 +113,18 @@ class UserController extends VirtualController
 
             if (is_null($userAcc->profile)) {
                 $userAcc->profile = new UserProfile();
-                $userAcc->profile
-                    ->setUserId($userId)
-                    ->setCreatedAt();
+                $userAcc->profile->setUserId($userId)->setCreatedAt();
             }
 
             if (is_null($userAcc->company)) {
                 $userAcc->company = new UserCompanyInfo();
-                $userAcc->company
-                    ->setUserId($userId)
-                    ->setCreatedAt();
+                $userAcc->company->setUserId($userId)->setCreatedAt();
             }
+
             $userAcc->profile->arrayToEntity($profile);
             $userAcc->company->arrayToEntity($company);
 
             $this->userRepository->update($userAcc);
-
             $this->responseBuilder->addObject($userAcc);
             return $this->responseBuilder->objectResponse();
 
@@ -144,6 +134,7 @@ class UserController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
+
 
     /**
      * @Route (path="/user/{userId}/set-avatar", methods={"POST"})
@@ -156,7 +147,7 @@ class UserController extends VirtualController
             $avatarUrl = $request->get('avatar');
 
             $userId = $this->user()->getUserId();
-            $user = $this->userRepository->findUserById($userId);
+            $user = $this->userRepository->getUserById($userId);
             $user->profile->setAvatar($avatarUrl);
 
             $this->userProfileRepository->update($user->profile);

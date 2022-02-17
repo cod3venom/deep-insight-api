@@ -4,15 +4,21 @@ namespace App\Repository;
 
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
+use App\DAO\UserPackTObject;
+use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
+use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
+use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -65,9 +71,17 @@ class UserRepository extends ServiceEntityRepository
         $this->humanTraitsService = $humanTraitsService;
     }
 
+    /**
+     * @return int
+     */
     public function getStartFrom(): int {
         return $this->startFrom;
     }
+
+    /**
+     * @param int|null $startFrom
+     * @return $this
+     */
     public function setStartFrom(?int $startFrom): self {
         if (!$startFrom){
             return $this;
@@ -76,15 +90,74 @@ class UserRepository extends ServiceEntityRepository
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getLimit(): int {
         return $this->limit;
     }
+
+    /**
+     * @param int|null $limit
+     * @return $this
+     */
     public function setLimit(?int $limit): self {
         if (!$limit){
             return $this;
         }
         $this->limit = $limit;
         return $this;
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    private function userPackDTOMapper(): QueryBuilder
+    {
+        return  $this
+            ->createQueryBuilder('user')
+            ->select(sprintf(
+                'NEW %s(
+                 user.id, user.userId, user.userAuthorId, user.email, user.password, user.pwdRecoveryToken, user.roles,
+                 profile.id, profile.firstName, profile.lastName, profile.email,  profile.avatar, profile.birthDay,
+                 profile.placeOfBirth, profile.linksToProfiles, profile.notesDescriptionsComments,
+                 profile.positionInTheCompany, profile.country,
+                 company.companyName, company.companyWww, company.companyIndustry, company.wayToEarnMoney, company.regon,
+                 company.krs, company.nip, company.districts, company.headQuartersCity, company.businessEmails, company.businessPhones,
+                 company.revenue, company.profit, company.growthYearToYear, company.categories,
+                 
+                 analysis.id, analysis.birthDay, analysis.lifePath, analysis.theDrivingForce, analysis.theMatrixOfExellence, analysis.theMoralCode,
+                 analysis.goalAndWants, analysis.behavioursAndNeeds, analysis.seekAndMindset, analysis.reactAndMotivationToAction, analysis.joinsAndDesire,
+                 analysis.polarisation, analysis.expression, analysis.keyword, analysis.visualSeeItIntuition, analysis.auditoryHearItThinking,
+                 analysis.kinestericDoItSensation, analysis.emotiveFeelItFeeling, analysis.initializingAndAntithesis, analysis.stabilizingAndSynthesis,
+                 analysis.finishingThesis, analysis.doerControl, analysis.thinkerOrder, analysis.waterPeace, analysis.talkerFun, analysis.theValueOf, 
+                 analysis.belief, analysis.communication, analysis.style, analysis.strength, analysis.reward, analysis.tactic, analysis.objective, 
+                 analysis.worldOfAction, analysis.worldOfMatter, analysis.worldOfInformation, analysis.worldOfFeeling, analysis.worldOfFun, analysis.worldOfUsability,
+                 analysis.worldOfRelations, analysis.worldOfDesireAndPower, analysis.worldOfSeekAndExplore, analysis.worldOfCareer, analysis.worldOfFuture, 
+                 analysis.worldOfSpirituality, analysis.P1S, analysis.P2M, analysis.P3MY, analysis.P4W, analysis.P5M, analysis.P6J, analysis.P7S, analysis.P8U,
+                 analysis.P9N, analysis.P10N, analysis.PTNde
+                 
+                 )',
+                UserPackTObject::class
+            ))
+            ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
+            ->innerJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
+            // @TODO=If users birthday didnt matched, then user will not be displayed in the /me/contacts route
+            ->innerJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d-%m-%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d-%m-%Y')");
+    }
+
+    private function userPackDTOMapperApplyTraitsScheme(UserPackTObject $userPack): User {
+        if (!is_null($userPack->user)) {
+
+            $subUser = &$userPack->user;
+            $colorsReport = $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($subUser->profile->traitAnalysis, $this->traitItemRepository, $this->traitColorRepository);
+            $analysisReport =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($subUser->profile->traitAnalysis, $this->traitItemRepository);
+
+            $subUser->profile->setAnalysisReport($analysisReport);
+            $subUser->profile->setColorsReport($colorsReport);
+            return $subUser;
+        }
+        return new User();
     }
 
     /**
@@ -111,7 +184,7 @@ class UserRepository extends ServiceEntityRepository
      */
     public function existByUserId(string $userId): bool {
         try {
-            return !!$this->findUserById($userId)->getUserId();
+            return !!$this->getUserById($userId)->getUserId();
         }
         catch (Exception $ex){
             return false;
@@ -125,14 +198,20 @@ class UserRepository extends ServiceEntityRepository
     public function existsAsSubUser(string $userId): bool
     {
         try {
-            return !!$this->findSubUserById($userId)->getUserId();
+            return !!$this->getSubUserById($userId)->getUserId();
         }
         catch (Exception $ex){
             return false;
         }
     }
 
-    public function isMySubUser(string $authorUserId, string $email) {
+    /**
+     * @param string $authorUserId
+     * @param string $email
+     * @return User
+     * @throws NonUniqueResultException
+     */
+    public function isMySubUser(string $authorUserId, string $email): User {
         try{
             return $this->createQueryBuilder('u')
                 ->andWhere('LOWER(u.email) = :email')
@@ -168,6 +247,39 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getUserById(string $userId) {
+        return $this->createQueryBuilder('user')
+            ->andWhere('user.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    /**
+     * @param string $subUserId
+     * @return User
+     */
+    public function getSubUserById(string $subUserId): User {
+         try {
+             return $this->createQueryBuilder('user')
+                 ->andWhere('user.roles LIKE :roles')
+                 ->andWhere('user.userId = :subUserId')
+                 ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+                 ->setParameter('subUserId', $subUserId)
+                 ->setMaxResults(1)
+                 ->getQuery()
+                 ->getSingleResult();
+         }catch (NonUniqueResultException|NoResultException $ex) {
+             return new User();
+         }
+    }
+
+
+    /**
      * @param string $id
      * @return User
      * @throws NonUniqueResultException
@@ -175,15 +287,15 @@ class UserRepository extends ServiceEntityRepository
     public function findUserById(string $id): User
     {
         try{
-            $user = $this->createQueryBuilder('u')
-                ->andWhere('u.userId = :userId')
+            $user = $this->userPackDTOMapper()
+                ->andWhere('user.userId = :userId')
                 ->setParameter('userId', $id)
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
 
-            if ($user instanceof User) {
-                $user = $this->applyAnalyses($user);
+            if ($user instanceof UserPackTObject) {
+                $user = $this->userPackDTOMapperApplyTraitsScheme($user);
             }
             return $user;
         }
@@ -193,100 +305,65 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $subUserId
+     * @return User
      * @throws NonUniqueResultException
      */
-    public function findSubUserById(string $subUserId): User
+    public function getSubUserPackById(string $subUserId): User
     {
         try{
-            return $this->createQueryBuilder('u')
-                    ->where('u.roles LIKE :roles')
-                    ->andWhere('u.userId = :subUserId')
+            $userPack = $this->userPackDTOMapper()
+                    ->where('user.roles LIKE :roles')
+                    ->andWhere('user.userId = :subUserId')
                     ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
                     ->setParameter('subUserId', $subUserId)
                     ->setMaxResults(1)
                     ->getQuery()
                     ->getSingleResult();
+
+            if ($userPack instanceof UserPackTObject) {
+                return $this->userPackDTOMapperApplyTraitsScheme($userPack);
+            }
+            return new User();
         }
         catch (NoResultException) {
             return new User();
         }
     }
 
-    /**
-     * @param string $keyword
-     * @return array
-     */
-    public function searchForSubUser(string $keyword): array
-    {
-        try{
-            return $this->createQueryBuilder('u')
-                ->andWhere('LOWER(u.profile.firstName) = :keyword')
-                ->orWhere('LOWER(u.profile.lastName) = :keyword')
-                ->orWhere('LOWER(u.profile.email) = :keyword')
-                ->setParameter('keyword', strtolower($keyword))
-                ->getQuery()
-                ->getResult();
-        }
-        catch (NoResultException) {
-            return[];
-        }
-    }
+
 
     /**
      * Returns list of sub-users
-     * @param string $myUserId
+     * @param string $authorUserId
      * @return array
      */
-    public function allSubUsers(string $authorUserId, bool $addAnalyses = false): array
+    public function allSubUsers(string $authorUserId): array
     {
-        $result = [];
-        $allSubUsers = $this
-            ->createQueryBuilder('u')
-            ->andWhere('u.userAuthorId = :authorId')
-            ->andWhere('u.roles LIKE :roles');
+
+        $allSubUsers = $this->userPackDTOMapper()
+            ->andWhere('user.userId = :authorId')
+            ->orWhere('user.userAuthorId = :authorId')
+            ->addOrderBy('user.userAuthorId', 'desc');
+            //->andWhere('user.roles LIKE :roles');
+
 
         if ($this->startFrom !== -1) {
             $allSubUsers->setFirstResult($this->startFrom)->setMaxResults($this->limit);
         }
 
-       $allSubUsers = $allSubUsers->addOrderBy('u.createdAt', 'DESC')
+       $allSubUsers = $allSubUsers->addOrderBy('user.createdAt', 'DESC')
             ->setParameter('authorId', $authorUserId)
-            ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
+            //->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
-        if ($addAnalyses) {
-            foreach ($allSubUsers as $subUser) {
-                if (!($subUser instanceof User)) {
-                    continue;
-                }
 
-                $subUser = $this->applyAnalyses($subUser);
-                $result[] = $subUser;
-            }
-            return $result;
-        }
-        return $allSubUsers;
+        return array_map(function ($userPack){
+           return $this->userPackDTOMapperApplyTraitsScheme($userPack);
+        }, $allSubUsers);
     }
 
-
-    /**
-     * Find and apply analyses for
-     * the provided user
-     * @param User $user
-     * @return User
-     */
-    public function applyAnalyses(User $user): User
-    {
-        $birthDay = date_format($user->profile->getBirthDay(), UserProfile::BirthDayFormat);
-        $analyses = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
-        $colorsReport = $this->humanTraitsService->schemaBuilder()->buildWorldsFromObject($analyses, $this->traitItemRepository, $this->traitColorRepository);
-        $analysisReport =  $this->humanTraitsService->schemaBuilder()->buildTraitsFromObject($analyses, $this->traitItemRepository);
-
-        $user->profile->setAnalysisReport($analysisReport);
-        $user->profile->setColorsReport($colorsReport);
-        return $user;
-    }
     /**
      * @throws UserRepeatedPasswordMatchingException
      */
@@ -297,9 +374,17 @@ class UserRepository extends ServiceEntityRepository
         }
         return true;
     }
+
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
+     * @return EntityManagerInterface
+     */
+    public function getEntityManager(): EntityManagerInterface
+    {
+        return parent::getEntityManager(); // TODO: Change the autogenerated stub
+    }
+
+    /**
+     * @param User $user
      */
     public function save(User $user)
     {
@@ -308,8 +393,7 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * @throws OptimisticLockException
-     * @throws ORMException
+     * @param User $user
      */
     public function update(User $user)
     {
@@ -319,8 +403,6 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @param User $profile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(User $profile)
     {

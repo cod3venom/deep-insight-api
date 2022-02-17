@@ -22,11 +22,9 @@ use Psr\Log\LoggerInterface;
  */
 class TraitAnalysisRepository extends ServiceEntityRepository
 {
-    private LoggerInterface $logger;
-    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, TraitAnalysis::class);
-        $this->logger = $logger;
     }
 
     /**
@@ -51,7 +49,10 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     }
 
 
-
+    /**
+     * @param string $birthDay
+     * @return QueryBuilder
+     */
     public function filterTraitsBy(string $birthDay): QueryBuilder
     {
         return $this->createQueryBuilder('traits')
@@ -70,8 +71,6 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     /**
      * @param TraitAnalysis $item
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function save(TraitAnalysis $item)
     {
@@ -82,8 +81,6 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     /**
      * @param TraitAnalysis $item
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function update(TraitAnalysis $item)
     {
@@ -93,8 +90,6 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     /**
      * @param TraitAnalysis $item
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(TraitAnalysis $item)
     {

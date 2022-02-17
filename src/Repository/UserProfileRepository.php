@@ -22,11 +22,9 @@ use Psr\Log\LoggerInterface;
  */
 class UserProfileRepository extends ServiceEntityRepository
 {
-    private LoggerInterface $logger;
-    public function __construct(ManagerRegistry $registry, LoggerInterface $logger)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, UserProfile::class);
-        $this->logger = $logger;
     }
 
     /**
@@ -42,16 +40,13 @@ class UserProfileRepository extends ServiceEntityRepository
         }
     }
 
-    public function existBySubUserId(string $subUserId): bool {
-        try {
-            return !!$this->findSubUsersById($subUserId)->getUserId();
-        }
-        catch (Exception $ex){
-            return false;
-        }
-    }
 
-    public function getProfile(string $userId){
+    /**
+     * @param string $userId
+     * @return mixed
+     */
+    public function getProfile(string $userId): mixed
+    {
         return $this->createQueryBuilder('p')
             ->andWhere('p.userId = :userId')
             ->setParameter('userId', $userId)
@@ -60,7 +55,10 @@ class UserProfileRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function all()
+    /**
+     * @return array
+     */
+    public function all(): array
     {
         return $this->createQueryBuilder('p')
             ->select('p.userId, u.userAuthorId, p.firstName, p.lastName, p.email, p.phone, p.birthDay, p.avatar, u.roles, u.lastLoginAt, p.createdAt')
@@ -121,70 +119,8 @@ class UserProfileRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string $keyword
-     * @return array
-     */
-    public function searchForSubUser(string $authorId, string $keyword): array
-    {
-        try{
-
-            $this->logger->info('searchForSubUser', ['keyword' => $keyword]);
-            return $this->createQueryBuilder('p')
-                ->select('u')
-                ->innerJoin(User::class, 'u', 'WITH', 'u.userId = p.userId')
-                ->innerJoin(UserCompanyInfo::class, 'c', 'WITH', 'c.userId = p.userId')
-
-                ->andWhere('u.roles LIKE :roles')
-                ->andWhere('u.userAuthorId = :userAuthorId')
-                ->andWhere("LOWER(concat(p.firstName, ' ', p.lastName)) LIKE :keyword")
-                // ->orWhere('LOWER(p.firstName) LIKE :keyword')
-                // ->orWhere('LOWER(p.lastName) LIKE :keyword')
-                ->orWhere('LOWER(p.email) LIKE :keyword')
-                ->orWhere('LOWER(p.placeOfBirth) LIKE :keyword')
-                ->orWhere('LOWER(p.linksToProfiles) LIKE :keyword')
-                ->orWhere('LOWER(p.notesDescriptionsComments) LIKE :keyword')
-                ->orWhere('LOWER(p.country) LIKE :keyword')
-
-                ->orWhere('LOWER(c.companyName) LIKE :keyword')
-                ->orWhere('LOWER(c.companyWww) LIKE :keyword')
-                ->orWhere('LOWER(c.companyIndustry) LIKE :keyword')
-                ->orWhere('LOWER(c.wayToEarnMoney) LIKE :keyword')
-                ->orWhere('CAST(c.regon as string) LIKE :keyword')
-                ->orWhere('CAST(c.krs as string) LIKE :keyword')
-                ->orWhere('CAST(c.nip as string) LIKE :keyword')
-                ->orWhere('CAST(c.districts as string) LIKE :keyword')
-                ->orWhere('CAST(c.headQuartersCity as string) LIKE :keyword')
-                ->orWhere('CAST(c.businessEmails as string) LIKE :keyword')
-                ->orWhere('CAST(c.businessPhones as string) LIKE :keyword')
-                ->orWhere('CAST(c.revenue as string) LIKE :keyword')
-                ->orWhere('CAST(c.profit as string) LIKE :keyword')
-                ->orWhere('CAST(c.growthYearToYear as string) LIKE :keyword')
-                ->orWhere('CAST(c.categories as string) LIKE :keyword')
-
-
-                ->setParameter('userAuthorId', $authorId)
-                ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
-                ->setParameter('keyword', '%' . strtolower($keyword). '%')
-
-                ->getQuery()
-                ->getResult();
-
-        }
-        catch (Exception $e) {
-            $this->logger->error('searchForSubUser', [$e]);
-            return[];
-        }
-    }
-
-    public function filterByWorlds() {
-
-    }
-
-    /**
      * @param UserProfile $profile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function save(UserProfile $profile)
     {
@@ -195,18 +131,15 @@ class UserProfileRepository extends ServiceEntityRepository
     /**
      * @param UserProfile $profile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function update(UserProfile $profile)
     {
         $this->_em->flush();
     }
+
     /**
      * @param UserProfile $profile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(UserProfile $profile)
     {

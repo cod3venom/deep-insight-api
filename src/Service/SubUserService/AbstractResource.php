@@ -16,7 +16,7 @@ use App\Repository\TraitItemRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
-use App\Service\SubUserService\AbstractResource\SubUsersExporter\Exceptions\SubUsersExporter;
+use App\Service\SubUserService\AbstractResource\SubUsersExporter\SubUsersExporter;
 use App\Service\SubUserService\AbstractResource\SubUsersFilter\SubUsersFilter;
 use App\Service\SubUserService\AbstractResource\SubUsersImporter\SubUsersImporter;
 use JetBrains\PhpStorm\Pure;

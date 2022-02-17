@@ -5,6 +5,8 @@ doctrine:
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '13'
+
+
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -45,3 +47,6 @@ doctrine:
                 cast: Oro\ORM\Query\AST\Functions\Cast
                 replace: Oro\ORM\Query\AST\Functions\String\Replace
                 date_format: Oro\ORM\Query\AST\Functions\String\DateFormat
+
+                TO_TSVECTOR: Opsway\Doctrine\ORM\Query\AST\Functions\ToTsvector
+                TO_TSQUERY: Opsway\Doctrine\ORM\Query\AST\Functions\ToTsquery
