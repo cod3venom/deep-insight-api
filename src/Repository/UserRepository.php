@@ -143,7 +143,7 @@ class UserRepository extends ServiceEntityRepository
             ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
             ->innerJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
             // @TODO=If users birthday didnt matched, then user will not be displayed in the /me/contacts route
-            ->innerJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d-%m-%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d-%m-%Y')");
+            ->innerJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')");
     }
 
     private function userPackDTOMapperApplyTraitsScheme(UserPackTObject $userPack): User {
