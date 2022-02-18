@@ -43,7 +43,7 @@ final class SubUsersImporter
      * @throws Exception
      */
     public function import(
-        string                     $authorUserId,
+        User                       $author,
         string                     $targetDir,
         UploadedFile               $file,
         UserRepository             $userRepository,
@@ -66,6 +66,7 @@ final class SubUsersImporter
         }
 
 
+        gc_disable();
         $extension = $file->guessExtension();
         $newName = (new StringBuilder())
             ->append($file->getClientOriginalName())
@@ -92,7 +93,8 @@ final class SubUsersImporter
         }
 
 
-        for ($i = 0; $i < count($allSubUsers); $i++) {
+        $totalSubUsers = count($allSubUsers);
+        for ($i = 0; $i < $totalSubUsers; $i++) {
             if ($i === 0) {
                 continue;
             }
@@ -112,8 +114,11 @@ final class SubUsersImporter
                 $email = $userId . '@imported.deepinsight.pl';
             }
 
+            if ($author->getEmail() === $email) {
+                continue;
+            }
 
-            $userExists = $userRepository->isMySubUser($authorUserId, $email);
+            $userExists = $userRepository->isMySubUser($author->getUserId(), $email);
             if ($userExists->getUserId()) {
                 continue;
             }
@@ -150,7 +155,7 @@ final class SubUsersImporter
             }
             $user
                 ->setUserId($userId)
-                ->setUserAuthorId($authorUserId)
+                ->setUserAuthorId($author->getUserId())
                 ->setEmail($email)
                 ->setPassword($password)
                 ->setRoles([User::ROLE_SUB_USER])
@@ -200,9 +205,15 @@ final class SubUsersImporter
 
             $userRepository->save($user);
             $importedSubUsersRepository->save($importedUserEntity);
+        }
     }
-}
 
+    /**
+     * Verify extension of
+     * uploaded file
+     * @param UploadedFile $file
+     * @return bool
+     */
     private function verifyExtension(UploadedFile $file): bool
     {
         foreach (self::EXT_WHITE_LIST as $whiteExt) {

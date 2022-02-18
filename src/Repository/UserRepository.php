@@ -209,7 +209,6 @@ class UserRepository extends ServiceEntityRepository
      * @param string $authorUserId
      * @param string $email
      * @return User
-     * @throws NonUniqueResultException
      */
     public function isMySubUser(string $authorUserId, string $email): User {
         try{
@@ -222,7 +221,7 @@ class UserRepository extends ServiceEntityRepository
                 ->getQuery()
                 ->getSingleResult();
         }
-        catch (NoResultException) {
+        catch (Exception $e) {
             return new User();
         }
     }

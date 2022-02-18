@@ -417,7 +417,6 @@ class SubUserCrudController extends VirtualController
     public function importFromSheet(Request $request, SubUserService $subUserService, ImportedSubUsersRepository $importedSubUsersRepository): JsonResponse
     {
         try {
-            $authorId = $this->user()->getUserId();
             $file = $request->files->get('file');
 
             if (!($file instanceof UploadedFile)) {
@@ -425,7 +424,7 @@ class SubUserCrudController extends VirtualController
             }
 
             $subUserService->SubUserImporter()->import(
-                $authorId,
+                $this->user(),
                 $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/',
                 $file,
                 $this->userRepository,
