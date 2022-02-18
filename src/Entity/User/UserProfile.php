@@ -49,7 +49,7 @@ class UserProfile
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $phone;
+    private ?string $phone = '';
 
     /**
      * @ORM\Column(type="date")
@@ -59,22 +59,22 @@ class UserProfile
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $placeOfBirth;
+    private ?string $placeOfBirth = '';
 
     /**
      * @ORM\Column(type="text", length=255, nullable=true)
      */
-    private ?string $positionInTheCompany;
+    private ?string $positionInTheCompany = '';
 
     /**
      * @ORM\Column(type="text",  nullable=true)
      */
-    private ?string $linksToProfiles;
+    private ?string $linksToProfiles = '';
 
     /**
      * @ORM\Column(type="text", length=255, nullable=true)
      */
-    private ?string $notesDescriptionsComments;
+    private ?string $notesDescriptionsComments = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -84,7 +84,7 @@ class UserProfile
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $avatar;
+    private ?string $avatar = '';
 
 
     /**

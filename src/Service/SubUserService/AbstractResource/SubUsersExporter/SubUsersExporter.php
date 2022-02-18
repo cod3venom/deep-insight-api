@@ -104,9 +104,11 @@ class SubUsersExporter
     public function export(string $authorUserId): array
     {
 
+        $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
         $this->schemaBuilder = new SchemaBuilder();
         $spreadSheet = new Spreadsheet();
         $writer = new Xlsx($spreadSheet);
+
 
         $sheet = $spreadSheet->getActiveSheet();
 
@@ -208,12 +210,10 @@ class SubUsersExporter
                 continue;
             }
 
-            $birthDay = date_format($subUser->profile->getBirthDay(), UserProfile::BirthDayFormat);
-            $userTraits = $this->traitAnalysisRepository->findTraitsByBirthDay($birthDay);
 
             $profile = &$subUser->profile;
             $company = &$subUser->company;
-            $analysis = &$userTraits;
+            $analysis = &$subUser->profile->traitAnalysis;
 
 
            if (!is_null($profile->getAvatar())) {
@@ -324,10 +324,9 @@ class SubUsersExporter
             $sheet->getCell('BX'. $i)->setValue($analysis->getP9N());
             $sheet->getCell('BY'. $i)->setValue($analysis->getP10N());
             $sheet->getCell('BZ'. $i)->setValue($analysis->getPTNde());
-        }
 
-        $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
-        $writer->save($fileUniqName);
+            $writer->save($fileUniqName);
+        }
         return ['file' => $_ENV['BACKEND_URL']. $fileUniqName];
     }
 }
