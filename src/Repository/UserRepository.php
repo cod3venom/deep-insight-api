@@ -225,6 +225,7 @@ class UserRepository extends ServiceEntityRepository
             return new User();
         }
     }
+
     /**
      * @param string $email
      * @return User
@@ -236,6 +237,28 @@ class UserRepository extends ServiceEntityRepository
             return $this->createQueryBuilder('u')
                 ->andWhere('LOWER(u.email) = :email')
                 ->setParameter('email', strtolower($email))
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult();
+        }
+        catch (NoResultException) {
+            return new User();
+        }
+    }
+
+    /**
+     * @param string $email
+     * @return User
+     * @throws NonUniqueResultException
+     */
+    public function findUserByEmail(string $email): User
+    {
+        try{
+            return $this->createQueryBuilder('u')
+                ->andWhere('LOWER(u.email) = :email')
+                ->andWhere('user.roles LIKE :roles')
+                ->setParameter('email', strtolower($email))
+                ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getSingleResult();
