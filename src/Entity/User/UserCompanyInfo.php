@@ -27,38 +27,38 @@ class UserCompanyInfo
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $companyName;
+    private ?string $companyName = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $companyWww;
+    private ?string $companyWww = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $companyIndustry;
+    private ?string $companyIndustry = '';
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private ?string $wayToEarnMoney;
+    private ?string $wayToEarnMoney = '';
 
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $regon;
+    private ?string $regon = '';
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $krs;
+    private ?string $krs = '';
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $nip;
+    private ?string $nip = '';
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -68,7 +68,7 @@ class UserCompanyInfo
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $headQuartersCity;
+    private ?string $headQuartersCity = '';
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -83,12 +83,12 @@ class UserCompanyInfo
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $revenue;
+    private ?string $revenue = '';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?string $profit;
+    private ?string $profit = '';
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -163,7 +163,7 @@ class UserCompanyInfo
         return $this->companyName;
     }
 
-    public function setCompanyName(string $companyName): self
+    public function setCompanyName(?string $companyName): self
     {
         $this->companyName = $companyName;
 
