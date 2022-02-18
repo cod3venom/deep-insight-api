@@ -29,7 +29,7 @@ class UserFixtures extends Fixture
             ->setLastLoginAt()
             ->setCreatedAt();
 
-     $user->profile
+        $user->profile
             ->setUserId($userid)
             ->setFirstName('Levan')
             ->setLastName('Ostrowski')
@@ -69,7 +69,7 @@ class UserFixtures extends Fixture
         $user->profile = new UserProfile();
         $user->company = new UserCompanyInfo();
         $user
-            ->setUserId($userid)
+            ->setUserId($michalUserId)
             ->setEmail('michalwojda@gmail.com')
             ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
             ->setRoles([User::ROLE_USER, User::ROLE_ADMIN])
@@ -77,7 +77,7 @@ class UserFixtures extends Fixture
             ->setCreatedAt();
 
         $user->profile
-            ->setUserId($userid)
+            ->setUserId($michalUserId)
             ->setFirstName('Michał')
             ->setLastName('Wojda')
             ->setBirthDay(new DateTime('1998-11-17'))
@@ -86,7 +86,7 @@ class UserFixtures extends Fixture
             ->setCreatedAt();;
 
         $user->company
-            ->setUserId($userid)
+            ->setUserId($michalUserId)
             ->setCompanyName('Roots-Connector')
             ->setCompanyWww('www.rootsconnector.com')
             ->setCompanyIndustry('IT')

@@ -204,7 +204,6 @@ class UserRepository extends ServiceEntityRepository
             return false;
         }
     }
-
     /**
      * @param string $authorUserId
      * @param string $email
@@ -257,6 +256,29 @@ class UserRepository extends ServiceEntityRepository
             return $this->createQueryBuilder('user')
                 ->andWhere('LOWER(user.email) = :email')
                 ->andWhere('user.roles LIKE :roles')
+                ->setParameter('email', strtolower($email))
+                ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult();
+        }
+        catch (NoResultException) {
+            return new User();
+        }
+    }
+
+    /**
+     * @param string $email
+     * @return User
+     * @throws NonUniqueResultException
+     */
+    public function findUserByEmailForAuth(string $email): User
+    {
+        try{
+            return $this->createQueryBuilder('user')
+                ->andWhere('LOWER(user.email) = :email')
+                ->andWhere('user.roles LIKE :roles')
+                ->andWhere('user.userAuthorId is null')
                 ->setParameter('email', strtolower($email))
                 ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
                 ->setMaxResults(1)

@@ -176,7 +176,7 @@ class User implements UserInterface
 
     public function getUsername(): ?string
     {
-        return $this->email;
+        return $this->userId;
     }
 
     public function getJwt(): string
