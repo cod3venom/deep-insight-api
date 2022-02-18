@@ -65,9 +65,10 @@ class MediaBridgeController extends VirtualController
     public function uploadImage(Request $request): JsonResponse
     {
         try{
+            $user = $this->user();
             $image = $request->files->get('image');
-            $result = (new MediaBridge())->setWhiteList(['png', 'jpeg', 'jpg'])
-                ->upload($image, $this->parameterBag->get('user_avatars_upload_dir_base'), $_ENV['BACKEND_URL']);
+            $result = (new MediaBridge($this->logger))->setWhiteList(['png', 'jpeg', 'jpg'])
+                ->upload($user, $image, $this->parameterBag->get('user_avatars_upload_dir_base'), $_ENV['BACKEND_URL']);
 
             return $this->responseBuilder->addObject($result)
                 ->setStatus(Response::HTTP_OK)
