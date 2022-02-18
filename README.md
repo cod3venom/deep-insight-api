@@ -25,6 +25,10 @@ php bin/console d:s:u --force
 php bin/console doctrine:fixtures:load
 ```
 
+4. Set database data style
+```
+ALTER DATABASE deep_insight SET datestyle TO 'ISO, DMY';
+```
 #### Database
 - [SF Intro](https://symfony.com/doc/current/doctrine.html)
 
