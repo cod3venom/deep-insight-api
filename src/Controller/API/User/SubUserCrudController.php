@@ -330,18 +330,23 @@ class SubUserCrudController extends VirtualController
 
 
     /**
-     * @Route (path="/search/{searchText}", methods={"POST"})
-     * @param string $searchText
+     * @Route (path="/search", methods={"POST"})
+     * @param Request $request
      * @return JsonResponse
      */
-    public function searchForSubUser(string $searchText): JsonResponse
+    public function searchForSubUser(Request $request): JsonResponse
     {
         try {
+            $searchText = $request->get('searchText');
+
+            if (!$searchText) {
+                return $this->responseBuilder->addPayload([])
+                    ->addMessage('Searching text cant be empty')
+                    ->setStatus(Response::HTTP_NOT_FOUND)->objectResponse();
+            }
             $authorId = $this->user()->getUserId();
             $profile = $this->subUserService->SubUserFilter()->byText($authorId, $searchText)->handle();
-            return $this->responseBuilder->addObject($profile)
-                ->setStatus(Response::HTTP_OK)
-                ->objectResponse();
+            return $this->responseBuilder->addObject($profile)->setStatus(Response::HTTP_OK)->objectResponse();
         }
         catch (\Doctrine\DBAL\Driver\Exception | Exception $ex){
             $this->logger->error('SubUserCrudController', 'searchForSubUser', [$this->user(), $ex]);

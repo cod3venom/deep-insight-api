@@ -184,7 +184,11 @@ class ByText
             }
             $subUserId = $subUserId['user_id'];
 
-            $subUser = $this->userRepository->getSubUserPackById($subUserId);
+            // getSubUserPackById was replaced by findUserPackById
+            // in order to also see main user search results
+            // in the /me/contacts searching screen.
+            // 18/02/2022
+            $subUser = $this->userRepository->findUserPackById($subUserId);
 
             if (!(array)$subUser) {
                 continue;

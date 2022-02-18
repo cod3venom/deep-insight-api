@@ -284,7 +284,7 @@ class UserRepository extends ServiceEntityRepository
      * @return User
      * @throws NonUniqueResultException
      */
-    public function findUserById(string $id): User
+    public function findUserPackById(string $id): User
     {
         try{
             $user = $this->userPackDTOMapper()
