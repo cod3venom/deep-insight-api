@@ -254,8 +254,8 @@ class UserRepository extends ServiceEntityRepository
     public function findUserByEmail(string $email): User
     {
         try{
-            return $this->createQueryBuilder('u')
-                ->andWhere('LOWER(u.email) = :email')
+            return $this->createQueryBuilder('user')
+                ->andWhere('LOWER(user.email) = :email')
                 ->andWhere('user.roles LIKE :roles')
                 ->setParameter('email', strtolower($email))
                 ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
