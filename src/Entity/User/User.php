@@ -44,14 +44,14 @@ class User implements UserInterface
     private ?string $userAuthorId;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=false)
+     * @ORM\Column(type="string", length=255, unique=false, nullable=true)
      */
-    private string $email;
+    private ?string $email;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $password;
+    private ?string $password;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
@@ -64,7 +64,7 @@ class User implements UserInterface
     private array $roles = [];
 
     /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
+     * @ORM\Column(type="datetime", nullable=true, options={"default"="CURRENT_TIMESTAMP"})
      * @var DateTimeInterface
      */
     private DateTimeInterface $lastLoginAt;
@@ -119,7 +119,7 @@ class User implements UserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
 
@@ -131,7 +131,7 @@ class User implements UserInterface
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 

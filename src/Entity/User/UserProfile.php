@@ -29,22 +29,22 @@ class UserProfile
     /**
      * @ORM\Column(type="uuid", length=255)
      */
-    private string $userId;
+    private ?string $userId;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
-    private string $firstName;
+    private ?string $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
-    private string $lastName;
+    private ?string $lastName;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private string $email;
+    private ?string $email;
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
@@ -54,7 +54,7 @@ class UserProfile
     /**
      * @ORM\Column(type="date")
      */
-    private DateTime $birthDay;
+    private ?DateTime $birthDay;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -114,7 +114,7 @@ class UserProfile
         return $this->userId;
     }
 
-    public function setUserId($userId): self
+    public function setUserId(?string $userId): self
     {
         $this->userId = $userId;
 
@@ -126,7 +126,7 @@ class UserProfile
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): self
+    public function setFirstName(?string $firstName): self
     {
         $this->firstName = $firstName;
 
@@ -138,7 +138,7 @@ class UserProfile
         return $this->lastName;
     }
 
-    public function setLastName(string $lastName): self
+    public function setLastName(?string $lastName): self
     {
         $this->lastName = $lastName;
 
@@ -150,7 +150,7 @@ class UserProfile
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
 

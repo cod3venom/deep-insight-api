@@ -78,7 +78,7 @@ class UserController extends VirtualController
      */
     public function userById(string $userId): JsonResponse {
         try {
-            $user = $this->userRepository->getUserById($userId);
+            $user = $this->userRepository->findUserPackById($userId);
             $this->responseBuilder->addObject($user);
             return $this->responseBuilder->objectResponse();
         }

@@ -141,9 +141,8 @@ class UserRepository extends ServiceEntityRepository
                 UserPackTObject::class
             ))
             ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
-            ->innerJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
-            // @TODO=If users birthday didnt matched, then user will not be displayed in the /me/contacts route
-            ->innerJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')");
+            ->leftJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
+            ->leftJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')");
     }
 
     private function userPackDTOMapperApplyTraitsScheme(UserPackTObject $userPack): User {
@@ -386,8 +385,8 @@ class UserRepository extends ServiceEntityRepository
     {
 
         $allSubUsers = $this->userPackDTOMapper()
-            ->andWhere('user.userId = :authorId')
-            ->orWhere('user.userAuthorId = :authorId')
+            //->andWhere('user.userId = :authorId')
+            ->andWhere('user.userAuthorId = :authorId')
             ->addOrderBy('user.userAuthorId', 'desc');
             //->andWhere('user.roles LIKE :roles');
 

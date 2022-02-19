@@ -135,34 +135,22 @@ class SubUserCrudController extends VirtualController
      */
     public function add(Request $request): JsonResponse
     {
-        $email = $request->get('email');
-        $password = password_hash($request->get('password'), PASSWORD_DEFAULT);
         $profile = $request->get('profile');
         $company = $request->get('company');
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException('Provided email is not valid');
-        }
-
-        if (strlen($password) < 5) {
-            throw new InvalidArgumentException('Password should contain at least 5 characters');
-        }
-
         try {
 
             $userAuthorId = $this->user()->getUserId();
             $userId = Uuid::uuid4()->toString();
 
-            if ($this->userRepository->exists($email)) {
-                return $this->responseBuilder->addMessage('User already exists')->setStatus(Response::HTTP_ALREADY_REPORTED)->jsonResponse();
-            }
 
             $subUserAcc = new User();
             $subUserAcc->profile = new UserProfile();
             $subUserAcc->company = new UserCompanyInfo();
 
-            $subUserAcc->setUserId($userId)->setUserAuthorId($userAuthorId)->setEmail($email)
-                ->setPassword($password)->setRoles([User::ROLE_SUB_USER])->setLastLoginAt()
+            $subUserAcc
+                ->setUserId($userId)
+                ->setUserAuthorId($userAuthorId)
+                ->setRoles([User::ROLE_SUB_USER])->setLastLoginAt()
                 ->setCreatedAt();
 
             $subUserAcc->profile->setUserId($userId)->setCreatedAt();
@@ -268,8 +256,6 @@ class SubUserCrudController extends VirtualController
             }
 
             $user = $this->userRepository->getSubUserById($subUserId);
-            $profile = $this->userProfileRepository->findSubUserById($subUserId);
-
             $this->userRepository->delete($user);
             return $this->responseBuilder->addPayload([])->setStatus(Response::HTTP_OK)->jsonResponse();
         }

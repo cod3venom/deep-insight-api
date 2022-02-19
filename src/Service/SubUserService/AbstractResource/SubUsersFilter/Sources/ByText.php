@@ -13,6 +13,7 @@ namespace App\Service\SubUserService\AbstractResource\SubUsersFilter\Sources;
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;
+use App\Modules\StringBuilder\StringBuilder;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
@@ -109,6 +110,12 @@ class ByText
         return $keywords;
     }
 
+    private function clean($string): string {
+        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+    }
+
     /**
      * @param array $keywords
      * @return string
@@ -123,8 +130,10 @@ class ByText
                 ON         usr.user_id = profile.user_id
                 inner join user_company_info company
                 ON         company.user_id = usr.user_id
-                WHERE      usr.user_id = :userAuthorId
-                OR         usr.user_author_id = :userAuthorId
+                WHERE     
+                
+                 (usr.roles like '%ROLE_SUB_USER%' AND usr.user_author_id = :userAuthorId)
+                    AND (
                
             ";
 
@@ -132,25 +141,48 @@ class ByText
         for ($i = 0; $i < count($keywords); $i++) {
             $placeHolder = 'keyword'.$i;
             $placeHolders[] = $placeHolder;
+
             if (!$andOpExists) {
-                $sql .= '
-                    AND        to_tsvector(profile::text) @@ plainto_tsquery('.$placeHolder.')
-                    OR         to_tsvector(company::text) @@ plainto_tsquery('.$placeHolder.')
-                ';
+                $sql .="
+                    (   
+                        LOWER(concat(profile.first_name, ' ', profile.last_name)) LIKE LOWER('%$placeHolder%')
+                        
+                        OR
+                        
+                         to_tsvector(profile::text) @@ plainto_tsquery('$placeHolder')
+                         
+                        OR
+                             to_tsvector(company::text) @@ plainto_tsquery('$placeHolder')
+                    )
+                ";
                 $andOpExists = true;
             }else {
-                $sql .= '
-                    OR        to_tsvector(profile::text) @@ plainto_tsquery('.$placeHolder.')
-                    OR        to_tsvector(company::text) @@ plainto_tsquery('.$placeHolder.')
-                ';
+                $sql .= "
+                  OR
+                    (     
+                        LOWER(concat(profile.first_name, ' ', profile.last_name)) LIKE LOWER('%$placeHolder%')
+                        
+                        OR
+                        
+                        to_tsvector(profile::text) @@ plainto_tsquery('$placeHolder')
+                        
+                        OR
+                        
+                         to_tsvector(company::text) @@ plainto_tsquery('$placeHolder')
+                    )
+                ";
             }
 
         }
 
+        $sql .= ' )';
+
         for ($i = 0; $i < count($keywords); $i++) {
             $placeHolder = 'keyword'.$i;
-            $keyword = $keywords[$i];
-            $sql = str_replace($placeHolder, "'".$keyword."'", $sql);
+            $keyword = strtolower($keywords[$i]);
+
+            //$keyword = $this->clean($keyword);
+            $sql = str_replace($placeHolder, $keyword, $sql);
         }
         return $sql;
     }
