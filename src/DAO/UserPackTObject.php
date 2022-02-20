@@ -23,11 +23,30 @@ final class UserPackTObject
     public User $user;
 
 
+        //user.id, user.userId, user.userAuthorId, user.email, user.password, user.pwdRecoveryToken, user.roles,
+        //profile.id, profile.firstName, profile.lastName, profile.email,  profile.avatar, profile.birthDay,
+        //profile.placeOfBirth, profile.linksToProfiles, profile.notesDescriptionsComments,
+        //profile.positionInTheCompany, profile.country,
+        //company.companyName, company.companyWww, company.companyIndustry, company.wayToEarnMoney, company.regon,
+        //company.krs, company.nip, company.districts, company.headQuartersCity, company.businessEmails, company.businessPhones,
+        //company.revenue, company.profit, company.growthYearToYear, company.categories,
+        //
+        //analysis.id, analysis.birthDay, analysis.lifePath, analysis.theDrivingForce, analysis.theMatrixOfExellence, analysis.theMoralCode,
+        //analysis.goalAndWants, analysis.behavioursAndNeeds, analysis.seekAndMindset, analysis.reactAndMotivationToAction, analysis.joinsAndDesire,
+        //analysis.polarisation, analysis.expression, analysis.keyword, analysis.visualSeeItIntuition, analysis.auditoryHearItThinking,
+        //analysis.kinestericDoItSensation, analysis.emotiveFeelItFeeling, analysis.initializingAndAntithesis, analysis.stabilizingAndSynthesis,
+        //analysis.finishingThesis, analysis.doerControl, analysis.thinkerOrder, analysis.waterPeace, analysis.talkerFun, analysis.theValueOf,
+        //analysis.belief, analysis.communication, analysis.style, analysis.strength, analysis.reward, analysis.tactic, analysis.objective,
+        //analysis.worldOfAction, analysis.worldOfMatter, analysis.worldOfInformation, analysis.worldOfFeeling, analysis.worldOfFun, analysis.worldOfUsability,
+        //analysis.worldOfRelations, analysis.worldOfDesireAndPower, analysis.worldOfSeekAndExplore, analysis.worldOfCareer, analysis.worldOfFuture,
+        //analysis.worldOfSpirituality, analysis.P1S, analysis.P2M, analysis.P3MY, analysis.P4W, analysis.P5M, analysis.P6J, analysis.P7S, analysis.P8U,
+        //analysis.P9N, analysis.P10N, analysis.PTNde
 
     public function __construct(
         $id, $userId, $userAuthorId, $email, $password, $pwdRecoveryToken, $roles,
-        $profileId, $firstName, $lastName, $profileEmail,  $avatar, $birthDay, $placeOfBirth, $linksToProfiles, $notes, $positionInCompany, $country,
-        $companyName, $companyWww, $companyIndustry, $wayToEarnMoney, $regon, $krs, $nip, $districts, $headQuartersCity,$businessEmails, $businessPhones,
+        $profileId, $firstName, $lastName, $profileEmail,  $avatar, $birthDay,
+        $placeOfBirth, $linksToProfiles, $notes, $positionInCompany,
+        $country, $companyName, $companyWww, $companyIndustry, $wayToEarnMoney, $regon, $krs, $nip, $districts, $headQuartersCity,$businessEmails, $businessPhones,
         $revenue, $profit, $growthYearToEar, $categories,
 
         $traitBirthDay, $lifePath, $theDrivingForce, $theMatrixOfExellence, $theMoralCode, $goalAndWants, $behavioursAndNeeds, $seekAndMindset, $reactAndMotivationToAction,
@@ -89,7 +108,7 @@ final class UserPackTObject
           ->setCategories($categories);
 
         $trait->setBirthDay($traitBirthDay)
-            ->setLifePath($linksToProfiles)
+            ->setLifePath($lifePath)
             ->setTheDrivingForce($theDrivingForce)
             ->setTheMatrixOfExellence($theMatrixOfExellence)
             ->setTheMoralCode($theMoralCode)

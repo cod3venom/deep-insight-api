@@ -108,6 +108,9 @@ final class SubUsersImporter
 
             $userId = Uuid::uuid4()->toString();
             $email = $entry[array_search('email', $allSubUsers[0])];
+            $firstName = $entry[array_search('first_name', $allSubUsers[0])];
+            $lastName = $entry[array_search('last_name', $allSubUsers[0])];
+
             $password = password_hash(microtime(), PASSWORD_DEFAULT);
 
             if (is_null($email)) {
@@ -118,13 +121,11 @@ final class SubUsersImporter
                 continue;
             }
 
-            $userExists = $userRepository->isMySubUser($author->getUserId(), $email);
+            $userExists = $userRepository->isMySubUserBasedOnDignity($author->getUserId(), $firstName, $lastName);
             if ($userExists->getUserId()) {
                 continue;
             }
 
-            $firstName = $entry[array_search('first_name', $allSubUsers[0])];
-            $lastName = $entry[array_search('last_name', $allSubUsers[0])];
             $phone = $entry[array_search('phone', $allSubUsers[0])];
             $birthDay = new DateTime($entry[array_search('birth_day', $allSubUsers[0])]);
             $placeOfBirth = $entry[array_search('place_of_birth', $allSubUsers[0])];
@@ -156,8 +157,8 @@ final class SubUsersImporter
             $user
                 ->setUserId($userId)
                 ->setUserAuthorId($author->getUserId())
-                ->setEmail($email)
-                ->setPassword($password)
+                //->setEmail($email)
+                //->setPassword($password)
                 ->setRoles([User::ROLE_SUB_USER])
                 ->setLastLoginAt()
                 ->setCreatedAt();

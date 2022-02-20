@@ -126,7 +126,7 @@ class UserRepository extends ServiceEntityRepository
                  company.krs, company.nip, company.districts, company.headQuartersCity, company.businessEmails, company.businessPhones,
                  company.revenue, company.profit, company.growthYearToYear, company.categories,
                  
-                 analysis.id, analysis.birthDay, analysis.lifePath, analysis.theDrivingForce, analysis.theMatrixOfExellence, analysis.theMoralCode,
+                 analysis.birthDay, analysis.lifePath, analysis.theDrivingForce, analysis.theMatrixOfExellence, analysis.theMoralCode,
                  analysis.goalAndWants, analysis.behavioursAndNeeds, analysis.seekAndMindset, analysis.reactAndMotivationToAction, analysis.joinsAndDesire,
                  analysis.polarisation, analysis.expression, analysis.keyword, analysis.visualSeeItIntuition, analysis.auditoryHearItThinking,
                  analysis.kinestericDoItSensation, analysis.emotiveFeelItFeeling, analysis.initializingAndAntithesis, analysis.stabilizingAndSynthesis,
@@ -214,6 +214,25 @@ class UserRepository extends ServiceEntityRepository
                 ->andWhere('LOWER(u.email) = :email')
                 ->andWhere('u.userAuthorId = :userAuthorId')
                 ->setParameter('email', strtolower($email))
+                ->setParameter('userAuthorId', $authorUserId)
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleResult();
+        }
+        catch (Exception $e) {
+            return new User();
+        }
+    }
+
+    public function isMySubUserBasedOnDignity(string $authorUserId, string $firstName, string $lastName): User {
+        try{
+            return $this->createQueryBuilder('user')
+                ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
+                ->andWhere('LOWER(profile.firstName) = :firstName')
+                ->andWhere('LOWER(profile.lastName) = :lastName')
+                ->andWhere('user.userAuthorId = :userAuthorId')
+                ->setParameter('firstName', strtolower($firstName))
+                ->setParameter('lastName', strtolower($lastName))
                 ->setParameter('userAuthorId', $authorUserId)
                 ->setMaxResults(1)
                 ->getQuery()
@@ -375,7 +394,22 @@ class UserRepository extends ServiceEntityRepository
     }
 
 
-
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function totalSubUsers(string $authorUserId): int {
+        $total =  $this->createQueryBuilder('user')
+            ->select('count(user.id)')
+            ->andWhere('user.userAuthorId = :authorId')
+            ->setParameter('authorId', $authorUserId)
+            ->getQuery()
+            ->getSingleScalarResult();
+      if (!$total) {
+          return 0;
+      }
+        return $total;
+    }
     /**
      * Returns list of sub-users
      * @param string $authorUserId

@@ -855,7 +855,7 @@ class SubUserFixtures extends Fixture
 
         for ($iter = 0 ; $iter < 2; $iter ++) {
 
-            if ($iter === 2) {
+            if ($iter === 1) {
                 $authorId = 'c7e2a147-8234-4af7-8c22-b686e5ba1e8a'; //michał
             }
             for($i = 0; $i < count(self::emails); $i++)
