@@ -64,7 +64,6 @@ final class AuthService
         }
 
         $user = $this->userRepository->findUserByEmailForAuth($email);
-        $profile = $user->profile->getAvatar();
         if (is_null($user->getId())) {
             throw new UserNotFoundException("User not found");
         }

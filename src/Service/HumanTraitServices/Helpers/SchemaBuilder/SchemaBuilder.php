@@ -415,7 +415,7 @@ class SchemaBuilder
                     'name' => 'World of Feeling',
                     'value' => $analysis->getWorldOfFeeling(),
                     'icon' => $itemRepository->findIconByTraitName('World of Feeling'),
-                    'color'=> $colorRepository->findColorByWorldName('World of Action')
+                    'color'=> $colorRepository->findColorByWorldName('World of Feeling')
                 ],
                 [
                     'name' => 'World of Fun',
