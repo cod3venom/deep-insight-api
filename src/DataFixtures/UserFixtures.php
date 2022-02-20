@@ -16,7 +16,7 @@ class UserFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $userid = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
-        $michalUserId = Uuid::uuid4()->toString();
+        $michalUserId = 'c7e2a147-8234-4af7-8c22-b686e5ba1e8a';
 
         $user = new User();
         $user->profile = new UserProfile();

@@ -851,74 +851,80 @@ class SubUserFixtures extends Fixture
      */
     public function load(ObjectManager $manager): void
     {
-        $authorId = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
+        $authorId = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f'; //me
 
-        for($i = 0; $i < count(self::emails); $i++)
-        {
-            $email = self::emails[$i];
-            $name = explode(' ', self::names[$i])[0];
-            $lastname = explode(' ', self::names[$i])[1];
-            $company = self::companies[$i];
+        for ($iter = 0 ; $iter < 2; $iter ++) {
 
-            $birthDayParts = explode('/', self::birthdays[$i]);
-            list($day, $month, $year) = $birthDayParts;
-
-            $birthDayStr = $year . '/'. $month . '/' . $day;
-            $birthDay = DateTime::createFromFormat('Y/m/d', $birthDayStr);
-
-            if (gettype($birthDay) === 'boolean') {
-                $birthDay = new DateTime();
+            if ($iter === 2) {
+                $authorId = 'c7e2a147-8234-4af7-8c22-b686e5ba1e8a'; //michał
             }
+            for($i = 0; $i < count(self::emails); $i++)
+            {
+                $email = self::emails[$i];
+                $name = explode(' ', self::names[$i])[0];
+                $lastname = explode(' ', self::names[$i])[1];
+                $company = self::companies[$i];
+
+                $birthDayParts = explode('/', self::birthdays[$i]);
+                list($day, $month, $year) = $birthDayParts;
+
+                $birthDayStr = $year . '/'. $month . '/' . $day;
+                $birthDay = DateTime::createFromFormat('Y/m/d', $birthDayStr);
+
+                if (gettype($birthDay) === 'boolean') {
+                    $birthDay = new DateTime();
+                }
 
 
-            $userId = Uuid::uuid4()->toString();
-            $user = new User();
+                $userId = Uuid::uuid4()->toString();
+                $user = new User();
 
-            $user
-                ->setUserId($userId)
-                ->setUserAuthorId($authorId)
-                ->setEmail($email)
-                ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
-                ->setRoles([User::ROLE_SUB_USER])
-                ->setLastLoginAt()
-                ->setCreatedAt();
+                $user
+                    ->setUserId($userId)
+                    ->setUserAuthorId($authorId)
+                    ->setEmail($email)
+                    ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
+                    ->setRoles([User::ROLE_SUB_USER])
+                    ->setLastLoginAt()
+                    ->setCreatedAt();
 
-            $user->profile = new UserProfile();
+                $user->profile = new UserProfile();
                 $user->profile->setUserId($user->getUserId())
-                ->setFirstName($name)
-                ->setLastName($lastname)
-                ->setBirthDay($birthDay)
-                ->setEmail($email)
-                ->setPhone('51438092'.$i)
-                ->setCreatedAt();;
+                    ->setFirstName($name)
+                    ->setLastName($lastname)
+                    ->setBirthDay($birthDay)
+                    ->setEmail($email)
+                    ->setPhone('51438092'.$i)
+                    ->setCreatedAt();;
 
-            $user->company = new UserCompanyInfo();
-            $user->company
-                ->setUserId($user->getUserId())
-                ->setCompanyName($company)
-                ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
-                ->setCompanyIndustry('IT')
-                ->setWayToEarnMoney('Want more? do more !!!')
-                ->setRegon('12345')
-                ->setKrs('54321')
-                ->setNip('56789')
-                ->setDistricts('LA')
-                ->setHeadQuartersCity('USA ....')
-                ->setBusinessEmails('bussiness@'.str_replace(' ', '-', $company).'.com')
-                ->setBusinessPhones(
-                    '51438092,'.$i.
-                    ', 51438092'.$i.
-                    ', 51438092'.$i.
-                    ', 51438092'.$i
-                )
-                ->setRevenue('10000000')
-                ->setProfit('5000000')
-                ->setGrowthYearToYear('')
-                ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
-                ->setCreatedAt();
+                $user->company = new UserCompanyInfo();
+                $user->company
+                    ->setUserId($user->getUserId())
+                    ->setCompanyName($company)
+                    ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
+                    ->setCompanyIndustry('IT')
+                    ->setWayToEarnMoney('Want more? do more !!!')
+                    ->setRegon('12345')
+                    ->setKrs('54321')
+                    ->setNip('56789')
+                    ->setDistricts('LA')
+                    ->setHeadQuartersCity('USA ....')
+                    ->setBusinessEmails('bussiness@'.str_replace(' ', '-', $company).'.com')
+                    ->setBusinessPhones(
+                        '51438092,'.$i.
+                        ', 51438092'.$i.
+                        ', 51438092'.$i.
+                        ', 51438092'.$i
+                    )
+                    ->setRevenue('10000000')
+                    ->setProfit('5000000')
+                    ->setGrowthYearToYear('')
+                    ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
+                    ->setCreatedAt();
 
-            $manager->persist($user);
-            $manager->flush();
+                $manager->persist($user);
+                $manager->flush();
+            }
         }
     }
 }

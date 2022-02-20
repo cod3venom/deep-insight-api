@@ -216,33 +216,33 @@ class SubUsersExporter
             $analysis = &$subUser->profile->traitAnalysis;
 
 
-           if (!is_null($profile->getAvatar())) {
+            if (!is_null($profile->getAvatar())) {
 
-               $linkSegments = explode('.', $profile->getAvatar());
-               $imgType = end($linkSegments);
-               $createdImg = null;
+                $linkSegments = explode('.', $profile->getAvatar());
+                $imgType = end($linkSegments);
+                $createdImg = null;
 
-               $avatarUrl =   str_replace($_ENV['BACKEND_URL'], '',$profile->getAvatar());
+                $avatarUrl =   str_replace($_ENV['BACKEND_URL'], '',$profile->getAvatar());
 
-               if ($imgType === 'png') {
-                   $createdImg = imagecreatefrompng($avatarUrl);
-               }
-               if ($imgType === 'jpg') {
-                   $createdImg = imagecreatefromjpeg($avatarUrl);
-               }
+                if ($imgType === 'png') {
+                    $createdImg = imagecreatefrompng($avatarUrl);
+                }
+                if ($imgType === 'jpg') {
+                    $createdImg = imagecreatefromjpeg($avatarUrl);
+                }
 
-               if (($createdImg instanceof GdImage)) {
-                   $drawing = new MemoryDrawing();
-                   $drawing->setImageResource($createdImg);
-                   $drawing->setCoordinates($sheet->getCell('A'.$i)->getCoordinate());
-                   $drawing->setWidthAndHeight(50, 50);
-                   $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG);
-                   $drawing->setMimeType(MemoryDrawing::MIMETYPE_DEFAULT);
-                   $drawing->setWorksheet($sheet);
-               }
+                if (($createdImg instanceof GdImage)) {
+                    $drawing = new MemoryDrawing();
+                    $drawing->setImageResource($createdImg);
+                    $drawing->setCoordinates($sheet->getCell('A'.$i)->getCoordinate());
+                    $drawing->setWidthAndHeight(50, 50);
+                    $drawing->setRenderingFunction(MemoryDrawing::RENDERING_JPEG);
+                    $drawing->setMimeType(MemoryDrawing::MIMETYPE_DEFAULT);
+                    $drawing->setWorksheet($sheet);
+                }
 
-               $sheet->getRowDimension($i)->setRowHeight(50);
-           }
+                $sheet->getRowDimension($i)->setRowHeight(50);
+            }
 
             $sheet->getCell('A'. $i)->setValue('');
             $sheet->getCell('B'. $i)->setValue($profile->getFirstName());
