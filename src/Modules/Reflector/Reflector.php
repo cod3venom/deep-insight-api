@@ -48,15 +48,15 @@ final class Reflector
                    $v= (string)$v;
                 }
 
-                if ($paramType === 'int') {
+                else if ($paramType === 'int') {
                     $v= (int)$v;
                 }
 
-                if ($paramType === 'bool') {
+                else if ($paramType === 'bool') {
                     $v= (bool)$v;
                 }
 
-                if ($paramType === 'DateTime') {
+                else if ($paramType === 'DateTime' || $paramType === 'DateTimeInterface') {
 //                    $v .= ' 00:00:00';
 //                    $v = str_replace('/', '-', $v);
                     $v = new DateTime($v);

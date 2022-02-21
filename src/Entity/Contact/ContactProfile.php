@@ -7,10 +7,12 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\User\User;
+use App\Modules\Reflector\Reflector;
 use App\Repository\ContactProfileRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass=ContactProfileRepository::class)
@@ -22,53 +24,68 @@ class ContactProfile
 
     use IdTrait;
 
-
     /**
-     * @ORM\Column(type="uuid")
+     * @Groups ({"default"})
+     * @ORM\Column(type="uuid", length=255, nullable=true)
      */
-    private string $ownerUserId;
+    public string $contactId;
 
     /**
+     * @Groups ({"default"})
+     * @ORM\Column(type="uuid", length=255, nullable=true)
+     */
+    public string $ownerUserId;
+
+    /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $firstName = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $lastName = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $email = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $phone = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $photo = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="date", nullable=true)
      */
     private ?\DateTime $birthDay = null;
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $placeOfBirth = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $positionInTheCompany = '';
 
     /**
+     * @Groups ({"default"})
      * @ORM\Column(type="text", length=255, nullable=true)
      */
     private ?string $linksToProfiles = '';
@@ -83,13 +100,9 @@ class ContactProfile
      */
     private ?string $country;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contactProfiles")
-     */
-    private ?User $owner;
 
 
-    public ?TraitAnalysis $traitAnalysis = null;
+    private ?TraitAnalysis $traitAnalysis = null;
 
     private ?array $analysisReport = [];
 
@@ -98,7 +111,15 @@ class ContactProfile
     /**
      * @ORM\OneToOne(targetEntity=ContactCompany::class, mappedBy="contact", cascade={"persist", "remove"})
      */
-    private ?ContactCompany $contactCompany = null;
+    private ?ContactCompany $contactCompany;
+
+    /**
+     * @Groups ({"user"})
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contacts", cascade={"persist", "remove"})
+     */
+    private ?User $owner;
+
+
 
     use UpdatedTrait;
     use CreatedTrait;
@@ -116,13 +137,29 @@ class ContactProfile
         return $this->id;
     }
 
-    public function getOwnerUserId(): string
+    public function genContactId(): self {
+        $this->contactId =  Uuid::uuid4()->toString();
+
+        return $this;
+    }
+
+    public function getContactId(): ?string
+    {
+        return $this->contactId;
+    }
+
+    public function setContactId(string $contactId): self {
+        $this->contactId = $contactId;
+
+        return $this;
+    }
+
+    public function getOwnerUserId(): ?string
     {
         return $this->ownerUserId;
     }
 
-    public function setOwnerUserId($ownerUserId): self
-    {
+    public function setOwnerUserId(string $ownerUserId): self {
         $this->ownerUserId = $ownerUserId;
 
         return $this;
@@ -260,17 +297,6 @@ class ContactProfile
         return $this;
     }
 
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(?User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
 
     public function getContactCompany(): ?ContactCompany
     {
@@ -294,4 +320,57 @@ class ContactProfile
         return $this;
     }
 
+
+    public function getTraitAnalysis():? TraitAnalysis {
+        return $this->traitAnalysis;
+    }
+
+    public function setTraitAnalysis(?TraitAnalysis $traitAnalysis): self
+    {
+        $this->traitAnalysis = $traitAnalysis;
+
+        return $this;
+    }
+
+    public function getAnalysisReport(): ?array {
+        return $this->analysisReport;
+    }
+
+    public function setAnalysisReport(?array $report): self
+    {
+        $this->analysisReport = $report;
+
+        return $this;
+    }
+
+    public function getColorsReport(): ?array {
+        return $this->colorsReport;
+    }
+
+    public function setColorsReport(?array $colorsReport): self
+    {
+        $this->colorsReport = $colorsReport;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): self
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function arrayToEntity(array $input): self {
+        Reflector::arrayToEntity($this, $input);
+        return $this;
+    }
 }

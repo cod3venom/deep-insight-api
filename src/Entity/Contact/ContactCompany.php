@@ -288,14 +288,6 @@ class ContactCompany
         return $this;
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    public function arrayToEntity(array $input): self {
-        Reflector::arrayToEntity($this, $input);
-        return $this;
-    }
-
     public function getContact(): ?ContactProfile
     {
         return $this->contact;
@@ -308,4 +300,11 @@ class ContactCompany
         return $this;
     }
 
+    /**
+     * @throws ReflectionException
+     */
+    public function arrayToEntity(array $input): self {
+        Reflector::arrayToEntity($this, $input);
+        return $this;
+    }
 }

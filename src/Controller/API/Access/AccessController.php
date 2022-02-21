@@ -13,7 +13,6 @@ namespace App\Controller\API\Access;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
-use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserRepository;
@@ -160,7 +159,6 @@ class AccessController extends VirtualController
         try {
             $user = $authService->authenticate($email, $password);
             return $this->responseBuilder
-                ->setGroups(['default', 'profile'])
                 ->addObject($user)
                 ->objectResponse();
 

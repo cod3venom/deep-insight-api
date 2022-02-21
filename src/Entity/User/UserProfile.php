@@ -71,7 +71,6 @@ class UserProfile
      */
     private ?User $user;
 
-
     use UpdatedTrait;
     use CreatedTrait;
 
@@ -170,7 +169,6 @@ class UserProfile
 
         return $this;
     }
-
 
     /**
      * @throws ReflectionException

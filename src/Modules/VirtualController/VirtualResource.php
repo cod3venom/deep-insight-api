@@ -11,7 +11,6 @@
 namespace App\Modules\VirtualController;
 
 use App\Modules\VirtualController\Virtuals\ResponseBuilder\ResponseBuilder;
-use JetBrains\PhpStorm\Pure;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Serializer\SerializerInterface;
 

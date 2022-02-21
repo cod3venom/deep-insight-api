@@ -12,7 +12,6 @@
 namespace App\Controller\API\User;
 
 use App\Entity\User\User;
-use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
@@ -60,9 +59,8 @@ class UserController extends VirtualController
     {
         try {
             $userId = $this->user()->getUserId();
-            $user = $this->userRepository->getUserById($userId);
-            $this->responseBuilder->addObject($user);
-            return $this->responseBuilder->objectResponse();
+            $user = $this->userRepository->findUserById($userId);
+            return $this->responseBuilder->addObject($user)->objectResponse();
         }
         catch (\Exception $ex) {
             $this->logger->error('UserController', 'me', [$this->user(), $ex]);
@@ -70,23 +68,6 @@ class UserController extends VirtualController
         }
     }
 
-
-    /**
-     * @Route (path="/user/{userId}", methods={"GET"})
-     * @param string $userId
-     * @return JsonResponse
-     */
-    public function userById(string $userId): JsonResponse {
-        try {
-            $user = $this->userRepository->findUserPackById($userId);
-            $this->responseBuilder->addObject($user);
-            return $this->responseBuilder->objectResponse();
-        }
-        catch (\Exception $ex) {
-            $this->logger->error('UserController', 'userById', [$this->user(), $ex]);
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
 
     /**
      * @Route (path="/me/update", methods={"PUT"})

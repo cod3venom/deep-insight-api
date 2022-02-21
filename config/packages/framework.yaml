@@ -20,6 +20,10 @@ framework:
 
     property_info:
         enabled: true
+
+    serializer:
+        circular_reference_handler: App\Modules\VirtualController\helpers\CircularReferenceHandler
+
 when@test:
     framework:
         test: true

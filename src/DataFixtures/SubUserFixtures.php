@@ -878,7 +878,6 @@ class SubUserFixtures extends Fixture
             ->setCreatedAt();;
 
         $contactProfile
-            ->setOwner($user)
             ->setOwnerUserId($user->getUserId())
             ->setFirstName('Levan')
             ->setLastName('Ostrowski')
@@ -910,7 +909,7 @@ class SubUserFixtures extends Fixture
             ->setCreatedAt();
 
         $contactProfile->setContactCompany($companyInfo);
-        $user->addContactProfile($contactProfile);
+        $user->addContact($contactProfile);
 
         $manager->persist($user);
         $manager->flush();
@@ -969,7 +968,7 @@ class SubUserFixtures extends Fixture
             ->setCreatedAt();
 
         $contactProfile->setContactCompany($companyInfo);
-        $user->addContactProfile($contactProfile);
+        $user->addContact($contactProfile);
 
         $manager->persist($user);
         $manager->flush();
@@ -1009,6 +1008,7 @@ class SubUserFixtures extends Fixture
                 $companyInfo = new ContactCompany();
 
                 $contactProfile
+                    ->genContactId()
                     ->setOwner($owner)
                     ->setOwnerUserId($owner->getUserId())
                     ->setFirstName($name)
@@ -1043,7 +1043,7 @@ class SubUserFixtures extends Fixture
                     ->setCreatedAt();
 
                 $contactProfile->setContactCompany($companyInfo);
-                $owner->addContactProfile($contactProfile);
+                $owner->addContact($contactProfile);
 
                 $manager->persist($contactProfile);
                 $manager->flush();

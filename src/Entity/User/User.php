@@ -39,55 +39,52 @@ class User implements UserInterface
     use IdTrait;
 
     /**
-     * @Groups({"default"})
      * @ORM\Column(type="uuid")
      */
     private string $userId = "";
 
     /**
-     * @Groups({"default"})
+
      * @ORM\Column(type="string", length=255, unique=false, nullable=true)
      */
     private ?string $email;
 
     /**
-     * @Groups({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $password;
 
     /**
-     * @Groups({"default"})
      * @ORM\Column(type="string", length=10, nullable=true)
      */
     private ?string $pwdRecoveryToken;
 
     /**
-     * @Groups({"default"})
+
      * @ORM\Column(type="array")
      */
     private array $roles = [];
 
     /**
-     * @Groups({"default"})
      * @ORM\Column(type="datetime", nullable=true, options={"default"="CURRENT_TIMESTAMP"})
      * @var DateTimeInterface
      */
     private DateTimeInterface $lastLoginAt;
 
     /**
-     * @Groups({"profile"})
-     * @MaxDepth(2)
-     * @ORM\OneToOne (targetEntity=UserProfile::class, inversedBy="user", fetch="EAGER", cascade={"persist", "remove", "detach", "refresh"})
+     * @Groups ({"profile"})
+     * @ORM\OneToOne (targetEntity=UserProfile::class, inversedBy="user",  cascade={"persist", "remove", "detach", "refresh"})
      * @var UserProfile|null
      */
     public ?UserProfile $profile;
 
     /**
-     * @Groups({"contacts"})
-     * @ORM\OneToMany(targetEntity=ContactProfile::class, mappedBy="owner",  cascade={"persist", "remove", "detach", "refresh"})
+     * @Groups ({"contacts"})
+     * @ORM\OneToMany(targetEntity=ContactProfile::class, mappedBy="owner", cascade={"persist", "remove"})
      */
-    private ?Collection $contactProfiles;
+    private $contacts;
+
+
 
 
     use UpdatedTrait;
@@ -96,7 +93,7 @@ class User implements UserInterface
     public function __construct()
     {
         $this->profile = new UserProfile();
-        $this->contactProfiles = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getUserId(): ?string
@@ -208,32 +205,33 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection
+     * @return Collection|ContactProfile[]
      */
-    public function getContactProfiles(): Collection
+    public function getContacts(): Collection
     {
-        return $this->contactProfiles;
+        return $this->contacts;
     }
 
-    public function addContactProfile(ContactProfile $contactProfile): self
+    public function addContact(ContactProfile $contact): self
     {
-        if (!$this->contactProfiles->contains($contactProfile)) {
-            $this->contactProfiles[] = $contactProfile;
-            $contactProfile->setOwner($this);
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts[] = $contact;
+            $contact->setOwner($this);
         }
 
         return $this;
     }
 
-    public function removeContactProfile(ContactProfile $contactProfile): self
+    public function removeContact(ContactProfile $contact): self
     {
-        if ($this->contactProfiles->removeElement($contactProfile)) {
+        if ($this->contacts->removeElement($contact)) {
             // set the owning side to null (unless already changed)
-            if ($contactProfile->getOwner() === $this) {
-                $contactProfile->setOwner(null);
+            if ($contact->getOwner() === $this) {
+                $contact->setOwner(null);
             }
         }
 
         return $this;
     }
+
 }
