@@ -1,27 +1,23 @@
 <?php
 
-namespace App\Entity\User;
+namespace App\Entity\Contact;
 
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\Traits\UuidTrait;
 use App\Modules\Reflector\Reflector;
-use App\Repository\UserCompanyInfoRepository;
+use App\Repository\ContactCompanyRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ReflectionException;
 
 /**
- * @ORM\Entity(repositoryClass=UserCompanyInfoRepository::class)
+ * @ORM\Entity(repositoryClass=ContactCompanyRepository::class)
  */
-class UserCompanyInfo
+class ContactCompany
 {
     use IdTrait;
-
-    /**
-     * @ORM\Column(type="uuid", length=255)
-     */
-    private string $userId;
 
 
     /**
@@ -101,26 +97,15 @@ class UserCompanyInfo
     private ?string $categories = '';
 
     /**
-     * @ORM\OneToOne (targetEntity=User::class, mappedBy="company",  cascade={"persist", "remove", "detach", "refresh"})
-     * @var User|null
+     * @ORM\OneToOne(targetEntity=ContactProfile::class, inversedBy="contactCompany", cascade={"persist", "remove"})
      */
-    private ?User $user;
+    private ?ContactProfile $contact = null;
+
+
 
     use UpdatedTrait;
     use CreatedTrait;
 
-
-    public function getUserId(): ?string
-    {
-        return $this->userId;
-    }
-
-    public function setUserId($userId): self
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
 
     public function getRegon(): ?string
     {
@@ -310,4 +295,17 @@ class UserCompanyInfo
         Reflector::arrayToEntity($this, $input);
         return $this;
     }
+
+    public function getContact(): ?ContactProfile
+    {
+        return $this->contact;
+    }
+
+    public function setContact(?ContactProfile $contact): self
+    {
+        $this->contact = $contact;
+
+        return $this;
+    }
+
 }

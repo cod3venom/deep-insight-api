@@ -12,7 +12,7 @@ namespace App\DAO;
 
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
@@ -60,7 +60,7 @@ final class UserPackTObject
 
       $user = new User();
       $profile = new UserProfile();
-      $company = new UserCompanyInfo();
+      $company = new ContactCompany();
       $trait = new TraitAnalysis();
 
       $user->setId($id);

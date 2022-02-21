@@ -2,8 +2,9 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Contact\ContactCompany;
+use App\Entity\Contact\ContactProfile;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
 use App\Entity\User\UserProfile;
 use App\Repository\UserRepository;
 use DateTime;
@@ -846,17 +847,145 @@ class SubUserFixtures extends Fixture
         '30/03/1983'
     ];
 
+    public function __construct(private UserRepository $userRepository)
+    {
+    }
+
+    private function loadOwners(ObjectManager $manager) {
+        $userid = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f';
+        $michalUserId = 'c7e2a147-8234-4af7-8c22-b686e5ba1e8a';
+
+        $user = new User();
+        $user->profile = new UserProfile();
+        $contactProfile = new ContactProfile();
+        $companyInfo = new ContactCompany();
+
+
+        $user
+            ->setUserId($userid)
+            ->setEmail('levan.ostrowski@gmail.com')
+            ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
+            ->setRoles([User::ROLE_USER, User::ROLE_ADMIN])
+            ->setLastLoginAt()
+            ->setCreatedAt();
+
+        $user->profile
+            ->setUserId($userid)
+            ->setFirstName('Levan')
+            ->setLastName('Ostrowski')
+            ->setBirthDay(new DateTime('1998-11-17'))
+            ->setEmail('levan.ostrowski@gmail.com')
+            ->setCreatedAt();;
+
+        $contactProfile
+            ->setOwner($user)
+            ->setOwnerUserId($user->getUserId())
+            ->setFirstName('Levan')
+            ->setLastName('Ostrowski')
+            ->setBirthDay(new DateTime('1998-11-17'))
+            ->setCountry('Gruzja')
+            ->setCreatedAt();
+
+        $companyInfo
+            ->setCompanyName('Roots-Connector')
+            ->setCompanyWww('www.rootsconnector.com')
+            ->setCompanyIndustry('IT')
+            ->setWayToEarnMoney('Want more? do more !!!')
+            ->setRegon('12345')
+            ->setKrs('54321')
+            ->setNip('56789')
+            ->setDistricts('LA, Birmingham')
+            ->setHeadQuartersCity('England ....')
+            ->setBusinessEmails('bussiness@rootsconnector.com')
+            ->setBusinessPhones(
+                '514380928, '.
+                '514380929, '.
+                '514380930, '.
+                '514380931'
+            )
+            ->setRevenue('10000000')
+            ->setProfit('5000000')
+            ->setGrowthYearToYear('')
+            ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
+            ->setCreatedAt();
+
+        $contactProfile->setContactCompany($companyInfo);
+        $user->addContactProfile($contactProfile);
+
+        $manager->persist($user);
+        $manager->flush();
+
+        $user = new User();
+        $user->profile = new UserProfile();
+        $contactProfile = new ContactProfile();
+        $companyInfo = new ContactCompany();
+        $user
+            ->setUserId($michalUserId)
+            ->setEmail('michalwojda@gmail.com')
+            ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
+            ->setRoles([User::ROLE_USER, User::ROLE_ADMIN])
+            ->setLastLoginAt()
+            ->setCreatedAt();
+
+        $user->profile
+            ->setUserId($michalUserId)
+            ->setFirstName('Michał')
+            ->setLastName('Wojda')
+            ->setBirthDay(new DateTime('1998-11-17'))
+            ->setEmail('michalwojda@gmail.com')
+            ->setCreatedAt();;
+
+
+        $contactProfile
+            ->setOwner($user)
+            ->setOwnerUserId($user->getUserId())
+            ->setFirstName('Michał')
+            ->setLastName('Wojda')
+            ->setBirthDay(new DateTime('1998-11-17'))
+            ->setCountry('Polska')
+            ->setCreatedAt();
+
+        $companyInfo
+            ->setCompanyName('Roots-Connector')
+            ->setCompanyWww('www.rootsconnector.com')
+            ->setCompanyIndustry('IT')
+            ->setWayToEarnMoney('Want more? do more !!!')
+            ->setRegon('12345')
+            ->setKrs('54321')
+            ->setNip('56789')
+            ->setDistricts('LA, Birmingham')
+            ->setHeadQuartersCity('England ....')
+            ->setBusinessEmails('bussiness@rootsconnector.com')
+            ->setBusinessPhones(
+                '514380928, '.
+                '514380929, '.
+                '514380930, '.
+                '514380931'
+            )
+            ->setRevenue('10000000')
+            ->setProfit('5000000')
+            ->setGrowthYearToYear('')
+            ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
+            ->setCreatedAt();
+
+        $contactProfile->setContactCompany($companyInfo);
+        $user->addContactProfile($contactProfile);
+
+        $manager->persist($user);
+        $manager->flush();
+    }
     /**
      * @throws \Exception
      */
     public function load(ObjectManager $manager): void
     {
-        $authorId = 'f2881cd4-a02e-48dc-81bf-f1537a0b903f'; //me
+        $this->loadOwners($manager);
+        $owner = $this->userRepository->findByEmail('levan.ostrowski@gmail.com');//me
 
         for ($iter = 0 ; $iter < 2; $iter ++) {
 
             if ($iter === 1) {
-                $authorId = 'c7e2a147-8234-4af7-8c22-b686e5ba1e8a'; //michał
+                $owner = $this->userRepository->findByEmail('michalwojda@gmail.com');; //michał
             }
             for($i = 0; $i < count(self::emails); $i++)
             {
@@ -876,30 +1005,21 @@ class SubUserFixtures extends Fixture
                 }
 
 
-                $userId = Uuid::uuid4()->toString();
-                $user = new User();
+                $contactProfile = new ContactProfile();
+                $companyInfo = new ContactCompany();
 
-                $user
-                    ->setUserId($userId)
-                    ->setUserAuthorId($authorId)
-                    ->setEmail($email)
-                    ->setPassword(password_hash('admin', PASSWORD_DEFAULT))
-                    ->setRoles([User::ROLE_SUB_USER])
-                    ->setLastLoginAt()
-                    ->setCreatedAt();
-
-                $user->profile = new UserProfile();
-                $user->profile->setUserId($user->getUserId())
+                $contactProfile
+                    ->setOwner($owner)
+                    ->setOwnerUserId($owner->getUserId())
                     ->setFirstName($name)
                     ->setLastName($lastname)
-                    ->setBirthDay($birthDay)
                     ->setEmail($email)
-                    ->setPhone('51438092'.$i)
-                    ->setCreatedAt();;
+                    ->setBirthDay(new DateTime('1998-11-17'))
+                    ->setCountry('Polska')
+                    ->setCreatedAt();
 
-                $user->company = new UserCompanyInfo();
-                $user->company
-                    ->setUserId($user->getUserId())
+
+                $companyInfo
                     ->setCompanyName($company)
                     ->setCompanyWww('www.'.str_replace(' ', '-', $company).'.com')
                     ->setCompanyIndustry('IT')
@@ -922,7 +1042,10 @@ class SubUserFixtures extends Fixture
                     ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
                     ->setCreatedAt();
 
-                $manager->persist($user);
+                $contactProfile->setContactCompany($companyInfo);
+                $owner->addContactProfile($contactProfile);
+
+                $manager->persist($contactProfile);
                 $manager->flush();
             }
         }

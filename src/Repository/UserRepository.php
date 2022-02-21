@@ -7,7 +7,7 @@ use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\DAO\UserPackTObject;
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use App\Service\HumanTraitServices\HumanTraitsService;
@@ -141,7 +141,7 @@ class UserRepository extends ServiceEntityRepository
                 UserPackTObject::class
             ))
             ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
-            ->leftJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
+            ->leftJoin(ContactCompany::class, 'company', 'WITH', 'user.userId = company.userId')
             ->leftJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')");
     }
 
@@ -263,50 +263,8 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @param string $email
-     * @return User
-     * @throws NonUniqueResultException
-     */
-    public function findUserByEmail(string $email): User
-    {
-        try{
-            return $this->createQueryBuilder('user')
-                ->andWhere('LOWER(user.email) = :email')
-                ->andWhere('user.roles LIKE :roles')
-                ->setParameter('email', strtolower($email))
-                ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getSingleResult();
-        }
-        catch (NoResultException) {
-            return new User();
-        }
-    }
 
-    /**
-     * @param string $email
-     * @return User
-     * @throws NonUniqueResultException
-     */
-    public function findUserByEmailForAuth(string $email): User
-    {
-        try{
-            return $this->createQueryBuilder('user')
-                ->andWhere('LOWER(user.email) = :email')
-                ->andWhere('user.roles LIKE :roles')
-                ->andWhere('user.userAuthorId is null')
-                ->setParameter('email', strtolower($email))
-                ->setParameter('roles', '%"' . User::ROLE_USER . '"%')
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getSingleResult();
-        }
-        catch (NoResultException) {
-            return new User();
-        }
-    }
+
 
     /**
      * @throws NonUniqueResultException

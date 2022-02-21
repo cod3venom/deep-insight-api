@@ -11,11 +11,20 @@
 
 namespace App\Modules\VirtualController\Virtuals\ResponseBuilder;
 
+use App\Modules\VirtualController\Virtuals\ResponseBuilder\DAO\ResponseBuilderTObject;
+use Doctrine\Common\Annotations\AnnotationReader;
 use phpDocumentor\Reflection\PseudoTypes\NumericString;
 use stdClass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ResponseBuilder extends VirtualActions
@@ -23,25 +32,27 @@ class ResponseBuilder extends VirtualActions
     /**
      * @var SerializerInterface
      */
-    protected SerializerInterface $serializer;
+    protected VirtualSerializer $serializer;
 
     /**
      * @var array
      */
     protected $responseData = [];
 
+    protected $groups = [];
      /**
      * @var int
      */
     protected int $status = Response::HTTP_OK;
 
     /**
-     * @param SerializerInterface $serializer
+     * @param VirtualSerializer $serializer
      */
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(VirtualSerializer $serializer)
     {
         parent::__construct($this);
-        $this->serializer  = $serializer;
+
+        $this->serializer = $serializer;
     }
 
     /**
@@ -71,13 +82,11 @@ class ResponseBuilder extends VirtualActions
     /**
      * @param $obj
      * @return ResponseBuilder
+     * @throws ExceptionInterface
      */
     public function addObject($obj): self {
-        $schema = new stdClass();
-        $schema->{'status'} = $this->status;
-        $schema->{'data'} = $obj;
-
-        $this->responseData = $this->serializer->serialize($schema, JsonEncoder::FORMAT);
+        $schema = new ResponseBuilderTObject($this->status, $obj);
+        $this->responseData = $this->serializer->serialize($schema, JsonEncoder::FORMAT, [AbstractObjectNormalizer::ENABLE_MAX_DEPTH=> true]);
         return $this;
     }
     /**
@@ -98,6 +107,11 @@ class ResponseBuilder extends VirtualActions
     public function appendPayload($payload): self
     {
         $this->responseData[] = $payload;
+        return $this;
+    }
+
+    public function setGroups(array $groups): self {
+        $this->groups= ['groups' => $groups];
         return $this;
     }
 
@@ -130,7 +144,7 @@ class ResponseBuilder extends VirtualActions
      */
     public function objectResponse(): JsonResponse {
         return new JsonResponse($this->responseData,
-            $this->status, [], true
+            $this->status, [],
         );
     }
 
@@ -138,7 +152,7 @@ class ResponseBuilder extends VirtualActions
      * @return JsonResponse
      */
     public function jsonResponse(): JsonResponse {
-        return new JsonResponse($this->serializer->serialize($this->responseData, JsonEncoder::FORMAT),
+        return new JsonResponse($this->serializer->serialize($this->responseData, JsonEncoder::FORMAT, $this->groups),
             $this->status, [], true
         );
     }

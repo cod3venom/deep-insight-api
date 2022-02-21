@@ -12,7 +12,7 @@
 namespace App\Controller\API\User;
 
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
@@ -117,7 +117,7 @@ class UserController extends VirtualController
             }
 
             if (is_null($userAcc->company)) {
-                $userAcc->company = new UserCompanyInfo();
+                $userAcc->company = new ContactCompany();
                 $userAcc->company->setUserId($userId)->setCreatedAt();
             }
 

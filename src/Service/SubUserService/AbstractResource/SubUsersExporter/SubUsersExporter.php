@@ -12,7 +12,7 @@ namespace App\Service\SubUserService\AbstractResource\SubUsersExporter;
 
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
@@ -187,7 +187,7 @@ class SubUsersExporter
             ->select(['user, profile, company, analysis'])
             ->from(User::class, 'user')
             ->innerJoin(UserProfile::class, 'profile', 'WITH', 'user.userId = profile.userId')
-            ->leftJoin(UserCompanyInfo::class, 'company', 'WITH', 'user.userId = company.userId')
+            ->leftJoin(ContactCompany::class, 'company', 'WITH', 'user.userId = company.userId')
             ->leftJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(profile.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')")
             ->where('user.userAuthorId = :authorId')
             ->orWhere('user.userId = :authorId')
@@ -198,7 +198,7 @@ class SubUsersExporter
 
         $tmpUser = new User();
         $tmpProfile = new UserProfile();
-        $tmpCompany = new UserCompanyInfo();
+        $tmpCompany = new ContactCompany();
         $tmpTrait = new TraitAnalysis();
 
         $calculatedSubUsers = [];
@@ -213,7 +213,7 @@ class SubUsersExporter
                 else if ($obj instanceof UserProfile) {
                     $tmpProfile = $obj;
                 }
-                else if ($obj instanceof UserCompanyInfo) {
+                else if ($obj instanceof ContactCompany) {
                     $tmpCompany = $obj;
                 }
                 else if ($obj instanceof TraitAnalysis) {

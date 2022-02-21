@@ -13,7 +13,7 @@ namespace App\Controller\API\Access;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Controller\API\User\Exceptions\UserRepeatedPasswordMatchingException;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\UserRepository;
@@ -35,6 +35,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class AccessController extends VirtualController
@@ -122,7 +123,7 @@ class AccessController extends VirtualController
                 ->setAvatar($userAvatar)
                 ->setCreatedAt();
 
-            $user->company = new UserCompanyInfo();
+            $user->company = new ContactCompany();
             $user->company->setUserId($userId)
                 ->setCreatedAt();
 
@@ -158,13 +159,17 @@ class AccessController extends VirtualController
 
         try {
             $user = $authService->authenticate($email, $password);
-            return $this->responseBuilder->addObject($user)->objectResponse();
+            return $this->responseBuilder
+                ->setGroups(['default', 'profile'])
+                ->addObject($user)
+                ->objectResponse();
 
         } catch (UserNotFoundException $e) {
            return  $this->responseBuilder->addMessage($e->getMessage())
                 ->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
 
         } catch (
+            ExceptionInterface          |
             OptimisticLockException     |
             NonUniqueResultException    |
             NoResultException           |

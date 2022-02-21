@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin\Users;
 
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Modules\Reflector\Reflector;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -98,7 +98,7 @@ class UsersCrud extends AbstractCrudController
             $entityInstance->profile = new UserProfile();
         }
         if (is_null($entityInstance->company)) {
-            $entityInstance->company = new UserCompanyInfo();
+            $entityInstance->company = new ContactCompany();
         }
 
         $entityInstance->setUserId($userId)->setLastLoginAt()->setCreatedAt();
@@ -122,7 +122,7 @@ class UsersCrud extends AbstractCrudController
             $entityInstance->profile = new UserProfile();
         }
         if (is_null($entityInstance->company)) {
-            $entityInstance->company = new UserCompanyInfo();
+            $entityInstance->company = new ContactCompany();
         }
 
         $entityInstance->profile->setEmail($entityInstance->getEmail())->setUpdatedAt();

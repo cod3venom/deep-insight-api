@@ -63,7 +63,7 @@ final class AuthService
             throw new InvalidArgumentException("Password must contain at least 5 characters");
         }
 
-        $user = $this->userRepository->findUserByEmailForAuth($email);
+        $user = $this->userRepository->findByEmail($email);
         if (is_null($user->getId())) {
             throw new UserNotFoundException("User not found");
         }

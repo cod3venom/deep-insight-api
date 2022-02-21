@@ -2,6 +2,7 @@
 
 namespace App\Entity\User;
 
+use App\Entity\Contact\ContactProfile;
 use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
@@ -9,9 +10,13 @@ use App\Entity\Traits\UuidTrait;
 use App\Repository\UserRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\Pure;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -34,61 +39,65 @@ class User implements UserInterface
     use IdTrait;
 
     /**
+     * @Groups({"default"})
      * @ORM\Column(type="uuid")
      */
     private string $userId = "";
 
     /**
-     * @ORM\Column(type="uuid", nullable=true)
-     */
-    private ?string $userAuthorId;
-
-    /**
+     * @Groups({"default"})
      * @ORM\Column(type="string", length=255, unique=false, nullable=true)
      */
     private ?string $email;
 
     /**
+     * @Groups({"default"})
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $password;
 
     /**
+     * @Groups({"default"})
      * @ORM\Column(type="string", length=10, nullable=true)
      */
     private ?string $pwdRecoveryToken;
 
     /**
+     * @Groups({"default"})
      * @ORM\Column(type="array")
      */
     private array $roles = [];
 
     /**
+     * @Groups({"default"})
      * @ORM\Column(type="datetime", nullable=true, options={"default"="CURRENT_TIMESTAMP"})
      * @var DateTimeInterface
      */
     private DateTimeInterface $lastLoginAt;
 
     /**
-     * @ORM\OneToOne (targetEntity=UserProfile::class, inversedBy="user",  cascade={"persist", "remove", "detach", "refresh"})
+     * @Groups({"profile"})
+     * @MaxDepth(2)
+     * @ORM\OneToOne (targetEntity=UserProfile::class, inversedBy="user", fetch="EAGER", cascade={"persist", "remove", "detach", "refresh"})
      * @var UserProfile|null
      */
     public ?UserProfile $profile;
 
     /**
-     * @ORM\OneToOne (targetEntity=UserCompanyInfo::class, inversedBy="user",  cascade={"persist", "remove", "detach", "refresh"})
-     * @var UserCompanyInfo|null
+     * @Groups({"contacts"})
+     * @ORM\OneToMany(targetEntity=ContactProfile::class, mappedBy="owner",  cascade={"persist", "remove", "detach", "refresh"})
      */
-    public ?UserCompanyInfo $company;
+    private ?Collection $contactProfiles;
+
+
+    use UpdatedTrait;
+    use CreatedTrait;
 
     public function __construct()
     {
         $this->profile = new UserProfile();
-        $this->company = new UserCompanyInfo();
+        $this->contactProfiles = new ArrayCollection();
     }
-
-    use UpdatedTrait;
-    use CreatedTrait;
 
     public function getUserId(): ?string
     {
@@ -98,18 +107,6 @@ class User implements UserInterface
     public function setUserId($userId): self
     {
         $this->userId = $userId;
-
-        return $this;
-    }
-
-    public function getUserAuthorId(): ?string
-    {
-        return $this->userAuthorId;
-    }
-
-    public function setUserAuthorId(?string $userAuthorId): self
-    {
-        $this->userAuthorId = $userAuthorId;
 
         return $this;
     }
@@ -208,5 +205,35 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         // TODO: Implement eraseCredentials() method.
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getContactProfiles(): Collection
+    {
+        return $this->contactProfiles;
+    }
+
+    public function addContactProfile(ContactProfile $contactProfile): self
+    {
+        if (!$this->contactProfiles->contains($contactProfile)) {
+            $this->contactProfiles[] = $contactProfile;
+            $contactProfile->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContactProfile(ContactProfile $contactProfile): self
+    {
+        if ($this->contactProfiles->removeElement($contactProfile)) {
+            // set the owning side to null (unless already changed)
+            if ($contactProfile->getOwner() === $this) {
+                $contactProfile->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }

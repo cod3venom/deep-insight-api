@@ -13,7 +13,7 @@ namespace App\Controller\API\User;
 
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
@@ -21,7 +21,7 @@ use App\Repository\ImportedSubUsersRepository;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
-use App\Repository\UserCompanyInfoRepository;
+use App\Repository\ContactCompanyRepository;
 use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
@@ -63,9 +63,9 @@ class SubUserCrudController extends VirtualController
     private UserProfileRepository $userProfileRepository;
 
     /**
-     * @var UserCompanyInfoRepository
+     * @var ContactCompanyRepository
      */
-    private UserCompanyInfoRepository $userCompanyInfoRepository;
+    private ContactCompanyRepository $userCompanyInfoRepository;
 
     /**
      * @var TraitAnalysisRepository
@@ -104,16 +104,16 @@ class SubUserCrudController extends VirtualController
      * @param SubUserService $subUserService
      */
     public function __construct(
-        LoggerService $logger,
-        SerializerInterface $serializer,
-        UserRepository $userRepository,
-        UserProfileRepository $userProfileRepository,
-        UserCompanyInfoRepository $userCompanyInfoRepository,
-        TraitAnalysisRepository $traitAnalysisRepository,
-        TraitItemRepository $traitItemRepository,
-        TraitColorRepository $traitColorRepository,
-        HumanTraitsService $humanTraitsService,
-        SubUserService $subUserService
+        LoggerService            $logger,
+        SerializerInterface      $serializer,
+        UserRepository           $userRepository,
+        UserProfileRepository    $userProfileRepository,
+        ContactCompanyRepository $userCompanyInfoRepository,
+        TraitAnalysisRepository  $traitAnalysisRepository,
+        TraitItemRepository      $traitItemRepository,
+        TraitColorRepository     $traitColorRepository,
+        HumanTraitsService       $humanTraitsService,
+        SubUserService           $subUserService
     )
     {
         parent::__construct($serializer);
@@ -145,7 +145,7 @@ class SubUserCrudController extends VirtualController
 
             $subUserAcc = new User();
             $subUserAcc->profile = new UserProfile();
-            $subUserAcc->company = new UserCompanyInfo();
+            $subUserAcc->company = new ContactCompany();
 
             $subUserAcc
                 ->setUserId($userId)
@@ -203,7 +203,7 @@ class SubUserCrudController extends VirtualController
                 $subUserAcc->profile = new UserProfile();
             }
             if (is_null($subUserAcc->company)) {
-                $subUserAcc->company = new UserCompanyInfo();
+                $subUserAcc->company = new ContactCompany();
             }
 
             if (!empty($password) && $subUserAcc->getPassword() !== $password) {

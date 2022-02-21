@@ -13,7 +13,7 @@ namespace App\Service\SubUserService\AbstractResource\SubUsersImporter;
 use App\Controller\API\User\Exceptions\UserAlreadyExistsException;
 use App\Entity\User\ImportedSubUsers;
 use App\Entity\User\User;
-use App\Entity\User\UserCompanyInfo;
+use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Modules\Sheet\SheetReader;
 use App\Modules\StringBuilder\StringBuilder;
@@ -101,7 +101,7 @@ final class SubUsersImporter
 
             $user = new User();
             $user->profile = new UserProfile();
-            $user->company = new UserCompanyInfo();
+            $user->company = new ContactCompany();
             $importedUserEntity = new ImportedSubUsers();
 
             $entry = $allSubUsers[$i];
