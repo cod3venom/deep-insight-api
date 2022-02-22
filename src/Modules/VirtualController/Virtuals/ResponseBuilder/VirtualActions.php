@@ -48,7 +48,7 @@ class VirtualActions
      */
     public function somethingWentWrong(): ResponseBuilder
     {
-        return $this->responseBuilder->addMessage('Something went wrong')
+        return $this->responseBuilder->addMessage('Ops! Something went wrong')
             ->setStatus(Response::HTTP_BAD_REQUEST);
     }
 

@@ -7,7 +7,10 @@ use App\Entity\Contact\ContactProfile;
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;
+use App\Service\ContactsService\ContactsService;
+use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -16,6 +19,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @method ContactProfile|null find($id, $lockMode = null, $lockVersion = null)
@@ -31,7 +35,9 @@ class ContactProfileRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        private UserRepository $userRepository
+        private ContactsService $contactsService,
+        private ImportedContactRepository $importedContactRepository,
+        private TraitItemRepository $traitItemRepository
     )
     {
         parent::__construct($registry, ContactProfile::class);
@@ -50,41 +56,60 @@ class ContactProfileRepository extends ServiceEntityRepository
         return $this;
     }
 
+    /**
+     * @param User $owner
+     * @return QueryBuilder
+     */
     public function mapContactToOwner(User $owner): QueryBuilder {
-       return $this->createQueryBuilder('contact')
-           ->select(['contact, company, analysis'])
-           ->leftJoin(ContactCompany::class, 'company', 'WITH', 'company.id = contact.id')
-           ->leftJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(contact.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')")
-           ->where('contact.ownerUserId = :ownerUserId');
+        return $this->createQueryBuilder('contact')
+            ->select(['contact, company, analysis'])
+            ->leftJoin(ContactCompany::class, 'company', 'WITH', 'company.id = contact.id')
+            ->leftJoin(TraitAnalysis::class, 'analysis', 'WITH', "DATE_FORMAT(contact.birthDay, '%d/%m/%Y') = DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y')")
+            ->where('contact.ownerUserId = :ownerUserId');
     }
 
-    public function mapScalarContactToOwnerObjects(array $scalar): array
+    /**
+     * @param array $scalar
+     * @return array
+     */
+    public function mapScalarContactsToList(array $scalar): array
     {
         $chunkedList = array_chunk($scalar, 3);
-        $tmpUser = new User();
-        $tmpContact = new ContactProfile();
-        $tmpCompany = new ContactCompany();
-        $tmpTrait = new TraitAnalysis();
         $result = [];
 
         foreach ($chunkedList as $chunk) {
-            foreach ($chunk as $obj) {
-                if ($obj instanceof ContactProfile) {
-                    $tmpContact = $obj;
-                }
-                else if ($obj instanceof ContactCompany) {
-                    $tmpCompany = $obj;
-                }
-                else if ($obj instanceof TraitAnalysis) {
-                    $tmpTrait = $obj;
-                }
-            }
-
-            $tmpContact->setContactCompany($tmpCompany);
-            $tmpContact->setTraitAnalysis($tmpTrait);
-            $result[] = $tmpContact;
+           $contact = $this->mapScalarContactToSingleObject($chunk);
+           if ($contact->getId()) {
+               $result[] = $contact;
+           }
         }
+
         return $result;
+    }
+
+    public function mapScalarContactToSingleObject(array $chunkedScalar): ContactProfile
+    {
+        $schemaBuilder = new SchemaBuilder();
+        $tmpContact = new ContactProfile();
+        $tmpCompany = new ContactCompany();
+        $tmpTrait = new TraitAnalysis();
+
+        foreach ($chunkedScalar as $obj) {
+            if ($obj instanceof ContactProfile) {
+                $tmpContact = $obj;
+            }
+            else if ($obj instanceof ContactCompany) {
+                $tmpCompany = $obj;
+            }
+            else if ($obj instanceof TraitAnalysis) {
+                $tmpTrait = $obj;
+            }
+        }
+        $tmpContact->setContactCompany($tmpCompany);
+        $tmpContact->setTraitAnalysis($tmpTrait);
+        $tmpContact->setAnalysisReport($schemaBuilder->buildTraitsFromObject($tmpTrait, $this->traitItemRepository));
+        $tmpContact->setColorsReport($schemaBuilder->buildTraitsFromObject($tmpTrait,  $this->traitItemRepository));
+        return $tmpContact;
     }
 
     /**
@@ -108,6 +133,10 @@ class ContactProfileRepository extends ServiceEntityRepository
         return ($total > 0);
     }
 
+    /**
+     * @param User $owner
+     * @return array
+     */
     public function all(User $owner): array
     {
         $map = $this->mapContactToOwner($owner);
@@ -120,23 +149,95 @@ class ContactProfileRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
-        return $this->mapScalarContactToOwnerObjects($map);
+        return $this->mapScalarContactsToList($map);
     }
 
-    public function findByContactId(string $contactId):ContactProfile {
+    /**
+     * @param User $owner
+     * @param string $contactId
+     * @return ContactProfile
+     */
+    public function findContactPackById(User $owner, string $contactId):ContactProfile {
         try {
-            $contact = $this->createQueryBuilder('contact')
+            $ownerId = $owner->getUserId();
+
+            $contact = $this->mapContactToOwner($owner)
                 ->andWhere('contact.contactId = :contactId')
+                ->andWhere('contact.ownerUserId = :ownerUserId')
                 ->setMaxResults(1)
                 ->setParameter('contactId', $contactId)
+                ->setParameter('ownerUserId', $ownerId)
                 ->getQuery()
-                ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
+                ->getResult(AbstractQuery::HYDRATE_OBJECT);
+
+            $contact = $this->mapScalarContactToSingleObject($contact);
         }
         catch (\Exception $ex) {
             $contact = new ContactProfile();
         }
         return $contact;
     }
+
+    /**
+     * @param User $owner
+     * @param string $contactId
+     * @return ContactProfile
+     */
+    public function findContactById(User $owner, string $contactId): ContactProfile{
+        try {
+            $ownerUserId = $owner->getUserId();
+            return $this->createQueryBuilder('contact')
+                ->andWhere('contact.contactId = :contactId')
+                ->andWhere('contact.ownerUserId = :ownerUserId')
+                ->setMaxResults(1)
+                ->setParameter('contactId', $contactId)
+                ->setParameter('ownerUserId', $ownerUserId)
+                ->getQuery()
+                ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
+        }
+        catch (\Exception $ex){
+            return new ContactProfile();
+        }
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
+     */
+    public function search(User $owner, string $searchText): array
+    {
+        return $this->contactsService->filter($this)->byText($searchText)->handle($owner);
+    }
+
+    /**
+     * @param User $owner
+     * @param string $worldName
+     * @return array
+     */
+    public function filterByWorld(User $owner, string $worldName): array
+    {
+        return $this->contactsService->filter($this)->byWorld($worldName)->handle($owner);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function importFromFile(string $targetDir, User $owner, UploadedFile $file): void
+    {
+         $this->contactsService->importer()->import($targetDir, $owner, $file, $this, $this->importedContactRepository);
+    }
+
+    /**
+     * @param User $owner
+     * @return array
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function exportToFile(User $owner): array
+    {
+        return $this->contactsService->exporter()->export($owner, $this);
+    }
+
     /**
      * @param User $owner
      * @param ContactProfile $contact
@@ -147,7 +248,6 @@ class ContactProfileRepository extends ServiceEntityRepository
     {
         $contact
             ->genContactId()
-            ->setOwner($owner)
             ->setOwnerUserId($owner->getUserId())
             ->setCreatedAt();
 
@@ -169,6 +269,7 @@ class ContactProfileRepository extends ServiceEntityRepository
     {
         $contact
             ->setUpdatedAt();
+        $contact->getContactCompany()->setUpdatedAt();
         $this->save($contact);
 
         return $contact;
@@ -215,8 +316,6 @@ class ContactProfileRepository extends ServiceEntityRepository
     /**
      * @param ContactProfile $contactProfile
      * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function delete(ContactProfile $contactProfile)
     {

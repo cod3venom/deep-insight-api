@@ -97,9 +97,9 @@ class ContactCompany
     private ?string $categories = '';
 
     /**
-     * @ORM\OneToOne(targetEntity=ContactProfile::class, inversedBy="contactCompany", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=ContactProfile::class, inversedBy="contactCompany")
      */
-    private ?ContactProfile $contact = null;
+    private ?ContactProfile $contact;
 
 
 

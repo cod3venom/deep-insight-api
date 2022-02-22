@@ -17,7 +17,7 @@ use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use App\Helpers\DateHelper\DateHelper;
 use App\Modules\VirtualController\VirtualController;
-use App\Repository\ImportedSubUsersRepository;
+use App\Repository\ImportedContactRepository;
 use App\Repository\TraitAnalysisRepository;
 use App\Repository\TraitColorRepository;
 use App\Repository\TraitItemRepository;
@@ -26,7 +26,7 @@ use App\Repository\UserProfileRepository;
 use App\Repository\UserRepository;
 use App\Service\HumanTraitServices\HumanTraitsService;
 use App\Service\LoggerService\LoggerService;
-use App\Service\SubUserService\SubUserService;
+use App\Service\SubUserService\ContactService;
 use DateTime;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -88,9 +88,9 @@ class SubUserCrudController extends VirtualController
     private HumanTraitsService $humanTraitsService;
 
     /**
-     * @var SubUserService
+     * @var ContactService
      */
-    private SubUserService $subUserService;
+    private ContactService $subUserService;
 
     /**
      * @param LoggerService $logger
@@ -101,7 +101,7 @@ class SubUserCrudController extends VirtualController
      * @param TraitItemRepository $traitItemRepository
      * @param TraitColorRepository $traitColorRepository
      * @param HumanTraitsService $humanTraitsService
-     * @param SubUserService $subUserService
+     * @param ContactService $subUserService
      */
     public function __construct(
         LoggerService            $logger,
@@ -113,7 +113,7 @@ class SubUserCrudController extends VirtualController
         TraitItemRepository      $traitItemRepository,
         TraitColorRepository     $traitColorRepository,
         HumanTraitsService       $humanTraitsService,
-        SubUserService           $subUserService
+//        ContactService $subUserService
     )
     {
         parent::__construct($serializer);
@@ -396,11 +396,11 @@ class SubUserCrudController extends VirtualController
     /**
      * @Route (path="/import-from-sheet", methods={"POST"})
      * @param Request $request
-     * @param SubUserService $subUserService
-     * @param ImportedSubUsersRepository $importedSubUsersRepository
+     * @param ContactService $subUserService
+     * @param ImportedContactRepository $importedSubUsersRepository
      * @return JsonResponse
      */
-    public function importFromSheet(Request $request, SubUserService $subUserService, ImportedSubUsersRepository $importedSubUsersRepository): JsonResponse
+    public function importFromSheet(Request $request, ContactService $subUserService, ImportedContactRepository $importedSubUsersRepository): JsonResponse
     {
         try {
             $file = $request->files->get('file');
@@ -426,10 +426,10 @@ class SubUserCrudController extends VirtualController
 
     /**
      * @Route (path="/export-to-sheet", methods={"POST"})
-     * @param SubUserService $subUserService
+     * @param ContactService $subUserService
      * @return JsonResponse|Response
      */
-    public function exportToSheet(SubUserService $subUserService): JsonResponse|Response
+    public function exportToSheet(ContactService $subUserService): JsonResponse|Response
     {
         try {
             $authorId = $this->user()->getUserId();

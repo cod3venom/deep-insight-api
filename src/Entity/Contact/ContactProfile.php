@@ -109,15 +109,9 @@ class ContactProfile
     private ?array $colorsReport = [];
 
     /**
-     * @ORM\OneToOne(targetEntity=ContactCompany::class, mappedBy="contact", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=ContactCompany::class, mappedBy="contact", cascade={"persist", "remove", "detach", "refresh"})
      */
-    private ?ContactCompany $contactCompany;
-
-    /**
-     * @Groups ({"user"})
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contacts", cascade={"persist", "remove"})
-     */
-    private ?User $owner;
+    private ?ContactCompany $contactCompany = null;
 
 
 
@@ -303,7 +297,7 @@ class ContactProfile
         return $this->contactCompany;
     }
 
-    public function setContactCompany(?ContactCompany $contactCompany): self
+    public function setContactCompany(ContactCompany|array|null $contactCompany): self
     {
         // unset the owning side of the relation if necessary
         if ($contactCompany === null && $this->contactCompany !== null) {
@@ -354,22 +348,10 @@ class ContactProfile
         return $this;
     }
 
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(?User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
-
     /**
      * @throws \ReflectionException
      */
-    public function arrayToEntity(array $input): self {
+    public function arrayToEntity($input): self {
         Reflector::arrayToEntity($this, $input);
         return $this;
     }

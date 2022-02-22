@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Entity\User;
+namespace App\Entity\Contact;
 
 use App\Entity\Traits\IdTrait;
-use App\Repository\ImportedSubUsersRepository;
+use App\Repository\ImportedContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ImportedSubUsersRepository::class)
  */
-class ImportedSubUsers
+class ImportedContact
 {
     use IdTrait;
 
@@ -20,12 +20,12 @@ class ImportedSubUsers
     /**
      * @ORM\Column(type="uuid")
      */
-    private string $userId;
+    private string $contactId;
 
     /**
      * @ORM\Column(type="uuid")
      */
-    private string $userAuthorId;
+    private string $ownerUserId;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -42,26 +42,26 @@ class ImportedSubUsers
         return $this->id;
     }
 
-    public function getUserId(): string
+    public function getContactId(): string
     {
-        return $this->userId;
+        return $this->contactId;
     }
 
-    public function setUserId($userId): self
+    public function setContactId($contactId): self
     {
-        $this->userId = $userId;
+        $this->contactId = $contactId;
 
         return $this;
     }
 
-    public function getUserAuthorId(): string
+    public function getUserOwnerId(): string
     {
-        return $this->userAuthorId;
+        return $this->ownerUserId;
     }
 
-    public function setUserAuthorId($userAuthorId): self
+    public function setUserOwnerId($ownerUserId): self
     {
-        $this->userAuthorId = $userAuthorId;
+        $this->ownerUserId = $ownerUserId;
 
         return $this;
     }

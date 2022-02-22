@@ -908,8 +908,8 @@ class SubUserFixtures extends Fixture
             ->setCategories('IT, Programming, Big Data, AI, Cyber Security')
             ->setCreatedAt();
 
-        $contactProfile->setContactCompany($companyInfo);
-        $user->addContact($contactProfile);
+        $contactProfile->setContactCompany(($companyInfo));
+
 
         $manager->persist($user);
         $manager->flush();
@@ -936,7 +936,6 @@ class SubUserFixtures extends Fixture
 
 
         $contactProfile
-            ->setOwner($user)
             ->setOwnerUserId($user->getUserId())
             ->setFirstName('Michał')
             ->setLastName('Wojda')
@@ -968,7 +967,6 @@ class SubUserFixtures extends Fixture
             ->setCreatedAt();
 
         $contactProfile->setContactCompany($companyInfo);
-        $user->addContact($contactProfile);
 
         $manager->persist($user);
         $manager->flush();
@@ -1009,7 +1007,6 @@ class SubUserFixtures extends Fixture
 
                 $contactProfile
                     ->genContactId()
-                    ->setOwner($owner)
                     ->setOwnerUserId($owner->getUserId())
                     ->setFirstName($name)
                     ->setLastName($lastname)
@@ -1043,7 +1040,7 @@ class SubUserFixtures extends Fixture
                     ->setCreatedAt();
 
                 $contactProfile->setContactCompany($companyInfo);
-                $owner->addContact($contactProfile);
+
 
                 $manager->persist($contactProfile);
                 $manager->flush();

@@ -28,27 +28,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 class UserController extends VirtualController
 {
 
-    /**
-     * @var LoggerService
-     */
-    private LoggerService $logger;
-
-    /**
-     * @var UserRepository
-     */
-    private UserRepository $userRepository;
-
-    /**
-     * @var UserProfileRepository
-     */
-    private UserProfileRepository $userProfileRepository;
-
-    public function __construct(SerializerInterface $serializer,LoggerService $logger,UserRepository $userRepository,UserProfileRepository $userProfileRepository)
+    public function __construct(
+        SerializerInterface $serializer,
+        private LoggerService $logger,
+        private UserRepository $userRepository,
+        private UserProfileRepository $userProfileRepository
+    )
     {
         parent::__construct($serializer);
-        $this->logger = $logger;
-        $this->userRepository = $userRepository;
-        $this->userProfileRepository = $userProfileRepository;
     }
 
     /**
@@ -70,55 +57,7 @@ class UserController extends VirtualController
 
 
     /**
-     * @Route (path="/me/update", methods={"PUT"})
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function update(Request $request): JsonResponse
-    {
-        try {
-            $email = $request->get('email');
-            $password = $request->get('password');
-            $profile = $request->get('profile');
-            $company = $request->get('company');
-
-            $userId = $this->user()->getUserId();
-            $userAcc = $this->userRepository->getUserById($userId);
-            if (!empty($email)) {
-                $userAcc->setEmail($email);
-            }
-            if (!empty($password) && $userAcc->getPassword() !== $password) {
-                $userAcc->setPassword(password_hash($password, PASSWORD_DEFAULT));
-            }
-
-
-            if (is_null($userAcc->profile)) {
-                $userAcc->profile = new UserProfile();
-                $userAcc->profile->setUserId($userId)->setCreatedAt();
-            }
-
-            if (is_null($userAcc->company)) {
-                $userAcc->company = new ContactCompany();
-                $userAcc->company->setUserId($userId)->setCreatedAt();
-            }
-
-            $userAcc->profile->arrayToEntity($profile);
-            $userAcc->company->arrayToEntity($company);
-
-            $this->userRepository->update($userAcc);
-            $this->responseBuilder->addObject($userAcc);
-            return $this->responseBuilder->objectResponse();
-
-        }
-        catch (\Exception $ex) {
-            $this->logger->error('UserController', 'update', [$this->user(), $ex]);
-            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
-        }
-    }
-
-
-    /**
-     * @Route (path="/user/{userId}/set-avatar", methods={"POST"})
+     * @Route (path="/me/set-avatar", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -128,7 +67,7 @@ class UserController extends VirtualController
             $avatarUrl = $request->get('avatar');
 
             $userId = $this->user()->getUserId();
-            $user = $this->userRepository->getUserById($userId);
+            $user = $this->userRepository->findUserById($userId);
             $user->profile->setAvatar($avatarUrl);
 
             $this->userProfileRepository->update($user->profile);
@@ -140,4 +79,42 @@ class UserController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
+
+    /**
+     * @Route (path="/me/update", methods={"PUT"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request): JsonResponse
+    {
+        try {
+            $email = $request->get('email');
+            $password = $request->get('password');
+            $profile = $request->get('profile');
+
+            $userAcc = $this->userRepository->findUserById($this->user()->getUserId());
+
+            if (!empty($email)) {
+                $userAcc->setEmail($email);
+            }
+            if (!empty($password) && $userAcc->getPassword() !== $password) {
+                $userAcc->setPassword(password_hash($password, PASSWORD_DEFAULT));
+            }
+
+            if (is_null($userAcc->profile)) {
+                $userAcc->profile = new UserProfile();
+                $userAcc->profile->setUserId($this->user()->getUserId())->setCreatedAt();
+            }
+
+            $userAcc->profile->arrayToEntity($profile);
+            $this->userRepository->update($userAcc);
+            return $this->responseBuilder->addObject($userAcc)->objectResponse();
+
+        }
+        catch (\Exception $ex) {
+            $this->logger->error('UserController', 'update', [$this->user(), $ex]);
+            return $this->responseBuilder->somethingWentWrong()->jsonResponse();
+        }
+    }
+
 }

@@ -78,11 +78,6 @@ class User implements UserInterface
      */
     public ?UserProfile $profile;
 
-    /**
-     * @Groups ({"contacts"})
-     * @ORM\OneToMany(targetEntity=ContactProfile::class, mappedBy="owner", cascade={"persist", "remove"})
-     */
-    private $contacts;
 
 
 
@@ -93,7 +88,6 @@ class User implements UserInterface
     public function __construct()
     {
         $this->profile = new UserProfile();
-        $this->contacts = new ArrayCollection();
     }
 
     public function getUserId(): ?string
@@ -203,35 +197,4 @@ class User implements UserInterface
     {
         // TODO: Implement eraseCredentials() method.
     }
-
-    /**
-     * @return Collection|ContactProfile[]
-     */
-    public function getContacts(): Collection
-    {
-        return $this->contacts;
-    }
-
-    public function addContact(ContactProfile $contact): self
-    {
-        if (!$this->contacts->contains($contact)) {
-            $this->contacts[] = $contact;
-            $contact->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeContact(ContactProfile $contact): self
-    {
-        if ($this->contacts->removeElement($contact)) {
-            // set the owning side to null (unless already changed)
-            if ($contact->getOwner() === $this) {
-                $contact->setOwner(null);
-            }
-        }
-
-        return $this;
-    }
-
 }

@@ -20,12 +20,12 @@ final class Reflector
 {
     /**
      * @param $entity
-     * @param array $input
+     * @param mixed $input
      * @return mixed
      * @throws ReflectionException
      * @throws Exception
      */
-    public static function arrayToEntity(&$entity, array $input): mixed
+    public static function arrayToEntity(&$entity, &$input): mixed
     {
         $reflector = new \ReflectionClass($entity);
 
