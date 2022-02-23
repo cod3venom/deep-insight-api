@@ -99,7 +99,7 @@ class ContactCompany
     /**
      * @ORM\OneToOne(targetEntity=ContactProfile::class, inversedBy="contactCompany")
      */
-    private ?ContactProfile $contact;
+    private ?ContactProfile $contact = null;
 
 
 
