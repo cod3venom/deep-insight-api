@@ -133,7 +133,7 @@ class ContactsExporter
         $ownerUserId = $owner->getUserId();
         $fileUniqName = $_ENV['BACKEND_UPLOADS_DIR'] .'/sheets/'.microtime().'.xlsx';
 
-        $contacts = $contactProfileRepository->mapContactToOwner($owner)
+        $contacts = $contactProfileRepository->contactsSelectorQB()
             ->andWhere('contact.ownerUserId = :ownerUserId')
             ->setParameter('ownerUserId', $ownerUserId)
             ->getQuery()
@@ -143,7 +143,7 @@ class ContactsExporter
         $chunks = array_chunk($contacts, 3);
 
         foreach ($chunks as $chunk) {
-            $contactsList[] = $contactProfileRepository->mapScalarContactToSingleObject($chunk);
+            $contactsList[] = $contactProfileRepository->mapContactsToTraits($chunk);
         }
 
 

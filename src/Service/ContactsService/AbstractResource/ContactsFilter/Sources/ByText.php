@@ -10,6 +10,7 @@
 
 namespace App\Service\ContactsService\AbstractResource\ContactsFilter\Sources;
 
+use App\Entity\Contact\ContactProfile;
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;
@@ -31,21 +32,13 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ByText
 {
-
-
-    private array $blackList = [];
-
-    private array $contacts = [];
-
-
+	
+	
     #[Pure] public function __construct(
         private LoggerInterface $logger,
         private ContactProfileRepository $contactProfileRepository,
         private string $searchText
-    )
-    {
-
-    }
+    ){}
 
 
     /**
@@ -60,13 +53,7 @@ class ByText
         }
         return $keywords;
     }
-
-    private function clean($string): string {
-        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
-
-        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
-    }
-
+	
     /**
      * @param array $keywords
      * @return string
@@ -79,7 +66,7 @@ class ByText
                 FROM       contact_profile contact
                 inner join contact_company company
                 ON         contact.id = company.id
-                WHERE     
+                WHERE
                 
                            contact.owner_user_id = :ownerUserId
                 AND (
@@ -93,7 +80,7 @@ class ByText
 
             if (!$andOpExists) {
                 $sql .="
-                    (   
+                    (
                         LOWER(concat(contact.first_name, ' ', contact.last_name)) LIKE LOWER('%$placeHolder%')
                         
                         OR
@@ -108,7 +95,7 @@ class ByText
             }else {
                 $sql .= "
                   OR
-                    (     
+                    (
                         LOWER(concat(contact.first_name, ' ', contact.last_name)) LIKE LOWER('%$placeHolder%')
                         
                         OR
@@ -129,9 +116,7 @@ class ByText
         for ($i = 0; $i < count($keywords); $i++) {
             $placeHolder = 'keyword'.$i;
             $keyword = strtolower($keywords[$i]);
-
-            //$keyword = $this->clean($keyword);
-            $sql = str_replace($placeHolder, $keyword, $sql);
+			$sql = str_replace($placeHolder, $keyword, $sql);
         }
         return $sql;
     }
@@ -157,6 +142,7 @@ class ByText
         $stmt->execute();
         $contactsId = $stmt->fetchAll();
 
+		$contacts = [];
         for ($i = 0; $i < count($contactsId); $i ++) {
 
             $contactId = $contactsId[$i];
@@ -164,17 +150,24 @@ class ByText
                 continue;
             }
             $contactId = $contactId['contact_id'];
-            $contactChunks = $this->contactProfileRepository->mapContactToOwner($owner)
-                ->andWhere('contact.contactId = :contactId')
-                ->andWhere('contact.ownerUserId = :ownerUserId')
-                ->setParameter('contactId', $contactId)
-                ->setParameter('ownerUserId', $ownerUserId)
-                ->getQuery()
-                ->getResult(AbstractQuery::HYDRATE_OBJECT);
-
-            $this->contacts[] = $this->contactProfileRepository->mapScalarContactToSingleObject($contactChunks);
+	
+			try {
+				$contact = $this->contactProfileRepository->contactsSelectorQB()
+					->andWhere('contact.contactId = :contactId')
+					->andWhere('contact.ownerUserId = :ownerUserId')
+					->setParameter('contactId', $contactId)
+					->setParameter('ownerUserId', $ownerUserId)
+					->getQuery()
+					->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
+				
+				if (!($contact instanceof ContactProfile)) continue;
+				
+				$contacts[] = $this->contactProfileRepository->mapSingleContactToTrait($contact);
+			} catch (NoResultException | NonUniqueResultException $e) {
+			
+			}
         }
 
-        return $this->contacts;
+        return $contacts;
     }
 }

@@ -35,8 +35,8 @@ class TraitAnalysisRepository extends ServiceEntityRepository
     {
         try{
             $birthDay = (string) $birthDay;
-            $result =  $this->createQueryBuilder('t')
-                ->andWhere('t.birthDay = :birthDay')
+            $result =  $this->createQueryBuilder('analysis')
+                ->andWhere("DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y') = DATE_FORMAT(cast(:birthDay as date), '%d/%m/%Y')")
                 ->setParameter('birthDay', $birthDay)
                 ->setMaxResults(1)
                 ->getQuery();
@@ -47,17 +47,17 @@ class TraitAnalysisRepository extends ServiceEntityRepository
             return new TraitAnalysis();
         }
     }
-
-
-    /**
-     * @param string $birthDay
-     * @return QueryBuilder
-     */
-    public function filterTraitsBy(string $birthDay): QueryBuilder
+	
+	
+	/**
+	 * @param string $worldColumn
+	 * @return QueryBuilder
+	 */
+    public function filterTraitsByWorld(string $worldColumn): QueryBuilder
     {
-        return $this->createQueryBuilder('traits')
-            ->andWhere('traits.birthDay = :birthDay')
-            ->setParameter('birthDay', $birthDay);
+		return $this->createQueryBuilder('analysis')
+			->andWhere("DATE_FORMAT(cast(analysis.birthDay as date), '%d/%m/%Y') = DATE_FORMAT(cast(:birthDay as date), '%d/%m/%Y')")
+			->orderBy('analysis.'.$worldColumn, 'DESC');
     }
 
     /**

@@ -21,8 +21,8 @@ class ContactProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('firstName', TextType::class)
-            ->add('lastName', TextType::class)
+            ->add('firstName')
+            ->add('lastName')
 
         ;
     }

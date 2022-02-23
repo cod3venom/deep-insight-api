@@ -1011,7 +1011,7 @@ class SubUserFixtures extends Fixture
                     ->setFirstName($name)
                     ->setLastName($lastname)
                     ->setEmail($email)
-                    ->setBirthDay(new DateTime('1998-11-17'))
+                    ->setBirthDay($birthDay)
                     ->setCountry('Polska')
                     ->setCreatedAt();
 

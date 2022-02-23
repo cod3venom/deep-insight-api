@@ -39,26 +39,17 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class AccessController extends VirtualController
 {
-    /**
-     * @var LoggerService
-     */
-    private LoggerService $logger;
-
-    /**
-     * @var UserRepository
-     */
-    private UserRepository $userRepository;
-
-    /**
-     * @param SerializerInterface $serializer
-     * @param LoggerService $logger
-     * @param UserRepository $userRepository
-     */
-    public function __construct(SerializerInterface $serializer, LoggerService $logger, UserRepository $userRepository)
-    {
+	/**
+	 * @param SerializerInterface $serializer
+	 * @param LoggerService       $logger
+	 * @param UserRepository      $userRepository
+	 */
+    public function __construct(
+		SerializerInterface $serializer,
+		private LoggerService $logger,
+		private UserRepository $userRepository
+	) {
         parent::__construct($serializer);
-        $this->logger = $logger;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -70,8 +61,7 @@ class AccessController extends VirtualController
     {
         $status = false;
         try {
-            $token = $this->getBearer();
-            $status = !!$encoder->decode($token);
+            $status = !!$encoder->decode($this->getBearer());
             $this->responseBuilder->setStatus(Response::HTTP_OK);
         } catch (JWTDecodeFailureException $ex) {
             $this->logger->error('AccessController:isLogged', [$this->user()]);
@@ -120,10 +110,6 @@ class AccessController extends VirtualController
                 ->setLastName($userLastName)
                 ->setBirthDay(new DateTime($userBirthDate))
                 ->setAvatar($userAvatar)
-                ->setCreatedAt();
-
-            $user->company = new ContactCompany();
-            $user->company->setUserId($userId)
                 ->setCreatedAt();
 
             $this->userRepository->save($user);

@@ -78,22 +78,18 @@ class ByWorld
      */
     public function handle(User $owner): array {
 
-        $ownerUserId = $owner->getUserId();
-        $orderingColumn = 'analysis.'.$this->transformInput($this->worldName);
-
-        $result = $this->contactProfileRepository->mapContactToOwner($owner)
-            ->andWhere('contact.ownerUserId = :ownerUserId')
-            ->orderBy($orderingColumn, 'DESC')
-            ->setParameter('ownerUserId', $ownerUserId)
-            ->getQuery()
-            ->getResult(AbstractQuery::HYDRATE_OBJECT);
-
-
-        $chunks = array_chunk($result, 3);
-
-        foreach ($chunks as $obj) {
-            $result[] = $this->contactProfileRepository->mapScalarContactToSingleObject($chunks);
-        }
-        return $result;
+//        $ownerUserId = $owner->getUserId();
+//        $orderingColumn = 'analysis.'.$this->transformInput($this->worldName);
+//
+//        $result = $this->contactProfileRepository->contactsSelectorQB()
+//            ->andWhere('contact.ownerUserId = :ownerUserId')
+//
+//
+//        $chunks = array_chunk($result, 3);
+//
+//        foreach ($chunks as $obj) {
+//            $result[] = $this->contactProfileRepository->mapContactsToTraits($chunks);
+//        }
+        return [];
     }
 }

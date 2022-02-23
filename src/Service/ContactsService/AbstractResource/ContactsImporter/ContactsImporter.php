@@ -184,7 +184,7 @@ final class ContactsImporter
                 ->setSource($uploadedFile)
                 ->setSourceType(ImportedContact::IMPORTED_FROM_FILE);
 
-            $contact->contactCompany = ($company);
+            $contact->setContactCompany($company);
 
             $contactProfileRepository->save($contact);
             $importedContactRepository->save($importedContact);

@@ -61,6 +61,11 @@ final class Reflector
 //                    $v = str_replace('/', '-', $v);
                     $v = new DateTime($v);
                 }
+
+                else  {
+                    $paramType = $entity::class;
+                    $v = ($paramType)::$v;
+                }
             }
 
             $entity->{$methodName}($v);

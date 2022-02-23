@@ -98,6 +98,7 @@ class ContactCompany
 
     /**
      * @ORM\OneToOne(targetEntity=ContactProfile::class, inversedBy="contactCompany")
+     * @ORM\JoinColumn(name="id", referencedColumnName="id", onDelete="CASCADE")
      */
     private ?ContactProfile $contact = null;
 

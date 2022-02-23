@@ -11,11 +11,11 @@
 
 namespace App\Controller\API\Contact;
 
+use App\DAO\RequestTOContactProfile;
 use App\Entity\Contact\ContactCompany;
 use App\Entity\Contact\ContactProfile;
 use App\Modules\VirtualController\VirtualController;
 use App\Repository\ContactProfileRepository;
-use App\Service\ContactsService\ContactsService;
 use App\Service\LoggerService\LoggerService;
 use Doctrine\ORM\ORMException;
 use PHPUnit\Exception;
@@ -27,24 +27,29 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class ContactController extends VirtualController
 {
 
-    public function __construct(
+    /**
+     * @param SerializerInterface $serializer
+     * @param LoggerService $loggerService
+     * @param ContactProfileRepository $contactProfileRepository
+     */
+    public function __construct
+    (
         private SerializerInterface      $serializer,
         private LoggerService            $loggerService,
         private ContactProfileRepository $contactProfileRepository
-    )
-    {
+    ) {
         parent::__construct($this->serializer);
     }
 
 
     /**
      * @Route (path="/me/contacts", methods={"GET"})
+     * @return JsonResponse
      */
-    public function all(Request $request): JsonResponse
+    public function all(): JsonResponse
     {
         try {
             $user = $this->user();
@@ -56,8 +61,11 @@ class ContactController extends VirtualController
         }
     }
 
+
     /**
      * @Route (path="/me/contacts/lazy", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
      */
     public function lazyLoading(Request $request): JsonResponse
     {
@@ -74,8 +82,12 @@ class ContactController extends VirtualController
         }
     }
 
+
     /**
      * @Route (path="/me/contacts/{contactId}", methods={"GET"})
+     * @param Request $request
+     * @param string $contactId
+     * @return JsonResponse
      */
     public function findById(Request $request, string $contactId): JsonResponse
     {
@@ -84,7 +96,7 @@ class ContactController extends VirtualController
             $contact = $this->contactProfileRepository->findContactPackById($this->user(), $contactId);
             if (!$contact->getId()) {
                 return $this->responseBuilder->addPayload([])->addMessage('Contact does not exists')
-                    ->setStatus(Response::HTTP_NOT_FOUND)->objectResponse();
+                    ->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
 
             return $this->responseBuilder->addObject($contact)->setStatus(Response::HTTP_OK)->objectResponse();
@@ -95,7 +107,9 @@ class ContactController extends VirtualController
     }
 
     /**
-     * @Route (path="/me/contacts/search", methods={"GET"})
+     * @Route (path="/me/contacts/search", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
      */
     public function searchByText(Request $request): JsonResponse
     {
@@ -103,9 +117,8 @@ class ContactController extends VirtualController
             $searchText = (string)$request->get('searchText');
             if (!$searchText) {
                 return $this->responseBuilder->addPayload([])->addMessage('Searching text cant be empty')
-                    ->setStatus(Response::HTTP_NOT_FOUND)->objectResponse();
+                    ->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
-
 
             $profile = $this->contactProfileRepository->search($this->user(), $searchText);
             return $this->responseBuilder->addObject($profile)->setStatus(Response::HTTP_OK)->objectResponse();
@@ -115,14 +128,16 @@ class ContactController extends VirtualController
         }
     }
 
+
     /**
-     * @Route (path="/me/contacts/filter-by/world", methods={"GET"})
+     * @Route (path="/me/contacts/filter-by/world", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
      */
     public function filterByWorlds(Request $request): JsonResponse
     {
         try {
-            $world = (string)$request->get('world');
-            $result = $this->contactProfileRepository->filterByWorld($this->user(), $world);
+            $result = $this->contactProfileRepository->filterByWorld($this->user(), (string)$request->get('world'));
             return $this->responseBuilder->addObject($result)->objectResponse();
         } catch (\Exception $ex) {
             $this->loggerService->error('ContactController', 'All', [$this->user()->getEmail(), $ex]);
@@ -139,14 +154,13 @@ class ContactController extends VirtualController
     public function setAvatar(Request $request, string $contactId): JsonResponse
     {
         try {
-            $avatarUrl = $request->get('avatar');
+
             $contact = $this->contactProfileRepository->findContactById($this->user(), $contactId);
             if (!$contact->getId()) {
                 return $this->responseBuilder->addMessage('Contact does not exists')->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
 
-            $contact->setPhoto($avatarUrl);
-
+            $contact->setPhoto((string)$request->get('avatar'));
             $this->contactProfileRepository->update($contact);
             return $this->responseBuilder->addObject($contact)->objectResponse();
         }
@@ -164,18 +178,12 @@ class ContactController extends VirtualController
     public function create(Request $request): JsonResponse
     {
         try {
-            $contactProfile = $request->get('contact');
-            $contactCompany = $request->get('company');
-
-
-            $contact = new ContactProfile();
-            $company = new ContactCompany();
-
-            $contact->arrayToEntity($contactProfile);
-            $company->arrayToEntity($contactCompany);
+            $contact = (new ContactProfile())->arrayToEntity( $request->get('contact') );
+            $company = (new ContactCompany())->arrayToEntity( $request->get('company') );
 
             $contact = $this->contactProfileRepository->create($this->user(), $contact, $company);
             return $this->responseBuilder->addObject($contact)->objectResponse();
+
         } catch (ORMException | ReflectionException | Exception $ex) {
             $this->loggerService->error('ContactController', 'Create', [$this->user()->getEmail(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
@@ -187,24 +195,19 @@ class ContactController extends VirtualController
      * @Route (path="/me/contacts/edit/{contactId}", methods={"POST"})
      * @param Request $request
      * @param string $contactId
+     * @param SerializerInterface $serializer
      * @return JsonResponse
+     * @throws \Exception
      */
     public function edit(Request $request, string $contactId, SerializerInterface $serializer): JsonResponse
     {
         try {
-            $contactProfile = $request->get('contact');
-
             $contact = $this->contactProfileRepository->findContactById($this->user(), $contactId);
             if (!$contact->getId()) {
                 return $this->responseBuilder->addMessage('Contact does not exists')->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
 
-
-            $test = $serializer->deserialize($request->getContent(), ContactProfile::class, 'json', [
-                'object_to_populate' => $contactProfile, // this still needs to be set, without the "deep_"
-                'deep_object_to_populate' => true,
-            ]);
-
+            $contact = RequestTOContactProfile::toEntity($contact, $request->get('contact'));
             $this->contactProfileRepository->edit($contact);
             return $this->responseBuilder->addObject($contact)->objectResponse();
 
@@ -217,16 +220,18 @@ class ContactController extends VirtualController
     /**
      * @Route (path="/me/contacts/remove/{contactId}", methods={"DELETE"})
      * @param Request $request
-     * @param string $contactId
+     * @param string  $contactId
      * @return JsonResponse
      */
     public function remove(Request $request, string $contactId): JsonResponse
     {
         try {
             $contact = $this->contactProfileRepository->findContactPackById($this->user(), $contactId);
+
             if (!$contact->getId()) {
                 return $this->responseBuilder->addMessage('Contact does not exists')->setStatus(Response::HTTP_NOT_FOUND)->jsonResponse();
             }
+
             $this->contactProfileRepository->remove($contact);
             return $this->responseBuilder->addPayload([])->jsonResponse();
         } catch (ORMException | ReflectionException | Exception $ex) {
@@ -261,6 +266,7 @@ class ContactController extends VirtualController
         }
     }
 
+
     /**
      * @Route (path="/me/contacts/export", methods={"GET"})
      * @return JsonResponse
@@ -272,9 +278,9 @@ class ContactController extends VirtualController
             $result = $this->contactProfileRepository->exportToFile($this->user());
             return $this->responseBuilder->addPayload($result)->jsonResponse();
         } catch (
-        \PhpOffice\PhpSpreadsheet\Writer\Exception |
-        \PhpOffice\PhpSpreadsheet\Exception |
-        Exception $ex
+            \PhpOffice\PhpSpreadsheet\Writer\Exception |
+            \PhpOffice\PhpSpreadsheet\Exception |
+            Exception $ex
         ) {
             $this->loggerService->error('ContactController', 'Export', [$this->user()->getEmail(), $ex]);
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();

@@ -71,8 +71,7 @@ class UserController extends VirtualController
             $user->profile->setAvatar($avatarUrl);
 
             $this->userProfileRepository->update($user->profile);
-            $this->responseBuilder->addObject($user);
-            return $this->responseBuilder->objectResponse();
+            return $this->responseBuilder->addObject($user)->objectResponse();
         }
         catch (\Exception $ex) {
             $this->logger->error('UserController', 'setAvatar', [$this->user(), $ex]);
@@ -116,5 +115,4 @@ class UserController extends VirtualController
             return $this->responseBuilder->somethingWentWrong()->jsonResponse();
         }
     }
-
 }
