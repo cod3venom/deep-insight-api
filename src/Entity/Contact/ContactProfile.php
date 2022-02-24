@@ -111,7 +111,7 @@ class ContactProfile
     /**
      * @ORM\OneToOne(targetEntity=ContactCompany::class, mappedBy="contact", cascade={"persist", "remove", "detach", "refresh"})
      */
-    private ?ContactCompany $contactCompany = null;
+    private ?ContactCompany $contactCompany;
 
 
 
@@ -120,6 +120,8 @@ class ContactProfile
 
     public function __construct()
     {
+		$this->contactCompany = new ContactCompany();
+		
         if (isset($this->birthDay)) {
             $this->birthDay->format(self::BirthDayFormat);
         }

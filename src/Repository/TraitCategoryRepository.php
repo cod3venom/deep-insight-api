@@ -34,8 +34,8 @@ class TraitCategoryRepository extends ServiceEntityRepository
     public function findById(string $categoryId): TraitCategory
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.categoryId = :categoryId')
-            ->setParameter('categoryId', $categoryId)
+            ->andWhere('c.id = :id')
+            ->setParameter('id', $categoryId)
             ->setMaxResults(1)
             ->getQuery()
             ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);

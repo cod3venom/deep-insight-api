@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Controller\Admin\Contacts\ContactProfileCrud;
 use App\Controller\Admin\HumanTraits\TraitAnalysisCrud;
 use App\Controller\Admin\HumanTraits\TraitCategoryCrud;
 use App\Controller\Admin\HumanTraits\TraitColorCrud;
@@ -60,6 +61,9 @@ class Dashboard extends AbstractDashboardController
     {
         yield MenuItem::linkToCrud('Users', 'fas fa-users', Entity\User\User::class)
             ->setController(UsersCrud::class);
+	
+		yield MenuItem::linkToCrud('Contacts', 'fas fa-address-book', Entity\Contact\ContactProfile::class)
+			->setController(ContactProfileCrud::class);
 
         yield MenuItem::subMenu('Human traits', 'fa fa-database')->setSubItems([
 

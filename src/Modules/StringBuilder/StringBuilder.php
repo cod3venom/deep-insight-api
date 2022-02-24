@@ -14,7 +14,7 @@ class StringBuilder
 {
     private string $str = '';
 
-    public function append(string $data): self
+    public function append(?string $data): self
     {
         $this->str .= $data;
         return $this;

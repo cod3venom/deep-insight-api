@@ -90,6 +90,8 @@ class UserRepository extends ServiceEntityRepository
     }
 
 
+
+	
     /**
      * @throws UserRepeatedPasswordMatchingException
      */

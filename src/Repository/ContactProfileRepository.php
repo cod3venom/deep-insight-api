@@ -167,9 +167,9 @@ class ContactProfileRepository extends ServiceEntityRepository
                 ->setParameter('contactId', $contactId)
                 ->setParameter('ownerUserId', $ownerId)
                 ->getQuery()
-                ->getResult(AbstractQuery::HYDRATE_OBJECT);
+                ->getSingleResult(AbstractQuery::HYDRATE_OBJECT);
 
-            $contact = $this->mapContactsToTraits($contact);
+            $contact = $this->mapSingleContactToTrait($contact);
         }
         catch (\Exception $ex) {
             $contact = new ContactProfile();

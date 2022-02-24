@@ -140,10 +140,12 @@ class ContactsExporter
             ->getResult(AbstractQuery::HYDRATE_OBJECT);
 
 
-        $chunks = array_chunk($contacts, 3);
+       
 
-        foreach ($chunks as $chunk) {
-            $contactsList[] = $contactProfileRepository->mapContactsToTraits($chunk);
+        foreach ($contacts as $contact) {
+			if (!($contact instanceof ContactProfile)) continue;
+			
+            $contactsList[] = $contactProfileRepository->mapSingleContactToTrait($contact);
         }
 
 

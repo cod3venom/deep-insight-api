@@ -268,7 +268,7 @@ class ContactController extends VirtualController
 
 
     /**
-     * @Route (path="/me/contacts/export", methods={"GET"})
+     * @Route (path="/me/contacts/export", methods={"POST"})
      * @return JsonResponse
      */
     public function export(): JsonResponse

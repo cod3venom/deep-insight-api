@@ -81,7 +81,7 @@ class TraitCategoryCrud extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Trait Category')
             ->setEntityLabelInPlural('Categories')
-            ->setSearchFields(['categoryId', 'categoryName'])
+            ->setSearchFields(['id', 'categoryName'])
             ;
     }
 

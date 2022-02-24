@@ -25,12 +25,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 class User implements UserInterface
 {
     public const ROLE_USER = 'ROLE_USER';
-    public const ROLE_SUB_USER = 'ROLE_SUB_USER';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
 
     public array $rolesList = [
         self::ROLE_USER,
-        self::ROLE_SUB_USER,
         self::ROLE_ADMIN,
     ];
 

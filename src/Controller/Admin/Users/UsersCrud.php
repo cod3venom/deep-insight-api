@@ -80,12 +80,12 @@ class UsersCrud extends AbstractCrudController
             ->add('email')
             ->add('roles');
     }
-
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
+	
+	
+	/**
+	 * @param EntityManagerInterface $entityManager
+	 * @param                        $entityInstance
+	 */
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if (!$entityInstance instanceof User) {
@@ -97,21 +97,18 @@ class UsersCrud extends AbstractCrudController
         if (is_null($entityInstance->profile)) {
             $entityInstance->profile = new UserProfile();
         }
-        if (is_null($entityInstance->company)) {
-            $entityInstance->company = new ContactCompany();
-        }
+        
 
         $entityInstance->setUserId($userId)->setLastLoginAt()->setCreatedAt();
         $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT));
         $entityInstance->profile->setUserId($userId)->setEmail($entityInstance->getEmail())->setCreatedAt();
-        $entityInstance->company->setUserId($userId)->setCreatedAt();
         $this->userRepository->save($entityInstance);
     }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
+	
+	/**
+	 * @param EntityManagerInterface $entityManager
+	 * @param                        $entityInstance
+	 */
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if (!$entityInstance instanceof User) {
@@ -121,28 +118,20 @@ class UsersCrud extends AbstractCrudController
         if (is_null($entityInstance->profile)) {
             $entityInstance->profile = new UserProfile();
         }
-        if (is_null($entityInstance->company)) {
-            $entityInstance->company = new ContactCompany();
-        }
 
         $entityInstance->profile->setEmail($entityInstance->getEmail())->setUpdatedAt();
 
         if (!str_starts_with($entityInstance->getPassword(), '$2y$')) {
             $entityInstance->setPassword(password_hash($entityInstance->getPassword(), PASSWORD_DEFAULT));
         }
-
-        if (in_array(User::ROLE_SUB_USER, $entityInstance->getRoles())) {
-            $entityInstance->setUserAuthorId($entityInstance->getUserId());
-        }
-
-        $entityInstance->company->setUpdatedAt();
+ 
         $this->userRepository->update($entityInstance);
     }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws ORMException
-     */
+	
+	/**
+	 * @param EntityManagerInterface $entityManager
+	 * @param                        $entityInstance
+	 */
     public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
       $this->userRepository->delete($entityInstance);
@@ -157,64 +146,33 @@ class UsersCrud extends AbstractCrudController
     {
 
         // Account
-        $authorId = TextField::new('userAuthorId');
-        $email = TextField::new('email')
-            ->setRequired(true);
-
-        $password = TextField::new('password')
-            ->setRequired(true);
-
-        $role = ArrayField::new('roles')
-            ->setRequired(true);
+        $email = TextField::new('email')->setRequired(true);
+        $password = TextField::new('password')->setRequired(true);
+        $role = ArrayField::new('roles')->setRequired(true);
+		
         // Profile
-        $firstName = TextField::new('profile.firstName', 'First Name')
-            ->setRequired(true);
-        $lasName = TextField::new('profile.lastName', 'Last Name')
-            ->setRequired(true);
-        $phone =  TextField::new('profile.phone', 'Phone number');
+		$avatar = ImageField::new('profile.avatar', 'Profile image')
+			->setUploadDir($this->parameterBag->get('user_avatars_upload_dir'))
+			->setBasePath($this->parameterBag->get('user_avatars_upload_dir_base'));
+        $firstName = TextField::new('profile.firstName', 'First Name')->setRequired(true);
+        $lasName = TextField::new('profile.lastName', 'Last Name')->setRequired(true);
         $birthDay =  DateField::new('profile.birthDay', 'Birth Day')
             ->setRequired(true)
             ->setFormat('d/m/Y')
             ->setHelp('Choose birth date of the user');
-
-        $avatar = ImageField::new('profile.avatar', 'Profile image')
-            ->setUploadDir($this->parameterBag->get('user_avatars_upload_dir'))
-            ->setBasePath($this->parameterBag->get('user_avatars_upload_dir_base'));
-
-
-        // Company
-        $companyName = TextField::new('company.companyName', 'Name');
-        $companyWww = TextField::new('company.companyWww', 'Web-Site')
-            ->setHelp('for eg: www.company.com, https://company.com, https://www.company.com');
-        $industry = TextField::new('company.companyIndustry', 'Industry')
-            ->setHelp('for eg: IT, Manufacturer, Food');
-        $wayToEarnMoney = TextField::new('company.wayToEarnMoney', 'Way to earn money');
-        $regon = TextField::new('company.regon', 'Regon');
-        $krs = TextField::new('company.krs', 'Krs');
-        $nip = TextField::new('company.nip', 'Nip');
-        $districts = TextareaField::new('company.districts', 'Districts');
-        $headQuartersCity = TextField::new('company.headQuartersCity', 'Head Quarters');
-        $businessEmails = TextareaField::new('company.businessEmails', 'Business Emails');
-        $businessPhones = TextareaField::new('company.businessPhones', 'Business phones');
-        $revenue = TextField::new('company.revenue', 'Revenue');
-        $profit = TextField::new('company.profit', 'Profit');
-        $growthYearToYear = TextareaField::new('company.growthYearToYear', 'Growth year to year');
-        $categories = TextareaField::new('company.Categories', 'Categories');
-
+	
+		$country = TextField::new('profile.country', 'Country')->setRequired(true);
+		
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$avatar, $firstName, $lasName,$email, $role];
+            return [$avatar, $firstName, $lasName, $email, $country, $role];
         }
+		
         return [
                 FormField::addPanel('Credentials'),
-                $authorId, $email, $password, $role,
+				$email, $password, $role,
                 FormField::addPanel('Profile'),
-                $firstName, $lasName, $phone, $birthDay, $avatar,
-                FormField::addPanel('Company'),
-                $companyName, $companyWww, $industry, $wayToEarnMoney,
-                $regon, $krs, $nip, $districts, $headQuartersCity,
-                $businessEmails, $businessPhones,
-                $revenue, $profit, $growthYearToYear,
-                $categories
+				$avatar, $firstName, $lasName, $birthDay,$country,
+			
             ];
     }
 }

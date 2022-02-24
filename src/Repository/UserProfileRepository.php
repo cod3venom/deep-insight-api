@@ -6,6 +6,7 @@ use App\Entity\User\User;
 use App\Entity\User\ContactCompany;
 use App\Entity\User\UserProfile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -27,19 +28,7 @@ class UserProfileRepository extends ServiceEntityRepository
         parent::__construct($registry, UserProfile::class);
     }
 
-    /**
-     * @param string $email
-     * @return bool
-     */
-    public function exists(string $email): bool {
-        try {
-            return !!$this->findByEmail($email)->getUserId();
-        }
-        catch (Exception $ex){
-            return false;
-        }
-    }
-
+ 
 
     /**
      * @param string $userId
@@ -97,26 +86,28 @@ class UserProfileRepository extends ServiceEntityRepository
             return new UserProfile();
         }
     }
-
-
-    /**
-     * @param string $email
-     * @return mixed
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     */
-    public function findByEmail(string $email): UserProfile
-    {
-        return $this->createQueryBuilder('p')
-            ->select('p.userId, u.userAuthorId, p.firstName, p.lastName, p.email, p.phone, p.birthDay, p.avatar, u.roles, u.lastLoginAt, p.createdAt')
-            ->innerJoin(User::class, 'u', 'WITH', 'p.userId = u.userId')
-            ->where('u.roles LIKE :roles')
-            ->andWhere('u.email = :email')
-            ->setParameter('roles', '%"' . User::ROLE_SUB_USER . '"%')
-            ->setParameter('email', $email)
-            ->getQuery()
-            ->getSingleResult();
-    }
+	
+	
+	/**
+	 * Returned array will be rendered in the
+	 * Admin dashboard
+	 * @return array
+	 */
+	public function getUserListForAdminDashboard(): array
+	{
+		$result = $this->createQueryBuilder('profile')
+			->getQuery()
+			->getResult(AbstractQuery::HYDRATE_OBJECT);
+		
+		$map = [];
+		
+		foreach ($result as $profile) {
+			if (!($profile instanceof UserProfile)) continue;
+			
+			$map[$profile->getFirstName(). ' '.$profile->getLastName()] = $profile->getUserId();
+		}
+		return $map;
+	}
 
     /**
      * @param UserProfile $profile
