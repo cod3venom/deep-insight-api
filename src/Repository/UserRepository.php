@@ -80,7 +80,7 @@ class UserRepository extends ServiceEntityRepository
      * @throws NonUniqueResultException
      * @throws NoResultException
      */
-    public function findUserById(string $userId) {
+    public function findUserById(string $userId): User {
         return $this->createQueryBuilder('user')
             ->andWhere('user.userId = :userId')
             ->setParameter('userId', $userId)

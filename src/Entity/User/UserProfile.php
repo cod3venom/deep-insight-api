@@ -7,6 +7,7 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\Traits\UuidTrait;
+use App\Helpers\DateHelper\DateHelper;
 use App\Modules\Reflector\Reflector;
 use App\Repository\UserProfileRepository;
 use DateTime;
@@ -18,11 +19,6 @@ use ReflectionException;
  */
 class UserProfile
 {
-    /**
-     * BirthDay Date format
-     */
-    public const BirthDayFormat = 'd/m/Y';
-
 
     use IdTrait;
 
@@ -77,7 +73,7 @@ class UserProfile
     public function __construct()
     {
         if (isset($this->birthDay)) {
-            $this->birthDay->format('d/m/Y');
+            $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
         }
     }
 
@@ -130,15 +126,14 @@ class UserProfile
     }
 
 
-    public function getBirthDay(): DateTime
+    public function getBirthDay(): string|DateTime
     {
-        $this->birthDay->format('d/m/Y');
-        return $this->birthDay;
+       return  $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
     }
 
     public function setBirthDay(DateTime $birthDay): self
     {
-        $birthDay->format('d/m/Y');
+        $birthDay->format(DateHelper::BIRTH_DAY_FORMAT);
         $this->birthDay = $birthDay;
 
         return $this;

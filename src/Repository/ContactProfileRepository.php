@@ -105,7 +105,7 @@ class ContactProfileRepository extends ServiceEntityRepository
 	 */
 	public function mapSingleContactToTrait(ContactProfile $contact): ContactProfile
 	{
-		$traits = $this->traitAnalysisRepository->findTraitsByBirthDay($contact->getBirthDay()->format(ContactProfile::BirthDayFormat));
+		$traits = $this->traitAnalysisRepository->findTraitsByBirthDay($contact->getBirthDay());
 		$contact->setTraitAnalysis($traits);
 		$contact->setAnalysisReport($this->schemaBuilder->buildTraitsFromObject($traits, $this->traitItemRepository));
 		$contact->setColorsReport($this->schemaBuilder->buildWorldsFromObject($traits,  $this->traitItemRepository, $this->traitColorRepository));

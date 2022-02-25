@@ -7,6 +7,7 @@ use App\Entity\Traits\CreatedTrait;
 use App\Entity\Traits\IdTrait;
 use App\Entity\Traits\UpdatedTrait;
 use App\Entity\User\User;
+use App\Helpers\DateHelper\DateHelper;
 use App\Modules\Reflector\Reflector;
 use App\Repository\ContactProfileRepository;
 use Doctrine\Common\Collections\Collection;
@@ -19,8 +20,6 @@ use Ramsey\Uuid\Uuid;
  */
 class ContactProfile
 {
-
-    public const BirthDayFormat = 'd/m/Y';
 
     use IdTrait;
 
@@ -123,7 +122,7 @@ class ContactProfile
 		$this->contactCompany = new ContactCompany();
 		
         if (isset($this->birthDay)) {
-            $this->birthDay->format(self::BirthDayFormat);
+            $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
         }
      }
 
@@ -221,13 +220,14 @@ class ContactProfile
         return $this;
     }
 
-    public function getBirthDay(): ?\DateTimeInterface
+    public function getBirthDay(): string|\DateTimeInterface
     {
-        return $this->birthDay;
+        return $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
     }
 
     public function setBirthDay(?\DateTimeInterface $birthDay): self
     {
+        $birthDay->format(DateHelper::BIRTH_DAY_FORMAT);
         $this->birthDay = $birthDay;
 
         return $this;
