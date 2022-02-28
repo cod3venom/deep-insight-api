@@ -178,8 +178,11 @@ class ContactController extends VirtualController
     public function create(Request $request): JsonResponse
     {
         try {
-            $contact = (new ContactProfile())->arrayToEntity( $request->get('contact') );
-            $company = (new ContactCompany())->arrayToEntity( $request->get('company') );
+			$contactInput = $request->get('contact')['profile'];
+			$companyInput = $request->get('contact')['company'];
+			
+            $contact = (new ContactProfile())->arrayToEntity($contactInput );
+            $company = (new ContactCompany())->arrayToEntity( $companyInput );
 
             $contact = $this->contactProfileRepository->create($this->user(), $contact, $company);
             return $this->responseBuilder->addObject($contact)->objectResponse();

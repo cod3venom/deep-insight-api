@@ -220,9 +220,24 @@ class ContactProfile
         return $this;
     }
 
-    public function getBirthDay(): string|\DateTimeInterface
+	public function getStrBirthDay(): string
+	{
+		
+		if ($this->birthDay instanceof \DateTimeInterface) {
+			return $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
+		}
+		return '';
+	}
+	
+    public function getBirthDay():\DateTimeInterface
     {
-        return $this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
+		if ($this->birthDay instanceof \DateTimeInterface) {
+			$this->birthDay->format(DateHelper::HTML_INPUT_FORMAT);
+			return $this->birthDay;
+		}
+		$new = new \DateTime();
+		$new->format(DateHelper::HTML_INPUT_FORMAT);;
+        return new $new;
     }
 
     public function setBirthDay(?\DateTimeInterface $birthDay): self

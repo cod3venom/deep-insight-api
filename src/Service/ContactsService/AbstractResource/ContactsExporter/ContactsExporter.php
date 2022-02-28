@@ -102,7 +102,7 @@ class ContactsExporter
             $analysis = $contact->getTraitAnalysis();
 
             $row = [
-                $contact->getFirstName(), $contact->getLastName(), $contact->getEmail(), $contact->getPhone(), $contact->getBirthDay(), $contact->getPlaceOfBirth(), $contact->getLinksToProfiles(),
+                $contact->getFirstName(), $contact->getLastName(), $contact->getEmail(), $contact->getPhone(), $contact->getStrBirthDay(), $contact->getPlaceOfBirth(), $contact->getLinksToProfiles(),
                 $contact->getNotes(), $contact->getCountry(), $company->getCompanyName(), $company->getCompanyWww(), $company->getCompanyIndustry(), $company->getWayToEarnMoney(),
                 $company->getRegon(), $company->getKrs(), $company->getNip(), $company->getDistricts(), $company->getHeadQuartersCity(), $company->getBusinessPhones(), $company->getBusinessEmails(),
                 $company->getRevenue(), $company->getProfit(), $company->getGrowthYearToYear(), $company->getCategories(), $analysis->getLifePath(),  $analysis->getTheDrivingForce(),

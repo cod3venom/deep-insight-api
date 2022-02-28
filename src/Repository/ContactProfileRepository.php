@@ -7,6 +7,7 @@ use App\Entity\Contact\ContactProfile;
 use App\Entity\HumanTraits\TraitAnalysis;
 use App\Entity\User\User;
 use App\Entity\User\UserProfile;
+use App\Helpers\DateHelper\DateHelper;
 use App\Service\ContactsService\ContactsService;
 use App\Service\HumanTraitServices\Helpers\SchemaBuilder\SchemaBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -105,7 +106,8 @@ class ContactProfileRepository extends ServiceEntityRepository
 	 */
 	public function mapSingleContactToTrait(ContactProfile $contact): ContactProfile
 	{
-		$traits = $this->traitAnalysisRepository->findTraitsByBirthDay($contact->getBirthDay());
+		
+ 		$traits = $this->traitAnalysisRepository->findTraitsByBirthDay($contact->getStrBirthDay());
 		$contact->setTraitAnalysis($traits);
 		$contact->setAnalysisReport($this->schemaBuilder->buildTraitsFromObject($traits, $this->traitItemRepository));
 		$contact->setColorsReport($this->schemaBuilder->buildWorldsFromObject($traits,  $this->traitItemRepository, $this->traitColorRepository));
